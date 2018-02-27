@@ -3,40 +3,37 @@
 This repository contains a template you can use to seed a repository for a
 new open source project.
 
-See go/releasing (available externally at
-https://opensource.google.com/docs/releasing/) for more information about
-releasing a new Google open source project.
+See [releasing a project](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/docs/creating/RELEASING.md) for more information about
+releasing a new SAS open source project.
 
-This template uses the Apache license, as is Google's default.  See the
+This template uses the Apache 2.0 license, which is the SAS default.  See the
 documentation for instructions on using alternate license.
 
 ## How to use this template
 
-1. Check it out from GitHub.
+1. Check this project out from GitLab.
     * There is no reason to fork it.
 1. Create a new local repository and copy the files from this repo into it.
 1. Develop your new project!
 
 ``` shell
-git clone https://github.com/google/new-project
+git clone https://gitlab.sas.com/techoffice/new-project
 mkdir my-new-thing
 cd my-new-thing
 git init
 cp ../new-project/* .
 git add *
-git commit -a -m 'Boilerplate for new Google open source project'
+git commit -a -m 'Boilerplate for new SAS open source project'
 ```
 
 ## Source Code Headers
 
 Every file containing source code must include copyright and license
-information. This includes any JS/CSS files that you might be serving out to
-browsers. (This is to help well-intentioned people avoid accidental copying that
-doesn't comply with the license.)
+information.
 
-Apache header:
+Example copyright header for projects using the Apache 2.0 license:
 
-    Copyright 2018 Google LLC
+    Copyright 2018 SAS Institute Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
