@@ -53,5 +53,6 @@ Example copyright header for projects using the [CC BY 4.0](https://creativecomm
 
     Copyright 2018 SAS Institute Inc.
 
-    This work is licensed under a Creative Commons Attribution 4.0 International License. You may obtain a copy of the License at
+    This work is licensed under a Creative Commons Attribution 4.0
+    International License. You may obtain a copy of the License at
     https://creativecommons.org/licenses/by/4.0/.
