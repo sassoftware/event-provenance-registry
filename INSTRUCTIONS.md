@@ -1,9 +1,7 @@
 # New Project Template Instructions
 
 This repository contains a template you can use to seed a repository for a
-new open source project.
-
-See [releasing a project](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/docs/creating/RELEASING.md) for more information about
+new open source project, following the [SAS Open Source Guidelines](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/README.md). See [releasing a project](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/docs/creating/RELEASING.md) for more information about
 releasing a new SAS open source project.
 
 This template uses the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0), which is the SAS default.  See the
