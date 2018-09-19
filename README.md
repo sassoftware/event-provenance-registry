@@ -1,58 +1,49 @@
-# New Project Template
+# Project Title
 
-This repository contains a template you can use to seed a repository for a
-new open source project.
+Include a brief (paragraph or two) project description here, written from the perspective of the value provided to the user. Make sure to define terms and don't expect the user to know SAS-isms.
 
-See [releasing a project](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/docs/creating/RELEASING.md) for more information about
-releasing a new SAS open source project.
+## Getting Started
 
-This template uses the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0), which is the SAS default.  See the
-documentation for instructions on using alternate license.
+### Prerequisites
 
-## How to use this template
+List any prerequisites for the software and how to install them.
 
-1. Check this project out from GitLab.
-    * There is no reason to fork it.
-1. Create a new local repository and copy the files from this repo into it.
-1. Develop your new project!
-
-``` shell
-git clone https://gitlab.sas.com/techoffice/new-project
-mkdir my-new-thing
-cd my-new-thing
-git init
-cp ../new-project/* .
-git add *
-git commit -a -m 'Boilerplate for new SAS open source project'
+```
+Give example commands for each
 ```
 
-## Source Code Headers
+### Installing
 
-Every file containing source code must include copyright and license
-information.
+Provide step-by-step series instructions that the user can follow to install a development copy of the software.
 
-### Example Apache license copyright header
-Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license:
+Say what the step will be
 
-    Copyright 2018 SAS Institute Inc.
+```
+Give the example command(s)
+```
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+And repeat
 
-        https://www.apache.org/licenses/LICENSE-2.0
+```
+until finished
+```
 
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+### Running
 
-### Example Creative Commons license copyright header
-Example copyright header for projects using the [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) license: 
+Show the command(s) used to run the software, preferably with useful example data.
 
-    Copyright 2018 SAS Institute Inc.
+```
+Example command(s)
+```
 
-    This work is licensed under a Creative Commons Attribution 4.0
-    International License. You may obtain a copy of the License at
-    https://creativecommons.org/licenses/by/4.0/.
+## Examples
+
+Optionally provide additional examples on how to use the software or point to further documentation. Make your project easy to learn and use!
+
+## Contributing
+
+We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project.
+
+## License
+
+This project is licensed under the [Apache 2.0 License](LICENSE).
