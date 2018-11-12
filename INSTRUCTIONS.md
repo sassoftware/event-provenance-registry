@@ -34,7 +34,7 @@ information.
 ### Example Apache license copyright header
 Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license:
 
-    Copyright 2018 SAS Institute Inc.
+    Copyright © 2018, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
