@@ -8,7 +8,7 @@
 
 ## Overview
 
-**Required**. Include a brief project description here, written from the perspective of the value provided to the user. Make sure to define terms and don't expect the user to know SAS-isms. A good overview is clear, short, and to the point.
+**Required**. Include a brief project description here, written from the perspective of the value provided to the user. Make sure to define terms and don't expect the user to know terms that are internal to SAS. A good overview is clear, short, and to the point.
 
 ### What's New
 
@@ -50,7 +50,7 @@ This project is licensed under the [Apache 2.0 License](LICENSE).
 
 **Required**. Include any additional resources that users may need or find useful when using your software. Additional resources might include the following:
 
-* Docmentation links
+* Documentation links
 * SAS Global Forum papers
 * Blog posts
 * SAS Communities
