@@ -32,9 +32,17 @@ Every file containing source code must include copyright and license
 information.
 
 ### Example Apache license copyright header
-Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license:
+Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
 
-    Copyright © 2018, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+#### New short form (preferred)
+
+    Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+    SPDX-License-Identifier: Apache-2.0
+
+
+#### Longer form allowed for backward compatibility
+
+    Copyright © 2019, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
