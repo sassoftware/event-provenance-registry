@@ -40,11 +40,15 @@
 
 ## Contributing
 
-We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project.
+**Required**. Use the default text below if you accept contributions. If you do not accept contributions (e.g., a samples project), note that here.
+
+> We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to submit contributions to this project. 
 
 ## License
 
-This project is licensed under the [Apache 2.0 License](LICENSE).
+**Required**. Use the default text below. **NOTE:** Nothing different should be used here without prior approval of SAS Legal.
+
+> This project is licensed under the [Apache 2.0 License](LICENSE).
 
 ## Additional Resources
 
