@@ -25,7 +25,7 @@ At this point, you will have a new Git repository that is populated with all of 
 
 ## Source Code Headers
 
-Every file containing source code must include copyright and license information.
+Every file containing source code must include copyright and license information. Source code refers to any executable code such as .java or .go files, shell scripts, etc. It does not refer to content such as documentation, build scripts, or configuration files.
 
 ### Example Apache license copyright header
 Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
