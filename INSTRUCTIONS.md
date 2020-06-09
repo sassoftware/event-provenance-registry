@@ -9,27 +9,23 @@ documentation for instructions on using alternate license.
 
 ## How to use this template
 
-1. Check this project out from GitLab.
-    * There is no reason to fork it.
-1. Create a new local repository and copy the files from this repo into it.
-1. Delete this file (INSTRUCTIONS.md) from your project.
-1. Develop your new project!
+1. Navigate to https://gitlab.sas.com/projects/new
+1. Select the **Import project** tab.
+1. Choose to import from **Git repo by URL**.
+1. For the **Git repository URL** enter https://gitlab.sas.com/techoffice/new-project.git
+1. For the **Project name** enter the desired name for your project.
+1. By default, the project will be created in your user space. If you want to create your project in a different location, specify that as part of the **Project URL**.
+1. (Optional) Supply a project description.
+1. Specify the **Visibility Level**. If you don't choose _Public_ (meaning open to all logged in SAS users) then you will need to provide access to any reviewers.
+1. When you have supplied all the information, click the **Create project** button to create the project.
 
-``` shell
-git clone https://gitlab.sas.com/techoffice/new-project
-mkdir my-new-thing
-cd my-new-thing
-git init
-cp ../new-project/* .
-rm INSTRUCTIONS.md
-git add *
-git commit -a -m 'Boilerplate for new SAS open source project'
-```
+At this point, you will have a new Git repository that is populated with all of the new project template content.
+
+**NOTE:** You should delete the INSTRUCTIONS.md file from your project before committing your changes.
 
 ## Source Code Headers
 
-Every file containing source code must include copyright and license
-information.
+Every file containing source code must include copyright and license information.
 
 ### Example Apache license copyright header
 Example copyright header for projects using the [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
