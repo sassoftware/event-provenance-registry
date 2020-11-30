@@ -11,7 +11,7 @@ documentation for instructions on using alternate license.
 
 1. Navigate to https://gitlab.sas.com/projects/new
 1. Select the **Import project** tab.
-1. Choose to import from **Git repo by URL**.
+1. Choose to import from **Repo by URL**.
 1. For the **Git repository URL** enter https://gitlab.sas.com/techoffice/new-project.git
 1. For the **Project name** enter the desired name for your project.
 1. By default, the project will be created in your user space. If you want to create your project in a different location, specify that as part of the **Project URL**.
