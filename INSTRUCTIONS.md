@@ -12,7 +12,7 @@ documentation for instructions on using alternate license.
 1. Navigate to https://gitlab.sas.com/projects/new
 1. Select the **Import project** tab.
 1. Choose to import from **Repo by URL**.
-1. For the **Git repository URL** enter https://gitlab.sas.com/techoffice/new-project.git
+1. For the **Git repository URL** enter https://gitlab.sas.com/techoffice/new-project.git (**NOTE:** You must include the .git extension or the import will fail).
 1. For the **Project name** enter the desired name for your project.
 1. By default, the project will be created in your user space. If you want to create your project in a different location, specify that as part of the **Project URL**.
 1. (Optional) Supply a project description.
@@ -22,6 +22,12 @@ documentation for instructions on using alternate license.
 At this point, you will have a new Git repository that is populated with all of the new project template content.
 
 **NOTE:** You should delete the INSTRUCTIONS.md file from your project before committing your changes.
+
+## Preparing your project for review
+
+Before submitting your project for review, please see [releasing a project](https://gitlab.sas.com/techoffice/open-source-guide/blob/master/docs/creating/RELEASING.md) for more information about releasing a new SAS open source project.
+
+**NOTE:** You must complete the steps outlined in the [release checklist](https://gitlab.sas.com/techoffice/open-source-guide/-/blob/master/docs/creating/RELEASING.md#release-checklist) before submitting your project for review.
 
 ## Source Code Headers
 
@@ -34,13 +40,13 @@ Example copyright header for projects using the [Apache 2.0](https://www.apache.
 
 #### New short form (preferred)
 
-    Copyright © 2020, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+    Copyright © 2022, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
     SPDX-License-Identifier: Apache-2.0
 
 
 #### Longer form allowed for backward compatibility
 
-    Copyright © 2020, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+    Copyright © 2022, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
