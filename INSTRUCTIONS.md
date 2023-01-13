@@ -40,13 +40,13 @@ Example copyright header for projects using the [Apache 2.0](https://www.apache.
 
 #### New short form (preferred)
 
-    Copyright © 2022, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+    Copyright © 2023, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
     SPDX-License-Identifier: Apache-2.0
 
 
 #### Longer form allowed for backward compatibility
 
-    Copyright © 2022, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
+    Copyright © 2023, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
