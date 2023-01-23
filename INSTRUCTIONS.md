@@ -59,3 +59,9 @@ Example copyright header for projects using the [Apache 2.0](https://www.apache.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+#### Copyright statement for source code files modified across multiple years
+
+If you have source code that was previously released with a copyright specifying a particular year and that code is now being modified in a new year, you should update the copyright statement in the related source code files to include a year range, like the following:
+
+    Copyright © 2022-2023, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
