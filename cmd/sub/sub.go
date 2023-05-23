@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.sas.com/polaris/polaris/lib/utils"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
 // getLogger for logging

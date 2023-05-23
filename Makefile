@@ -112,7 +112,6 @@ test: ; $(info $(M) running tests...) @ ## Runs go test ./...
 tidy: ; $(info $(M) running go mod tidy...) @ ## Run go mod tidy
 	$Q go mod tidy
 
-
 .PHONY: clean
 clean: ; $(info $(M) cleaning...)	@ ## Cleanup everything
 	@rm -rvf bin tools vendor build
