@@ -1,0 +1,40 @@
+linters:
+  # Disable all linters.
+  disable-all: true
+  # Enable specific linter
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - exhaustive
+    - exportloopref
+    - gci
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - goprintffuncname
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - revive
+    - staticcheck
+    - sqlclosecheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - whitespace
+
+run:
+  timeout: 30m
+  concurrency: 4
+

@@ -1,0 +1,10 @@
+{
+  "default": true,
+  "line-length": {
+    "code_blocks": false,
+    "tables": false
+  },
+  "MD026": {
+    "punctuation": ".,;:!。，；：！？"
+  }
+}

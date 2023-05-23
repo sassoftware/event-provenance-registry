@@ -1,0 +1,14 @@
+# Default type and line endings
+* text eol=lf
+
+# DOS line endings
+*.bat eol=crlf
+
+*.gif binary
+*.jar binary
+*.jpg binary
+*.jpeg binary
+*.graffle binary
+*.png binary
+*.svg binary
+*.xcf binary
