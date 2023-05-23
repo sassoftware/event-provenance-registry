@@ -76,7 +76,7 @@ func run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("a path to a Test File is required")
 	}
 	for _, arg := range args {
-		logger.V(1).Info("ARG", arg)
+		logger.V(1).Info(arg)
 	}
 	return nil
 }

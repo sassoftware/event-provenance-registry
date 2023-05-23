@@ -145,7 +145,7 @@ type Seed struct {
 	Tags        []string `json:"tags,omitempty"`
 }
 
-// Fingerprint creates a fingerprint for a Gate or Stage
+// Fingerprint creates a fingerprint for an Event Receiver and a Receiver Group
 // Order matters
 // ["action", "description", "name", "tags", "version"]
 func (g *Seed) Fingerprint() string {
