@@ -4,11 +4,11 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
-	"gotest.tools/assert"
-	is "gotest.tools/assert/cmp"
+	"gotest.tools/v3/assert"
 )
 
 func TestGetEnv(t *testing.T) {
@@ -32,7 +32,7 @@ func TestGetEnvsByPrefix(t *testing.T) {
 
 func TestNewULID(t *testing.T) {
 	u, err := NewULID()
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	assert.Assert(t, len(u.String()) == 26)
 }
 
@@ -43,7 +43,7 @@ func TestNewULIDAsString(t *testing.T) {
 
 func TestNewUUID(t *testing.T) {
 	u, err := NewUUID()
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	assert.Assert(t, len(u.String()) == 36)
 }
 
@@ -56,9 +56,9 @@ func TestNewUUIDAsString(t *testing.T) {
 func TestNewBCryptWithApiKey(t *testing.T) {
 	bc := NewBCrypt("def456")
 	hashedAPIKey, err := bc.Hash()
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	equal, err := bc.Equal(hashedAPIKey)
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	assert.Assert(t, equal)
 }
 
@@ -66,11 +66,11 @@ func TestNewBCryptWithApiKey(t *testing.T) {
 func TestNewBCryptWithDifferentApiKeys(t *testing.T) {
 	bc := NewBCrypt("def456")
 	hashedAPIKey, err := bc.Hash()
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	_ = hashedAPIKey
 	bc2 := NewBCrypt("jlp456")
 	hashedAPIKey2, err := bc2.Hash()
-	assert.Assert(t, is.Nil(err))
+	assert.NilError(t, err, "error is not nil")
 	equal, _ := bc.Equal(hashedAPIKey2)
 	assert.Assert(t, !equal)
 }
@@ -101,4 +101,13 @@ func TestDeepEqualStringArray(t *testing.T) {
 	assert.Assert(t, DeepEqualStringArray(a, b), "Error DeepEqualArray")
 	assert.Assert(t, !DeepEqualStringArray(b, c), "Error DeepEqualArray")
 	assert.Assert(t, !DeepEqualStringArray(b, d), "Error DeepEqualArray")
+}
+
+func TestMustGetLogger(t *testing.T) {
+	var logger = MustGetLogger("utils", "test.test")
+
+	logger.Info("testing the info logger")
+	logger.V(1).Info("testing the debug logger")
+	logger.Error(fmt.Errorf("this is an error %s", "foobar"), "testing the error logger", "user", "foo")
+	assert.Assert(t, logger != nil, "Error Logger is nil")
 }
