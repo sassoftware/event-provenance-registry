@@ -8,33 +8,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-logr/logr"
-	"github.com/go-logr/zerologr"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.sas.com/async-event-infrastructure/server/cmd/sub"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
-// getLogger for logging
-func getLogger() *logr.Logger {
-	zerologr.NameFieldName = "logger"
-	zerologr.NameSeparator = "/"
-	zerologr.SetMaxV(1)
-
-	zl := zerolog.New(os.Stdout)
-	zl = zl.With().Timestamp().Logger()
-	logger := zerologr.New(&zl)
-	return &logger
-}
+var logger = utils.MustGetLogger("server", "cmd.root")
 
 const usage = `
-generic -- a generic CLI example
-
-If you needed more doc it goes here
+server - A server for accepting events, storing events, and producing messages on a message bus.
 `
 
 var cfgFile string
@@ -93,7 +77,6 @@ func preRun(cmd *cobra.Command, args []string) error {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	logger := getLogger()
 	logger.V(1).Info("If you can read this debug is on")
 	logger.Info("This is the main command")
 	GetUsage()
@@ -125,10 +108,4 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
 	rootCmd.PersistentFlags().Bool("debug", false, "Enable debugging statements")
-
-	// sub Command
-	subCmd := sub.NewSubCmd()
-
-	// Add commands to root
-	rootCmd.AddCommand(subCmd)
 }
