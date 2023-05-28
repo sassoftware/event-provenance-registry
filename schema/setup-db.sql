@@ -9,6 +9,8 @@ CREATE TABLE "Event" (
   "payload"  varchar NOT NULL,
   "event_receiver_id"  varchar NOT NULL,
   "success"  boolean  NOT NULL,
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
   CONSTRAINT Event_pk PRIMARY KEY ("ID", "name", "version", "release", "package", "platformID")
 );
 
@@ -19,7 +21,9 @@ CREATE TABLE "Event_receiver" (
   "version"  varchar  NOT NULL  UNIQUE,
   "description"  varchar  NOT NULL,
   "enabled"  boolean  NOT NULL,
-  CONSTRAINT Event_receiver_pk PRIMARY KEY ("ID", "name", "type", "version", "enabled")
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  CONSTRAINT Event_receiver_pk PRIMARY KEY ("ID", "name", "type", "version")
 );
 
 CREATE TABLE "Event_receiver_group" (
@@ -27,11 +31,15 @@ CREATE TABLE "Event_receiver_group" (
   "name"  varchar NOT NULL,
   "type" varchar NOT NULL,
   "version"  varchar NOT NULL,
+  "description"  varchar NOT NULL,
   "enabled"  boolean  NOT NULL,
-  CONSTRAINT Event_receiver_group_pk PRIMARY KEY ("ID", "type", "name", "version", "enabled")
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  CONSTRAINT Event_receiver_group_pk PRIMARY KEY ("ID", "type", "name", "version")
 );
 
 CREATE TABLE "Event_receiver_group_to_event_receiver" (
+  "ID"  varchar  NOT NULL  UNIQUE,
   "event_receiver_group"  varchar,
   "event_receiver"  varchar,
   UNIQUE ("event_receiver_group", "event_receiver")
