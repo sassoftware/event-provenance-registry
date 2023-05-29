@@ -15,12 +15,12 @@ exec:
 # Where should any generated models go?
 model:
   filename: pkg/models/models_gen.go
-  package: model
+  package: models
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: graph
+  dir: pkg/graph
   package: graph
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models

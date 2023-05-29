@@ -1,3 +1,5 @@
+scalar Time
+
 type Event {
   ID: ID!
   name: String!
@@ -9,6 +11,8 @@ type Event {
   payload: String!
   event_receiver: EventReceiver!
   success: Boolean!
+  created_at: Time
+  updated_at: Time
 }
 
 type EventReceiver {
@@ -18,7 +22,8 @@ type EventReceiver {
   version: String!
   description: String!
   enabled: Boolean!
-  event_groups: [EventReceiverGroup!]!
+  created_at: Time
+  updated_at: Time
 }
 
 type EventReceiverGroup {
@@ -26,12 +31,14 @@ type EventReceiverGroup {
   name: String!
   type: String!
   version: String!
+  description: String!
   enabled: Boolean!
   event_receivers: [EventReceiver!]!
+  created_at: Time
+  updated_at: Time
 }
 
 input EventInput {
-  ID: ID!
   name: String!
   version: String!
   release: String!
@@ -44,7 +51,6 @@ input EventInput {
 }
 
 input EventReceiverInput {
-  ID: ID!
   name: String!
   type: String!
   version: String!
@@ -53,11 +59,12 @@ input EventReceiverInput {
 }
 
 input EventReceiverGroupInput {
-  ID: ID!
   name: String!
   type: String!
   version: String!
+  description: String!
   enabled: Boolean!
+  event_receiver_ids: [ID!]!
 }
 
 type Query {

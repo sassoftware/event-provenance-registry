@@ -3,8 +3,39 @@
 
 package main
 
-import "gitlab.sas.com/async-event-infrastructure/server/cmd"
+import (
+	"log"
+	"net/http"
+
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/db"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
+
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
+)
 
 func main() {
-	cmd.Execute()
+	// cmd.Execute()
+
+	port := "8080"
+
+	connection, err := db.New("localhost", "postgres", "", "", "postgres")
+	if err != nil {
+		log.Fatal("unable to connect to db", err)
+	}
+
+	err = connection.SyncSchema()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+		Database: connection,
+	}}))
+
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
+
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
