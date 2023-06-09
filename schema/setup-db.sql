@@ -20,10 +20,11 @@ CREATE TABLE "Event_receiver" (
   "type"  varchar  NOT NULL,
   "version"  varchar  NOT NULL,
   "description"  varchar  NOT NULL,
-  "created_at" timestamp NOT NULL,
+  "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
   "schema" jsonb NOT NULL,
   "fingerprint" varchar NOT NULL,
-  CONSTRAINT Event_receiver_pk PRIMARY KEY ("ID"),
+  
+  CONSTRAINT "Event_receiver_pk" PRIMARY KEY ("ID"),
   UNIQUE NULLS NOT DISTINCT ("name", "type", "version")
 );
 
@@ -34,9 +35,11 @@ CREATE TABLE "Event_receiver_group" (
   "version"  varchar NOT NULL,
   "description"  varchar NOT NULL,
   "enabled"  boolean  NOT NULL,
-  "created_at" timestamp NOT NULL,
-  "updated_at" timestamp NOT NULL,
-  CONSTRAINT Event_receiver_group_pk PRIMARY KEY ("ID", "type", "name", "version")
+  "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT "Event_receiver_group_pk" PRIMARY KEY ("ID")
+  UNIQUE NULLS NOT DISTINCT ("name", "type", "version")
 );
 
 CREATE TABLE "Event_receiver_group_to_event_receiver" (
