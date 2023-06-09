@@ -21,9 +21,7 @@ type EventReceiver {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
   created_at: Time
-  updated_at: Time
 }
 
 type EventReceiverGroup {
@@ -55,7 +53,6 @@ input EventReceiverInput {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
 }
 
 input EventReceiverGroupInput {

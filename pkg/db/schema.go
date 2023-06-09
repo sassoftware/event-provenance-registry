@@ -2,11 +2,6 @@ package db
 
 import "time"
 
-// Base is an adaptation of the basic gorm model
-type Base struct {
-	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-	UpdatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-}
 
 type Event struct {
 	ID          string `gorm:"uniqueIndex:event_pk;type:varchar(255);primary_key"`
@@ -22,7 +17,8 @@ type Event struct {
 	EventReceiverID string `gorm:"type:varchar(255);not null"`
 	EventReceiver   EventReceiver
 
-	Base
+	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+
 }
 
 type EventReceiver struct {
@@ -33,7 +29,8 @@ type EventReceiver struct {
 	Description string `gorm:"type:varchar(255);not null"`
 	Enabled     bool   `gorm:"not null"`
 
-	Base
+	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+
 }
 
 type EventReceiverGroup struct {
@@ -44,7 +41,9 @@ type EventReceiverGroup struct {
 	Description string `gorm:"type:varchar(255);not null"`
 	Enabled     bool   `gorm:"not null"`
 
-	Base
+	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+
 }
 
 type EventReceiverGroupToEventReceiver struct {

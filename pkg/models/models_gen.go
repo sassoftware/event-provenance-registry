@@ -39,9 +39,7 @@ type EventReceiver struct {
 	Type        string     `json:"type"`
 	Version     string     `json:"version"`
 	Description string     `json:"description"`
-	Enabled     bool       `json:"enabled"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
 type EventReceiverGroup struct {
@@ -70,5 +68,4 @@ type EventReceiverInput struct {
 	Type        string `json:"type"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	Enabled     bool   `json:"enabled"`
 }

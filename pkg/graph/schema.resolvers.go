@@ -32,16 +32,12 @@ func (r *mutationResolver) DeleteEvent(ctx context.Context, id string) (*bool, e
 // CreateEventReceiver is the resolver for the create_event_receiver field.
 func (r *mutationResolver) CreateEventReceiver(ctx context.Context, input models.EventReceiverInput) (*models.EventReceiver, error) {
 	eventReceiver := db.EventReceiver{
-		ID:          utils.NewULIDAsString(),
+		ID:          "2",
 		Name:        input.Name,
 		Type:        input.Type,
 		Version:     input.Version,
 		Description: input.Description,
-		Enabled:     input.Enabled,
-		Base: db.Base{
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+		CreatedAt:   time.Now(),
 	}
 
 	response, err := db.CreateEventReceiver(r.Database.Client, eventReceiver)
@@ -56,9 +52,7 @@ func (r *mutationResolver) CreateEventReceiver(ctx context.Context, input models
 		Type:        response.Type,
 		Version:     response.Version,
 		Description: response.Description,
-		Enabled:     response.Enabled,
-		CreatedAt: &response.CreatedAt,
-		UpdatedAt: &response.UpdatedAt,
+		CreatedAt:   &response.CreatedAt,
 	}, nil
 }
 

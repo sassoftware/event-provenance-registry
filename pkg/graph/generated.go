@@ -62,11 +62,9 @@ type ComplexityRoot struct {
 	EventReceiver struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
-		Enabled     func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Type        func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
 		Version     func(childComplexity int) int
 	}
 
@@ -235,13 +233,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.EventReceiver.Description(childComplexity), true
 
-	case "EventReceiver.enabled":
-		if e.complexity.EventReceiver.Enabled == nil {
-			break
-		}
-
-		return e.complexity.EventReceiver.Enabled(childComplexity), true
-
 	case "EventReceiver.ID":
 		if e.complexity.EventReceiver.ID == nil {
 			break
@@ -262,13 +253,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.EventReceiver.Type(childComplexity), true
-
-	case "EventReceiver.updated_at":
-		if e.complexity.EventReceiver.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.EventReceiver.UpdatedAt(childComplexity), true
 
 	case "EventReceiver.version":
 		if e.complexity.EventReceiver.Version == nil {
@@ -602,9 +586,7 @@ type EventReceiver {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
   created_at: Time
-  updated_at: Time
 }
 
 type EventReceiverGroup {
@@ -636,7 +618,6 @@ input EventReceiverInput {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
 }
 
 input EventReceiverGroupInput {
@@ -1387,12 +1368,8 @@ func (ec *executionContext) fieldContext_Event_event_receiver(ctx context.Contex
 				return ec.fieldContext_EventReceiver_version(ctx, field)
 			case "description":
 				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiver_enabled(ctx, field)
 			case "created_at":
 				return ec.fieldContext_EventReceiver_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_EventReceiver_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
 		},
@@ -1746,50 +1723,6 @@ func (ec *executionContext) fieldContext_EventReceiver_description(ctx context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _EventReceiver_enabled(ctx context.Context, field graphql.CollectedField, obj *models.EventReceiver) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EventReceiver_enabled(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Enabled, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EventReceiver_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EventReceiver",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _EventReceiver_created_at(ctx context.Context, field graphql.CollectedField, obj *models.EventReceiver) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_EventReceiver_created_at(ctx, field)
 	if err != nil {
@@ -1819,47 +1752,6 @@ func (ec *executionContext) _EventReceiver_created_at(ctx context.Context, field
 }
 
 func (ec *executionContext) fieldContext_EventReceiver_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "EventReceiver",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Time does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _EventReceiver_updated_at(ctx context.Context, field graphql.CollectedField, obj *models.EventReceiver) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_EventReceiver_updated_at(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*time.Time)
-	fc.Result = res
-	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_EventReceiver_updated_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EventReceiver",
 		Field:      field,
@@ -2185,12 +2077,8 @@ func (ec *executionContext) fieldContext_EventReceiverGroup_event_receivers(ctx 
 				return ec.fieldContext_EventReceiver_version(ctx, field)
 			case "description":
 				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiver_enabled(ctx, field)
 			case "created_at":
 				return ec.fieldContext_EventReceiver_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_EventReceiver_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
 		},
@@ -2534,12 +2422,8 @@ func (ec *executionContext) fieldContext_Mutation_create_event_receiver(ctx cont
 				return ec.fieldContext_EventReceiver_version(ctx, field)
 			case "description":
 				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiver_enabled(ctx, field)
 			case "created_at":
 				return ec.fieldContext_EventReceiver_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_EventReceiver_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
 		},
@@ -2604,12 +2488,8 @@ func (ec *executionContext) fieldContext_Mutation_update_event_receiver(ctx cont
 				return ec.fieldContext_EventReceiver_version(ctx, field)
 			case "description":
 				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiver_enabled(ctx, field)
 			case "created_at":
 				return ec.fieldContext_EventReceiver_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_EventReceiver_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
 		},
@@ -3104,12 +2984,8 @@ func (ec *executionContext) fieldContext_Query_event_receiver(ctx context.Contex
 				return ec.fieldContext_EventReceiver_version(ctx, field)
 			case "description":
 				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiver_enabled(ctx, field)
 			case "created_at":
 				return ec.fieldContext_EventReceiver_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_EventReceiver_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
 		},
@@ -5284,7 +5160,7 @@ func (ec *executionContext) unmarshalInputEventReceiverInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "type", "version", "description", "enabled"}
+	fieldsInOrder := [...]string{"name", "type", "version", "description"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5327,15 +5203,6 @@ func (ec *executionContext) unmarshalInputEventReceiverInput(ctx context.Context
 				return it, err
 			}
 			it.Description = data
-		case "enabled":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
-			data, err := ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Enabled = data
 		}
 	}
 
@@ -5494,20 +5361,9 @@ func (ec *executionContext) _EventReceiver(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "enabled":
-
-			out.Values[i] = ec._EventReceiver_enabled(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "created_at":
 
 			out.Values[i] = ec._EventReceiver_created_at(ctx, field, obj)
-
-		case "updated_at":
-
-			out.Values[i] = ec._EventReceiver_updated_at(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
