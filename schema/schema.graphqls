@@ -1,3 +1,5 @@
+scalar Time
+
 type Event {
   ID: ID!
   name: String!
@@ -6,7 +8,7 @@ type Event {
   platformID: String!
   package: String!
   description: String!
-  payload: String!
+  payload: String! # jsonb
   event_receiver: EventReceiver!
   success: Boolean!
 }
@@ -17,8 +19,8 @@ type EventReceiver {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
-  event_groups: [EventReceiverGroup!]!
+  schema: String! #jsonb
+  fingerprint: String!
 }
 
 type EventReceiverGroup {
@@ -26,12 +28,12 @@ type EventReceiverGroup {
   name: String!
   type: String!
   version: String!
+  description: String!
   enabled: Boolean!
   event_receivers: [EventReceiver!]!
 }
 
 input EventInput {
-  ID: ID!
   name: String!
   version: String!
   release: String!
@@ -44,20 +46,20 @@ input EventInput {
 }
 
 input EventReceiverInput {
-  ID: ID!
+  name: String!
+  type: String!
+  version: String!
+  description: String!
+  schema: String! #jsonb
+}
+
+input EventReceiverGroupInput {
   name: String!
   type: String!
   version: String!
   description: String!
   enabled: Boolean!
-}
-
-input EventReceiverGroupInput {
-  ID: ID!
-  name: String!
-  type: String!
-  version: String!
-  enabled: Boolean!
+  event_receiver_ids: [ID!]!
 }
 
 type Query {
@@ -68,17 +70,9 @@ type Query {
 
 type Mutation {
   create_event(input: EventInput!): Event
-  update_event(ID: ID!, input: EventInput!): Event
-  delete_event(ID: ID!): Boolean
 
   create_event_receiver(input: EventReceiverInput!): EventReceiver
-  update_event_receiver(ID: ID!, input: EventReceiverInput!): EventReceiver
-  delete_event_receiver(ID: ID!): Boolean
 
   create_event_receiver_group(input: EventReceiverGroupInput!): EventReceiverGroup
   update_event_receiver_group(ID: ID!, input: EventReceiverGroupInput!): EventReceiverGroup
-  delete_event_receiver_group(ID: ID!): Boolean
-
-  add_event_receiver_to_event_receiver_group(event_receiver_group: ID!, event_receiver: ID!): Boolean
-  remove_event_receiver_from_event_receiver_group(event_receiver_group: ID!, event_receiver: ID!): Boolean
 }
