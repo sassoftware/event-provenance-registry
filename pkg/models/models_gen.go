@@ -2,10 +2,6 @@
 
 package models
 
-import (
-	"time"
-)
-
 type Event struct {
 	ID            string         `json:"ID"`
 	Name          string         `json:"name"`
@@ -17,8 +13,6 @@ type Event struct {
 	Payload       string         `json:"payload"`
 	EventReceiver *EventReceiver `json:"event_receiver"`
 	Success       bool           `json:"success"`
-	CreatedAt     *time.Time     `json:"created_at,omitempty"`
-	UpdatedAt     *time.Time     `json:"updated_at,omitempty"`
 }
 
 type EventInput struct {
@@ -34,12 +28,13 @@ type EventInput struct {
 }
 
 type EventReceiver struct {
-	ID          string     `json:"ID"`
-	Name        string     `json:"name"`
-	Type        string     `json:"type"`
-	Version     string     `json:"version"`
-	Description string     `json:"description"`
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	ID          string `json:"ID"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Version     string `json:"version"`
+	Description string `json:"description"`
+	Schema      string `json:"schema"`
+	Fingerprint string `json:"fingerprint"`
 }
 
 type EventReceiverGroup struct {
@@ -50,8 +45,6 @@ type EventReceiverGroup struct {
 	Description    string           `json:"description"`
 	Enabled        bool             `json:"enabled"`
 	EventReceivers []*EventReceiver `json:"event_receivers"`
-	CreatedAt      *time.Time       `json:"created_at,omitempty"`
-	UpdatedAt      *time.Time       `json:"updated_at,omitempty"`
 }
 
 type EventReceiverGroupInput struct {
@@ -68,4 +61,5 @@ type EventReceiverInput struct {
 	Type        string `json:"type"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
+	Schema      string `json:"schema"`
 }
