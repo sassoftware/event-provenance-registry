@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"log"
@@ -45,7 +45,7 @@ func Test_CreateEventReceiverGroup(t *testing.T) {
 }
 
 func connToDB() *Database {
-	db, err := New("localhost", "postgres", "", "", "postgres")
+	db, err := NewDB("localhost", "postgres", "", "", "postgres")
 	if err != nil {
 		log.Fatal(err)
 	}

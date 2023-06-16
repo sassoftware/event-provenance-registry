@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/db"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
@@ -21,7 +21,7 @@ func (r *mutationResolver) CreateEvent(ctx context.Context, input models.EventIn
 
 // CreateEventReceiver is the resolver for the create_event_receiver field.
 func (r *mutationResolver) CreateEventReceiver(ctx context.Context, input models.EventReceiverInput) (*models.EventReceiver, error) {
-	eventReceiver := db.EventReceiver{
+	eventReceiver := storage.EventReceiver{
 		ID:          "2",
 		Name:        input.Name,
 		Type:        input.Type,
@@ -30,7 +30,7 @@ func (r *mutationResolver) CreateEventReceiver(ctx context.Context, input models
 		CreatedAt:   time.Now(),
 	}
 
-	response, err := db.CreateEventReceiver(r.Database.Client, eventReceiver)
+	response, err := storage.CreateEventReceiver(r.Database.Client, eventReceiver)
 	if err != nil {
 		return nil, err
 	}
