@@ -6,9 +6,7 @@ package api
 import (
 	"fmt"
 	"net/http"
-
 	"strconv"
-
 	"time"
 
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/metrics"

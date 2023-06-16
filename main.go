@@ -7,11 +7,10 @@ import (
 	"log"
 	"net/http"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/db"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 func main() {
@@ -19,7 +18,7 @@ func main() {
 
 	port := "8080"
 
-	connection, err := db.New("localhost", "postgres", "", "", "postgres")
+	connection, err := storage.New("localhost", "postgres", "", "", "postgres")
 	if err != nil {
 		log.Fatal("unable to connect to db", err)
 	}

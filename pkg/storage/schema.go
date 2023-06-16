@@ -1,7 +1,6 @@
-package db
+package storage
 
 import "time"
-
 
 type Event struct {
 	ID          string `gorm:"uniqueIndex:event_pk;type:varchar(255);primary_key"`
@@ -18,7 +17,6 @@ type Event struct {
 	EventReceiver   EventReceiver
 
 	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-
 }
 
 type EventReceiver struct {
@@ -30,7 +28,6 @@ type EventReceiver struct {
 	Enabled     bool   `gorm:"not null"`
 
 	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-
 }
 
 type EventReceiverGroup struct {
@@ -43,7 +40,6 @@ type EventReceiverGroup struct {
 
 	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
 	UpdatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-
 }
 
 type EventReceiverGroupToEventReceiver struct {

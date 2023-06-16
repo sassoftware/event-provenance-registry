@@ -19,27 +19,23 @@ import (
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/auth"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/db"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "server.api")
 
 // InitializeAPI starts the database, kafka message producer, middleware, and endpoints
-func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *db.DB, error) {
+func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.Database, error) {
 	// Create a new router
 	router := chi.NewRouter()
 
 	// Create a new connection to our pg database
-	db, err := db.New(
-		db.ConnString(cfg.DB.Host, cfg.DB.User, cfg.DB.Name, cfg.DB.SSLMode,
-			cfg.DB.Pass, cfg.DB.Port),
-	)
+	db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
