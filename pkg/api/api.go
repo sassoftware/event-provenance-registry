@@ -19,7 +19,6 @@ import (
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/auth"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"

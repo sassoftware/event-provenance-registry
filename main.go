@@ -7,11 +7,10 @@ import (
 	"log"
 	"net/http"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 func main() {
