@@ -36,7 +36,7 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 	router := chi.NewRouter()
 
 	// Create a new connection to our pg database
-	db, err := storage.NewDB(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
+	db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
 	if err != nil {
 		log.Fatal(err)
 	}

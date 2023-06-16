@@ -19,7 +19,7 @@ func main() {
 
 	port := "8080"
 
-	connection, err := storage.NewDB("localhost", "postgres", "", "", "postgres")
+	connection, err := storage.New("localhost", "postgres", "", "", "postgres")
 	if err != nil {
 		log.Fatal("unable to connect to db", err)
 	}

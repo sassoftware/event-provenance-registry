@@ -19,7 +19,7 @@ type Database struct {
 	Client *gorm.DB
 }
 
-func NewDB(host, user, pass, sslMode, database string) (*Database, error) {
+func New(host, user, pass, sslMode, database string) (*Database, error) {
 	glog := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{

@@ -45,7 +45,7 @@ func Test_CreateEventReceiverGroup(t *testing.T) {
 }
 
 func connToDB() *Database {
-	db, err := NewDB("localhost", "postgres", "", "", "postgres")
+	db, err := New("localhost", "postgres", "", "", "postgres")
 	if err != nil {
 		log.Fatal(err)
 	}
