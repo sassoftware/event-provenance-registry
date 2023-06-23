@@ -5,26 +5,23 @@ package api
 
 import (
 	"context"
-	"log"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
-	"time"
-
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/auth"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graph"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/server"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
 )
 
 var logger = utils.MustGetLogger("server", "server.api")
@@ -40,26 +37,27 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 		log.Fatal(err)
 	}
 
-	db.SetMaxOpenConns(cfg.DB.MaxConnections)
-	db.SetMaxIdleConns(cfg.DB.IdleConnections)
-	db.SetConnMaxLifetime(time.Duration(cfg.DB.ConnectionLife) * time.Minute)
+	//db.SetMaxOpenConns(cfg.DB.MaxConnections)
+	//db.SetMaxIdleConns(cfg.DB.IdleConnections)
+	//db.SetConnMaxLifetime(time.Duration(cfg.DB.ConnectionLife) * time.Minute)
 
-	schema, err := graph.NewSchema(db)
-	if err != nil {
-		logger.Error(err, "error creating schema")
-		return nil, nil, err
-	}
-
-	schema.AddExtensions(graph.NewLastPageExt())
-	schema.AddExtensions(graph.NewTotalExt())
-
-	// Create a server struct that holds a pointer to our database as well
-	// as the address of our graphql schema
-	authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
-	if err != nil {
-		return nil, nil, err
-	}
-	s := NewServer(cfg, &schema, db, cfg.Kafka.MsgChannel)
+	// TODO: add this stuff.
+	//schema, err := graph.NewSchema(db)
+	//if err != nil {
+	//	logger.Error(err, "error creating schema")
+	//	return nil, nil, err
+	//}
+	//
+	//schema.AddExtensions(graph.NewLastPageExt())
+	//schema.AddExtensions(graph.NewTotalExt())
+	//
+	//// Create a server struct that holds a pointer to our database as well
+	//// as the address of our graphql schema
+	//authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
+	//if err != nil {
+	//	return nil, nil, err
+	//}
+	s := server.New() //cfg, &schema, db, cfg.Kafka.MsgChannel
 
 	// Add some middleware to our router
 	router.Use(
@@ -101,44 +99,37 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 			}
 			r.Get("/openapi", s.ServeOpenAPIDoc(cfg.ResourceDir))
 			// REST endpoints
-			r.Route("/receivers", func(r chi.Router) {
-				r.Post("/", s.CreateEventReceiver())
-				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEventReceivers())
-				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetEventReceivers())
-				r.Route("/{receiverID}", func(r chi.Router) {
-					r.Get("/", s.GetEventReceiverByID())
-					r.Put("/", s.ModifyEventReceiverByID())
-					r.Delete("/", s.DeleteEventReceiverByID())
-				})
-			})
-			r.Route("/groups", func(r chi.Router) {
-				r.Post("/", s.CreateEventReceiverGroup())
-				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEventReceiverGroups())
-				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetEventReceiverGroups())
-				r.Route("/{groupID}", func(r chi.Router) {
-					r.Get("/", s.GetEventReceiverGroupByID())
-					r.Put("/", s.ModifyEventReceiverGroup())
-					r.Delete("/", s.DeleteEventReceiverGroupByID())
-				})
-			})
-			r.Route("/receipts", func(r chi.Router) {
+			r.Route("/events", func(r chi.Router) {
 				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEvents())
 				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetEvents())
 				r.Post("/", s.CreateEvent())
-				r.Route("/{receiptID}", func(r chi.Router) {
+				r.Route("/{eventID}", func(r chi.Router) {
 					r.Get("/", s.GetEventByID())
-					r.Put("/", s.ModifyEventByID())
-					r.Delete("/", s.DeleteEventByID())
+				})
+			})
+			r.Route("/receivers", func(r chi.Router) {
+				r.Post("/", s.CreateReceiver())
+				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetReceivers())
+				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetReceivers())
+				r.Route("/{receiverID}", func(r chi.Router) {
+					r.Get("/", s.GetReceiverByID())
+				})
+			})
+			r.Route("/groups", func(r chi.Router) {
+				r.Post("/", s.CreateGroup())
+				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetGroups())
+				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetGroups())
+				r.Route("/{groupID}", func(r chi.Router) {
+					r.Get("/", s.GetGroupByID())
 				})
 			})
 		})
 	})
 
 	router.Route("/healthz", func(r chi.Router) {
-		r.Get("/liveness", s.LivenessCheck())
-		r.Get("/readiness", s.ReadinessCheck())
-		r.Get("/status", s.GetServerStatus())
-		r.Get("/issuers", s.GetIssuers())
+		r.Get("/liveness", s.CheckLiveness())
+		r.Get("/readiness", s.CheckReadiness())
+		r.Get("/status", s.CheckStatus())
 	})
 
 	// turn on the profiler in debug mode
@@ -178,8 +169,8 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 			middleware.StripSlashes, // match paths with a trailing slash, strip it, and continue routing through the mux
 			middleware.Recoverer,    // recover from panics without crashing server
 		)
-		r.Get("/", s.GetIndexHTML())
-		r.Get("/status", s.GetServerStatusHTML())
+		//r.Get("/", s.GetIndexHTML())
+		//r.Get("/status", s.GetServerStatusHTML())
 	})
 
 	FileServer(router, "/resources", cfg.ResourceDir)
