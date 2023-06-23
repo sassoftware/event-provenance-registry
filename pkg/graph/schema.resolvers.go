@@ -48,9 +48,14 @@ func (r *mutationResolver) CreateEventReceiverGroup(ctx context.Context, input m
 	panic(fmt.Errorf("not implemented: CreateEventReceiverGroup - create_event_receiver_group"))
 }
 
-// UpdateEventReceiverGroup is the resolver for the update_event_receiver_group field.
-func (r *mutationResolver) UpdateEventReceiverGroup(ctx context.Context, id string, input models.EventReceiverGroupInput) (*models.EventReceiverGroup, error) {
-	panic(fmt.Errorf("not implemented: UpdateEventReceiverGroup - update_event_receiver_group"))
+// SetEventReceiverGroupEnabled is the resolver for the set_event_receiver_group_enabled field.
+func (r *mutationResolver) SetEventReceiverGroupEnabled(ctx context.Context, id string) (*string, error) {
+	panic(fmt.Errorf("not implemented: SetEventReceiverGroupEnabled - set_event_receiver_group_enabled"))
+}
+
+// SetEventReceiverGroupDisabled is the resolver for the set_event_receiver_group_disabled field.
+func (r *mutationResolver) SetEventReceiverGroupDisabled(ctx context.Context, id string) (*string, error) {
+	panic(fmt.Errorf("not implemented: SetEventReceiverGroupDisabled - set_event_receiver_group_disabled"))
 }
 
 // Event is the resolver for the event field.
@@ -83,6 +88,9 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *mutationResolver) UpdateEventReceiverGroup(ctx context.Context, id string, input models.EventReceiverGroupInput) (*models.EventReceiverGroup, error) {
+	panic(fmt.Errorf("not implemented: UpdateEventReceiverGroup - update_event_receiver_group"))
+}
 func (r *mutationResolver) UpdateEvent(ctx context.Context, id string, input models.EventInput) (*models.Event, error) {
 	panic(fmt.Errorf("not implemented: UpdateEvent - update_event"))
 }

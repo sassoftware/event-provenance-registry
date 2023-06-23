@@ -77,10 +77,11 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateEvent              func(childComplexity int, input models.EventInput) int
-		CreateEventReceiver      func(childComplexity int, input models.EventReceiverInput) int
-		CreateEventReceiverGroup func(childComplexity int, input models.EventReceiverGroupInput) int
-		UpdateEventReceiverGroup func(childComplexity int, id string, input models.EventReceiverGroupInput) int
+		CreateEvent                   func(childComplexity int, input models.EventInput) int
+		CreateEventReceiver           func(childComplexity int, input models.EventReceiverInput) int
+		CreateEventReceiverGroup      func(childComplexity int, input models.EventReceiverGroupInput) int
+		SetEventReceiverGroupDisabled func(childComplexity int, id string) int
+		SetEventReceiverGroupEnabled  func(childComplexity int, id string) int
 	}
 
 	Query struct {
@@ -94,7 +95,8 @@ type MutationResolver interface {
 	CreateEvent(ctx context.Context, input models.EventInput) (*models.Event, error)
 	CreateEventReceiver(ctx context.Context, input models.EventReceiverInput) (*models.EventReceiver, error)
 	CreateEventReceiverGroup(ctx context.Context, input models.EventReceiverGroupInput) (*models.EventReceiverGroup, error)
-	UpdateEventReceiverGroup(ctx context.Context, id string, input models.EventReceiverGroupInput) (*models.EventReceiverGroup, error)
+	SetEventReceiverGroupEnabled(ctx context.Context, id string) (*string, error)
+	SetEventReceiverGroupDisabled(ctx context.Context, id string) (*string, error)
 }
 type QueryResolver interface {
 	Event(ctx context.Context, id string) (*models.Event, error)
@@ -321,17 +323,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateEventReceiverGroup(childComplexity, args["input"].(models.EventReceiverGroupInput)), true
 
-	case "Mutation.update_event_receiver_group":
-		if e.complexity.Mutation.UpdateEventReceiverGroup == nil {
+	case "Mutation.set_event_receiver_group_disabled":
+		if e.complexity.Mutation.SetEventReceiverGroupDisabled == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_update_event_receiver_group_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_set_event_receiver_group_disabled_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateEventReceiverGroup(childComplexity, args["ID"].(string), args["input"].(models.EventReceiverGroupInput)), true
+		return e.complexity.Mutation.SetEventReceiverGroupDisabled(childComplexity, args["ID"].(string)), true
+
+	case "Mutation.set_event_receiver_group_enabled":
+		if e.complexity.Mutation.SetEventReceiverGroupEnabled == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_set_event_receiver_group_enabled_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SetEventReceiverGroupEnabled(childComplexity, args["ID"].(string)), true
 
 	case "Query.event":
 		if e.complexity.Query.Event == nil {
@@ -440,8 +454,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../schema/schema.graphqls", Input: `scalar Time
-
+	{Name: "../../schema/schema.graphqls", Input: `# returned items
 type Event {
   ID: ID!
   name: String!
@@ -451,7 +464,7 @@ type Event {
   package: String!
   description: String!
   payload: String! # jsonb
-  event_receiver: EventReceiver!
+  event_receiver: ID!
   success: Boolean!
 }
 
@@ -472,9 +485,10 @@ type EventReceiverGroup {
   version: String!
   description: String!
   enabled: Boolean!
-  event_receivers: [EventReceiver!]!
+  event_receivers: [ID!]!
 }
 
+# inputs
 input EventInput {
   name: String!
   version: String!
@@ -512,12 +526,15 @@ type Query {
 
 type Mutation {
   create_event(input: EventInput!): Event
-
   create_event_receiver(input: EventReceiverInput!): EventReceiver
-
   create_event_receiver_group(input: EventReceiverGroupInput!): EventReceiverGroup
-  update_event_receiver_group(ID: ID!, input: EventReceiverGroupInput!): EventReceiverGroup
+
+  # ID is nullable, so it will operate as null
+  set_event_receiver_group_enabled(ID: ID!): ID
+  set_event_receiver_group_disabled(ID: ID!): ID
 }
+
+scalar Time
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -571,7 +588,7 @@ func (ec *executionContext) field_Mutation_create_event_receiver_group_args(ctx 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_update_event_receiver_group_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_set_event_receiver_group_disabled_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -583,15 +600,21 @@ func (ec *executionContext) field_Mutation_update_event_receiver_group_args(ctx 
 		}
 	}
 	args["ID"] = arg0
-	var arg1 models.EventReceiverGroupInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNEventReceiverGroupInput2gitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiverGroupInput(ctx, tmp)
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_set_event_receiver_group_enabled_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["ID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ID"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg1
+	args["ID"] = arg0
 	return args, nil
 }
 
@@ -1071,9 +1094,9 @@ func (ec *executionContext) _Event_event_receiver(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.EventReceiver)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNEventReceiver2ᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiver(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Event_event_receiver(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1083,23 +1106,7 @@ func (ec *executionContext) fieldContext_Event_event_receiver(ctx context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "ID":
-				return ec.fieldContext_EventReceiver_ID(ctx, field)
-			case "name":
-				return ec.fieldContext_EventReceiver_name(ctx, field)
-			case "type":
-				return ec.fieldContext_EventReceiver_type(ctx, field)
-			case "version":
-				return ec.fieldContext_EventReceiver_version(ctx, field)
-			case "description":
-				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "schema":
-				return ec.fieldContext_EventReceiver_schema(ctx, field)
-			case "fingerprint":
-				return ec.fieldContext_EventReceiver_fingerprint(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1747,9 +1754,9 @@ func (ec *executionContext) _EventReceiverGroup_event_receivers(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*models.EventReceiver)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNEventReceiver2ᚕᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiverᚄ(ctx, field.Selections, res)
+	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_EventReceiverGroup_event_receivers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1759,23 +1766,7 @@ func (ec *executionContext) fieldContext_EventReceiverGroup_event_receivers(ctx 
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "ID":
-				return ec.fieldContext_EventReceiver_ID(ctx, field)
-			case "name":
-				return ec.fieldContext_EventReceiver_name(ctx, field)
-			case "type":
-				return ec.fieldContext_EventReceiver_type(ctx, field)
-			case "version":
-				return ec.fieldContext_EventReceiver_version(ctx, field)
-			case "description":
-				return ec.fieldContext_EventReceiver_description(ctx, field)
-			case "schema":
-				return ec.fieldContext_EventReceiver_schema(ctx, field)
-			case "fingerprint":
-				return ec.fieldContext_EventReceiver_fingerprint(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type EventReceiver", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1991,8 +1982,8 @@ func (ec *executionContext) fieldContext_Mutation_create_event_receiver_group(ct
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_update_event_receiver_group(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_update_event_receiver_group(ctx, field)
+func (ec *executionContext) _Mutation_set_event_receiver_group_enabled(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_set_event_receiver_group_enabled(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2005,7 +1996,7 @@ func (ec *executionContext) _Mutation_update_event_receiver_group(ctx context.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateEventReceiverGroup(rctx, fc.Args["ID"].(string), fc.Args["input"].(models.EventReceiverGroupInput))
+		return ec.resolvers.Mutation().SetEventReceiverGroupEnabled(rctx, fc.Args["ID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2014,35 +2005,19 @@ func (ec *executionContext) _Mutation_update_event_receiver_group(ctx context.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.EventReceiverGroup)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOEventReceiverGroup2ᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiverGroup(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_update_event_receiver_group(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_set_event_receiver_group_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "ID":
-				return ec.fieldContext_EventReceiverGroup_ID(ctx, field)
-			case "name":
-				return ec.fieldContext_EventReceiverGroup_name(ctx, field)
-			case "type":
-				return ec.fieldContext_EventReceiverGroup_type(ctx, field)
-			case "version":
-				return ec.fieldContext_EventReceiverGroup_version(ctx, field)
-			case "description":
-				return ec.fieldContext_EventReceiverGroup_description(ctx, field)
-			case "enabled":
-				return ec.fieldContext_EventReceiverGroup_enabled(ctx, field)
-			case "event_receivers":
-				return ec.fieldContext_EventReceiverGroup_event_receivers(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type EventReceiverGroup", field.Name)
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	defer func() {
@@ -2052,7 +2027,59 @@ func (ec *executionContext) fieldContext_Mutation_update_event_receiver_group(ct
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_update_event_receiver_group_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_set_event_receiver_group_enabled_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_set_event_receiver_group_disabled(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_set_event_receiver_group_disabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SetEventReceiverGroupDisabled(rctx, fc.Args["ID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_set_event_receiver_group_disabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_set_event_receiver_group_disabled_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -4687,10 +4714,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_create_event_receiver_group(ctx, field)
 			})
 
-		case "update_event_receiver_group":
+		case "set_event_receiver_group_enabled":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_update_event_receiver_group(ctx, field)
+				return ec._Mutation_set_event_receiver_group_enabled(ctx, field)
+			})
+
+		case "set_event_receiver_group_disabled":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_set_event_receiver_group_disabled(ctx, field)
 			})
 
 		default:
@@ -5144,60 +5177,6 @@ func (ec *executionContext) unmarshalNEventInput2gitlabᚗsasᚗcomᚋasyncᚑev
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNEventReceiver2ᚕᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiverᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.EventReceiver) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNEventReceiver2ᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiver(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNEventReceiver2ᚖgitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiver(ctx context.Context, sel ast.SelectionSet, v *models.EventReceiver) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._EventReceiver(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNEventReceiverGroupInput2gitlabᚗsasᚗcomᚋasyncᚑeventᚑinfrastructureᚋserverᚋpkgᚋmodelsᚐEventReceiverGroupInput(ctx context.Context, v interface{}) (models.EventReceiverGroupInput, error) {
 	res, err := ec.unmarshalInputEventReceiverGroupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5568,6 +5547,22 @@ func (ec *executionContext) marshalOEventReceiverGroup2ᚖgitlabᚗsasᚗcomᚋa
 		return graphql.Null
 	}
 	return ec._EventReceiverGroup(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

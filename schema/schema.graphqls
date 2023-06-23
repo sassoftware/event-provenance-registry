@@ -1,5 +1,4 @@
-scalar Time
-
+# returned items
 type Event {
   ID: ID!
   name: String!
@@ -9,7 +8,7 @@ type Event {
   package: String!
   description: String!
   payload: String! # jsonb
-  event_receiver: EventReceiver!
+  event_receiver: ID!
   success: Boolean!
 }
 
@@ -30,9 +29,10 @@ type EventReceiverGroup {
   version: String!
   description: String!
   enabled: Boolean!
-  event_receivers: [EventReceiver!]!
+  event_receivers: [ID!]!
 }
 
+# inputs
 input EventInput {
   name: String!
   version: String!
@@ -70,9 +70,12 @@ type Query {
 
 type Mutation {
   create_event(input: EventInput!): Event
-
   create_event_receiver(input: EventReceiverInput!): EventReceiver
-
   create_event_receiver_group(input: EventReceiverGroupInput!): EventReceiverGroup
-  update_event_receiver_group(ID: ID!, input: EventReceiverGroupInput!): EventReceiverGroup
+
+  # ID is nullable, so it will operate as null
+  set_event_receiver_group_enabled(ID: ID!): ID
+  set_event_receiver_group_disabled(ID: ID!): ID
 }
+
+scalar Time
