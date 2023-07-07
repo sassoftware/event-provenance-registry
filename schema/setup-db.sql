@@ -6,7 +6,7 @@ CREATE TABLE "Event" (
   "platformID"  varchar NOT NULL,
   "package"  varchar  NOT NULL,
   "description"  varchar NOT NULL,
-  "payload"  jsonb NOT NULL,
+  "payload"  json NOT NULL,
   "event_receiver_id"  varchar NOT NULL,
   "success"  boolean  NOT NULL,
   "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -21,7 +21,7 @@ CREATE TABLE "Event_receiver" (
   "version"  varchar  NOT NULL,
   "description"  varchar  NOT NULL,
   "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-  "schema" jsonb NOT NULL,
+  "schema" json NOT NULL,
   "fingerprint" varchar NOT NULL,
 
   CONSTRAINT "Event_receiver_pk" PRIMARY KEY ("ID"),

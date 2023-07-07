@@ -7,40 +7,40 @@ directive @goTag(
 
 # returned items
 type Event {
-  ID: ID! @goTag(key: "gorm", value: "type:varchar(255);primary_key")
-  name: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  version: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  release: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  platform_id: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  package: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  description: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  payload: String! @goTag(key: "gorm", value: "type:varchar(255);not null")
-  event_receiver_id: ID! @goTag(key: "gorm", value: "type:varchar(255);not null")
+  ID: ID! @goTag(key: "gorm", value: "type~varchar(255);primary_key")
+  name: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  version: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  release: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  platform_id: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  package: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  description: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  payload: String! @goTag(key: "gorm", value: "type~longblob;not null")
+  event_receiver_id: EventReceiver!
   success: Boolean! @goTag(key: "gorm", value: "not null")
-  created_at: Time @goTag(key: "gorm", value: "type:timestamptz;not null;default:CURRENT_TIMESTAMP")
+  created_at: Time @goTag(key: "gorm", value: "type~timestamptz;not null;default~CURRENT_TIMESTAMP")
 }
 
 type EventReceiver {
-  ID: ID!
-  name: String!
-  type: String!
-  version: String!
-  description: String!
-  schema: String! #jsonb
-  fingerprint: String!
-  created_at: Time @goTag(key: "gorm", value: "type:timestamptz;not null;default:CURRENT_TIMESTAMP")
+  ID: ID! @goTag(key: "gorm", value: "type~varchar(255);primary_key")
+  name: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  type: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  version: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  description: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  schema: String! @goTag(key: "gorm", value: "type~longblob;not null")
+  fingerprint: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  created_at: Time @goTag(key: "gorm", value: "type~timestamptz;not null;default~CURRENT_TIMESTAMP")
 }
 
 type EventReceiverGroup {
-  ID: ID!
-  name: String!
-  type: String!
-  version: String!
-  description: String!
-  enabled: Boolean!
-  event_receivers: [ID!]!
-  created_at: Time @goTag(key: "gorm", value: "type:timestamptz;not null;default:CURRENT_TIMESTAMP")
-  updated_at: Time @goTag(key: "gorm", value: "type:timestamptz;not null;default:CURRENT_TIMESTAMP")
+  ID: ID! @goTag(key: "gorm", value: "type~varchar(255);primary_key")
+  name: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  type: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  version: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  description: String! @goTag(key: "gorm", value: "type~varchar(255);not null")
+  enabled: Boolean! @goTag(key: "gorm", value: "not null")
+  event_receivers: [EventReceiver!]! # ?
+  created_at: Time @goTag(key: "gorm", value: "type~timestamptz;not null;default~CURRENT_TIMESTAMP")
+  updated_at: Time @goTag(key: "gorm", value: "type~timestamptz;not null;default~CURRENT_TIMESTAMP")
 }
 
 # inputs
