@@ -1,0 +1,25 @@
+type Event {
+  ID: ID!
+  name: String!
+  version: String!
+  release: String!
+  platform_id: String!
+  package: String!
+  description: String!
+  payload: JSON!
+  event_receiver_id: ID!
+  success: Boolean!
+  created_at: Time
+}
+
+input EventInput {
+  name: String!
+  version: String!
+  release: String!
+  platformID: String!
+  package: String!
+  description: String!
+  payload: JSON!
+  event_receiver_id: ID!
+  success: Boolean!
+}

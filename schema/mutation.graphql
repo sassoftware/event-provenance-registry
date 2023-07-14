@@ -1,0 +1,9 @@
+type Mutation {
+  create_event(input: EventInput!): Event
+  create_event_receiver(input: EventReceiverInput!): EventReceiver
+  create_event_receiver_group(input: EventReceiverGroupInput!): EventReceiverGroup
+
+  # ID is nullable, so it will operate as null
+  set_event_receiver_group_enabled(ID: ID!): ID
+  set_event_receiver_group_disabled(ID: ID!): ID
+}

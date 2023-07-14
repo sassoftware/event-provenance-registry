@@ -1,0 +1,18 @@
+type EventReceiver {
+  ID: ID!
+  name: String!
+  type: String!
+  version: String!
+  description: String!
+  schema: JSON!
+  fingerprint: String!
+  created_at: Time
+}
+
+input EventReceiverInput {
+  name: String!
+  type: String!
+  version: String!
+  description: String!
+  schema: JSON!
+}

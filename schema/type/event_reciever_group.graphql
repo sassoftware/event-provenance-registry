@@ -1,0 +1,20 @@
+type EventReceiverGroup {
+  ID: ID!
+  name: String!
+  type: String!
+  version: String!
+  description: String!
+  enabled: Boolean!
+  event_receiver_ids: [ID!]!
+  created_at: Time
+  updated_at: Time
+}
+
+input EventReceiverGroupInput {
+  name: String!
+  type: String!
+  version: String!
+  description: String!
+  enabled: Boolean!
+  event_receiver_ids: [ID!]!
+}
