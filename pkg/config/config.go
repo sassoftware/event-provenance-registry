@@ -51,7 +51,6 @@ type DBConfig struct {
 // AuthConfig holds config data for authentication.
 type AuthConfig struct {
 	// OIDC parameters
-	Issuer         string
 	ClientID       string
 	TrustedIssuers []string
 }
@@ -76,12 +75,11 @@ func (c *Config) GetSrvAddr() string {
 }
 
 // LogConfigInfo Dumps most of the config info to the log.
-func (c *Config) LogConfigInfo() {
+func (c *Config) LogInfo() {
 	logger.Info("Host: " + c.Host)
 	logger.Info("Port: " + c.Port)
 	logger.Info("URI: " + c.URI)
 	logger.Info("Database Host: " + c.DB.Host)
-	logger.Info("Auth Service URL: " + c.Auth.Issuer)
 	logger.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
 	logger.Info("Kafka Version: " + c.Kafka.Version)
 	logger.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))
@@ -90,8 +88,8 @@ func (c *Config) LogConfigInfo() {
 	logger.V(1).Info(fmt.Sprintf("Verbose: %v", c.Verbose))
 }
 
-// NewConfig returns a new instance of Config
-func NewConfig(host string, port string) *Config {
+// New returns a new instance of Config
+func New(host string, port string) *Config {
 	return &Config{
 		Host:      host,
 		Port:      port,

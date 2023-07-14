@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	cfg := NewConfig("http://localhost", "9420")
+	cfg := New("http://localhost", "9420")
 
 	// Create config data for application
 	cfg.Debug = true
@@ -33,10 +33,9 @@ func TestNewConfig(t *testing.T) {
 		Topic:   "server.events",
 	}
 	cfg.Auth = &AuthConfig{
-		Issuer:         "foo",
 		ClientID:       "ABCDEFGHIJK",
 		TrustedIssuers: []string{"foo", "bar"},
 	}
 
-	cfg.LogConfigInfo()
+	cfg.LogInfo()
 }
