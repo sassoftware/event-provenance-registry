@@ -3,54 +3,59 @@
 
 package storage
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type Event struct {
-	ID          string `gorm:"uniqueIndex:event_pk;type:varchar(255);primary_key"`
-	Name        string `gorm:"uniqueIndex:event_pk;type:varchar(255);not null"`
-	Version     string `gorm:"uniqueIndex:event_pk;type:varchar(255);not null"`
-	Release     string `gorm:"uniqueIndex:event_pk;type:varchar(255);not null"`
-	PlatformID  string `gorm:"uniqueIndex:event_pk;type:varchar(255);not null"`
-	Package     string `gorm:"uniqueIndex:event_pk;type:varchar(255);not null"`
-	Description string `gorm:"type:varchar(255);not null"`
-	Payload     string `gorm:"type:varchar(255);not null"`
-	Success     bool   `gorm:"not null"`
+	ID          string         `json:"id" gorm:"type:varchar(255);primary_key"`
+	Name        string         `json:"name" gorm:"type:varchar(255);not null"`
+	Version     string         `json:"version" gorm:"type:varchar(255);not null"`
+	Release     string         `json:"release" gorm:"type:varchar(255);not null"`
+	PlatformID  string         `json:"platform_id" gorm:"type:varchar(255);not null"`
+	Package     string         `json:"package" gorm:"type:varchar(255);not null"`
+	Description string         `json:"description" gorm:"type:varchar(255);not null"`
+	Payload     datatypes.JSON `json:"payload" gorm:"not null"`
 
-	EventReceiverID string `gorm:"type:varchar(255);not null"`
+	Success   bool      `json:"success" gorm:"not null"`
+	CreatedAt time.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+
+	EventReceiverID string `json:"event_receiver_id" gorm:"type:varchar(255);not null"`
 	EventReceiver   EventReceiver
-
-	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
 }
 
 type EventReceiver struct {
-	ID          string `gorm:"uniqueIndex:event_receiver_pk;type:varchar(255);primary_key"`
-	Name        string `gorm:"uniqueIndex:event_receiver_pk;type:varchar(255);not null"`
-	Type        string `gorm:"uniqueIndex:event_receiver_pk;type:varchar(255);not null"`
-	Version     string `gorm:"uniqueIndex:event_receiver_pk;type:varchar(255);not null"`
-	Description string `gorm:"type:varchar(255);not null"`
-	Enabled     bool   `gorm:"not null"`
+	ID          string `json:"id" gorm:"type:varchar(255);primary_key"`
+	Name        string `json:"name" gorm:"type:varchar(255);not null"`
+	Type        string `json:"type" gorm:"type:varchar(255);not null"`
+	Version     string `json:"version" gorm:"type:varchar(255);not null"`
+	Description string `json:"description" gorm:"type:varchar(255);not null"`
 
-	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	Schema      datatypes.JSON `json:"schema" gorm:"not null"`
+	Fingerprint string         `json:"fingerprint" gorm:"type:varchar(255);not null"`
+	CreatedAt   *time.Time     `json:"created_at" gorm:"type:timestamptz;not null;default:CURRENT_TIMESTAMP"`
 }
 
 type EventReceiverGroup struct {
-	ID          string `gorm:"uniqueIndex:event_receiver_group_pk;type:varchar(255);primary_key"`
-	Name        string `gorm:"uniqueIndex:event_receiver_group_pk;type:varchar(255);not null"`
-	Type        string `gorm:"uniqueIndex:event_receiver_group_pk;type:varchar(255);not null"`
-	Version     string `gorm:"uniqueIndex:event_receiver_group_pk;type:varchar(255);not null"`
-	Description string `gorm:"type:varchar(255);not null"`
-	Enabled     bool   `gorm:"not null"`
+	ID          string `json:"id" gorm:"type:varchar(255);primary_key"`
+	Name        string `json:"name" gorm:"type:varchar(255);not null"`
+	Type        string `json:"type" gorm:"type:varchar(255);not null"`
+	Version     string `json:"version" gorm:"type:varchar(255);not null"`
+	Description string `json:"description" gorm:"type:varchar(255);not null"`
+	Enabled     bool   `json:"enabled" gorm:"not null"`
 
-	CreatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-	UpdatedAt time.Time `gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	CreatedAt time.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
 }
 
 type EventReceiverGroupToEventReceiver struct {
-	ID int `gorm:"primaryKey;autoIncrement"`
+	ID int `json:"id" gorm:"primaryKey;autoIncrement"`
 
-	EventReceiverID string `gorm:"uniqueIndex:receiver_group_link;type:varchar(255);not null"`
+	EventReceiverID string `json:"event_receiver_id" gorm:"type:varchar(255);not null"`
 	EventReceiver   EventReceiver
 
 	EventReceiverGroup   EventReceiverGroup
-	EventReceiverGroupID string `gorm:"uniqueIndex:receiver_group_link;type:varchar(255);not null"`
+	EventReceiverGroupID string `json:"event_receiver_group_id" gorm:"type:varchar(255);not null"`
 }

@@ -32,7 +32,6 @@ func Test_CreateEventReceiver(t *testing.T) {
 		Type:        "type",
 		Version:     "version",
 		Description: "description",
-		Enabled:     true,
 	}
 
 	_, err := CreateEventReceiver(db.Client, eventReceiver)

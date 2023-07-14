@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
@@ -27,7 +26,6 @@ func (r *mutationResolver) CreateEventReceiver(ctx context.Context, input models
 		Type:        input.Type,
 		Version:     input.Version,
 		Description: input.Description,
-		CreatedAt:   time.Now(),
 	}
 
 	response, err := storage.CreateEventReceiver(r.Database.Client, eventReceiver)
