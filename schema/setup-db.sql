@@ -10,7 +10,7 @@ CREATE TABLE "Event" (
   "event_receiver_id"  varchar NOT NULL,
   "success"  boolean  NOT NULL,
   "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
-  
+
   CONSTRAINT "Event_pk" PRIMARY KEY ("ID")
 );
 
@@ -23,7 +23,7 @@ CREATE TABLE "Event_receiver" (
   "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
   "schema" jsonb NOT NULL,
   "fingerprint" varchar NOT NULL,
-  
+
   CONSTRAINT "Event_receiver_pk" PRIMARY KEY ("ID"),
   UNIQUE NULLS NOT DISTINCT ("name", "type", "version")
 );
@@ -53,4 +53,3 @@ CREATE TABLE "Event_receiver_group_to_event_receiver" (
 );
 
 ALTER TABLE "Event" ADD CONSTRAINT "Event_fk0" FOREIGN KEY ("event_receiver_id") REFERENCES "Event_receiver"("ID");
-

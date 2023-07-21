@@ -5,6 +5,13 @@ package api
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -16,12 +23,6 @@ import (
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
-	"log"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
 )
 
 var logger = utils.MustGetLogger("server", "server.api")
@@ -37,29 +38,29 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 		log.Fatal(err)
 	}
 
-	//db.SetMaxOpenConns(cfg.DB.MaxConnections)
-	//db.SetMaxIdleConns(cfg.DB.IdleConnections)
-	//db.SetConnMaxLifetime(time.Duration(cfg.DB.ConnectionLife) * time.Minute)
+	// db.SetMaxOpenConns(cfg.DB.MaxConnections)
+	// db.SetMaxIdleConns(cfg.DB.IdleConnections)
+	// db.SetConnMaxLifetime(time.Duration(cfg.DB.ConnectionLife) * time.Minute)
 
-	// TODO: add this stuff.
-	//schema, err := graph.NewSchema(db)
-	//if err != nil {
-	//	logger.Error(err, "error creating schema")
-	//	return nil, nil, err
-	//}
+	//  TODO: add this stuff.
+	// schema, err := graph.NewSchema(db)
+	// if err != nil {
+	// 	logger.Error(err, "error creating schema")
+	// 	return nil, nil, err
+	// }
 	//
-	//schema.AddExtensions(graph.NewLastPageExt())
-	//schema.AddExtensions(graph.NewTotalExt())
+	// schema.AddExtensions(graph.NewLastPageExt())
+	// schema.AddExtensions(graph.NewTotalExt())
 	//
-	//// Create a server struct that holds a pointer to our database as well
-	//// as the address of our graphql schema
-	//authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
-	//if err != nil {
-	//	return nil, nil, err
-	//}
-	s := server.New() //cfg, &schema, db, cfg.Kafka.MsgChannel
+	// //  Create a server struct that holds a pointer to our database as well
+	// //  as the address of our graphql schema
+	// authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+	s := server.New() // cfg, &schema, db, cfg.Kafka.MsgChannel
 
-	// Add some middleware to our router
+	//  Add some middleware to our router
 	router.Use(
 		requestTimer(),
 		requestCounter(),
@@ -169,8 +170,8 @@ func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.
 			middleware.StripSlashes, // match paths with a trailing slash, strip it, and continue routing through the mux
 			middleware.Recoverer,    // recover from panics without crashing server
 		)
-		//r.Get("/", s.GetIndexHTML())
-		//r.Get("/status", s.GetServerStatusHTML())
+		// r.Get("/", s.GetIndexHTML())
+		// r.Get("/status", s.GetServerStatusHTML())
 	})
 
 	FileServer(router, "/resources", cfg.ResourceDir)

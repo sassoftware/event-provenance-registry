@@ -86,33 +86,20 @@ echo -en ";"
 */
 
 func securityHeaders() func(next http.Handler) http.Handler {
-
 	return func(next http.Handler) http.Handler {
-
 		fn := func(w http.ResponseWriter, r *http.Request) {
-
 			// CSP whitelists resources from places that we retrieve them from.
-
 			w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'sha256-pyVPiLlnqL9OWVoJPs/E6VVF5hBecRzM2gBiarnaqAo=';"+
-
-				" script-src 'self' 'sha256-Xlt9flxaXkphLAysOndSSWNzqJqv2IMqjKSHJD4oyGU=' 'sha256-DRtIv6ccKNt2rE4esiPGKe0IuOC07WKQTprwIE3WfTk=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ='; img-src 'self' w3.org *.swagger.io data:;")
-
+				"  script-src 'self' 'sha256-Xlt9flxaXkphLAysOndSSWNzqJqv2IMqjKSHJD4oyGU=' 'sha256-DRtIv6ccKNt2rE4esiPGKe0IuOC07WKQTprwIE3WfTk=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ='; img-src 'self' w3.org *.swagger.io data:;")
 			w.Header().Set("X-XSS-Protection", "1; mode=block")
-
 			w.Header().Set("X-Frame-Options", "deny")
-
 			w.Header().Set("X-Content-Type-Options", "nosniff")
-
 			w.Header().Set("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
-
 			next.ServeHTTP(w, r)
-
 		}
 
 		return http.HandlerFunc(fn)
-
 	}
-
 }
 
 // logOrigin log the origin of our httprequest

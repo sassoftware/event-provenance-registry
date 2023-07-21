@@ -6,6 +6,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -36,5 +37,14 @@ func main() {
 	http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+	server := &http.Server{
+		Addr:              port,
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+
+	err = server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
 }

@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx/types"
-
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 )
 
