@@ -1,0 +1,19 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  event(id: ID!): Event
+  event_receiver(id: ID!): EventReceiver
+  event_receiver_group(id: ID!): EventReceiverGroup
+}
+
+type Mutation {
+  create_event(event: EventInput!): ID
+  create_event_receiver(event_receiver: EventReceiverInput!): ID
+  create_event_receiver_group(event_receiver_group: EventReceiverGroupInput!): ID
+
+  set_event_receiver_group_enabled(id: ID!): ID
+  set_event_receiver_group_disabled(id: ID!): ID
+}

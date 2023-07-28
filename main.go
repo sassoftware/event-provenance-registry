@@ -8,43 +8,36 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
 
-	"gitlab.sas.com/async-event-infrastructure/server/schema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
-var gqlSchema *graphql.Schema
-
-func init() {
-	s, err := schema.String()
-	if err != nil {
-		log.Fatalf("reading embedded schema contents: %s", err)
-	}
-	gqlSchema = graphql.MustParseSchema(s, &schema.Resolver{})
-}
-
 func main() {
+	// set up graphql schema
+	schema := schema.New()
+
 	// cmd.Execute()
 
 	port := "8080"
 
-	// connection, err := storage.New("localhost", "postgres", "", "", "postgres")
-	// if err != nil {
-	// 	log.Fatal("unable to connect to db", err)
-	// }
+	connection, err := storage.New("localhost", "postgres", "", "", "postgres")
+	if err != nil {
+		log.Fatal("unable to connect to db", err)
+	}
 
-	// err = connection.SyncSchema()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	err = connection.SyncSchema()
+	if err != nil {
+		log.Fatal("failed to sync schema", err)
+	}
 
-	
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write(page)
 	}))
 
-	http.Handle("/query", &relay.Handler{Schema: gqlSchema})
+	http.Handle("/query", &relay.Handler{Schema: schema})
+	log.Print("listening at http://localhost:8080")
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
@@ -55,7 +48,7 @@ func main() {
 		ReadHeaderTimeout: 3 * time.Second,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
 	}

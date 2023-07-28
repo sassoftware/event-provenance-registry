@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -30,9 +30,9 @@ type Message struct {
 
 // Data contains the data that created the event
 type Data struct {
-	Events         []*models.Event              `json:"events"`
-	EventReceivers []*models.EventReceiver      `json:"event_receivers"`
-	EventGroups    []*models.EventReceiverGroup `json:"event_groups"`
+	Events         []*storage.Event              `json:"events"`
+	EventReceivers []*storage.EventReceiver      `json:"event_receivers"`
+	EventGroups    []*storage.EventReceiverGroup `json:"event_groups"`
 }
 
 // ToJSON converts a Events struct to JSON

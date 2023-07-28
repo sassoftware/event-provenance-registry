@@ -6,8 +6,8 @@ type EventReceiverGroup {
   description: String!
   enabled: Boolean!
   event_receiver_ids: [ID!]!
-  created_at: Time
-  updated_at: Time
+  created_at: Time!
+  updated_at: Time!
 }
 
 input EventReceiverGroupInput {
@@ -15,6 +15,5 @@ input EventReceiverGroupInput {
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
   event_receiver_ids: [ID!]!
 }

@@ -1,6 +1,0 @@
-# The Query type represents all of the entry points into the API.
-type Query {
-  event(ID: ID!): String
-  event_receiver(ID: ID!): EventReceiver
-  event_receiver_group(ID: ID!): EventReceiverGroup
-}

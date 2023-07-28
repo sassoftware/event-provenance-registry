@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"gitlab.sas.com/async-event-infrastructure/server/schema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema"
 )
 
 func TestString(t *testing.T) {

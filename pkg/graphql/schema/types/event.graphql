@@ -9,7 +9,7 @@ type Event {
   payload: JSON!
   event_receiver_id: ID!
   success: Boolean!
-  created_at: Time
+  created_at: Time!
 }
 
 input EventInput {

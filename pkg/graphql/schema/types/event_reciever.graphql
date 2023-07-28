@@ -6,7 +6,7 @@ type EventReceiver {
   description: String!
   schema: JSON!
   fingerprint: String!
-  created_at: Time
+  created_at: Time!
 }
 
 input EventReceiverInput {

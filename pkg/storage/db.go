@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgconn"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -43,10 +42,10 @@ func New(host, user, pass, sslMode, database string) (*Database, error) {
 
 func (db *Database) SyncSchema() error {
 	return db.Client.AutoMigrate(
-		new(models.Event),
-		new(models.EventReceiver),
-		new(models.EventReceiverGroup),
-		// new(models.EventReceiverGroupToEventReceiver),
+		new(Event),
+		new(EventReceiver),
+		new(EventReceiverGroup),
+		new(EventReceiverGroupToEventReceiver),
 	)
 }
 
