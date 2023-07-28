@@ -4,7 +4,6 @@ linters:
   # Enable specific linter
   enable:
     - bodyclose
-    - depguard
     - dogsled
     - dupl
     - errcheck
