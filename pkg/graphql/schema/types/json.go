@@ -19,4 +19,3 @@ func (JSON) ImplementsGraphQLType(name string) bool {
 func (j *JSON) UnmarshalGraphQL(input interface{}) error {
 	return j.Scan(input)
 }
-

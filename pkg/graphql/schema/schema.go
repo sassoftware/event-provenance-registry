@@ -9,9 +9,8 @@ import (
 	"log"
 	"strings"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/resolvers"
-
 	"github.com/graph-gophers/graphql-go"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/resolvers"
 )
 
 func New() *graphql.Schema {

@@ -28,7 +28,7 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // InitializeAPI starts the database, kafka message producer, middleware, and endpoints
-func InitializeAPI(ctx context.Context, cfg *config.Config) (*chi.Mux, *storage.Database, error) {
+func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Database, error) {
 	// Create a new router
 	router := chi.NewRouter()
 

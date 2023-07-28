@@ -59,7 +59,7 @@ func Execute() {
 	}
 }
 
-func preRun(cmd *cobra.Command, args []string) error {
+func preRun(cmd *cobra.Command, _ []string) error {
 	viper.SetEnvPrefix("GENERIC")
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
@@ -76,7 +76,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func run(cmd *cobra.Command, args []string) error {
+func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("If you can read this debug is on")
 	logger.Info("This is the main command")
 	GetUsage()

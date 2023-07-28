@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestNewConfig(t *testing.T) {
+func TestNewConfig(_ *testing.T) {
 	cfg := New("http://localhost", "9420")
 
 	// Create config data for application

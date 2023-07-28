@@ -24,7 +24,7 @@ func New() *Server {
 }
 
 // Paginate implements pagination for endpoints
-func (s *Server) Paginate(next http.Handler) http.Handler {
+func (s *Server) Paginate(_ http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// TODO: figure this out.
 		// ctxt, err := setContext(r.Context(), r.URL.Query())
@@ -63,7 +63,7 @@ func (s *Server) Paginate(next http.Handler) http.Handler {
 // }
 
 // Sorting implements sorting for endpoints
-func (s *Server) Sorting(next http.Handler) http.Handler {
+func (s *Server) Sorting(_ http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// TODO: finish me.
 		// ctxt := setSortingContext(r.Context(), r.URL.Query())
@@ -90,7 +90,7 @@ func (s *Server) Sorting(next http.Handler) http.Handler {
 // 	return ctxt
 // }
 
-func (s *Server) ServeOpenAPIDoc(oapidir string) http.HandlerFunc {
+func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO: implement me
 		panic("implement me!")

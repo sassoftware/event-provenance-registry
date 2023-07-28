@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/graph-gophers/graphql-go"
-
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema/types"
 )
 

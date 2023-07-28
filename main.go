@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/graph-gophers/graphql-go/relay"
-
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
@@ -19,8 +18,6 @@ func main() {
 	schema := schema.New()
 
 	// cmd.Execute()
-
-	port := "8080"
 
 	connection, err := storage.New("localhost", "postgres", "", "", "postgres")
 	if err != nil {
@@ -33,15 +30,13 @@ func main() {
 	}
 
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(page)
+		_, _ = w.Write(page)
 	}))
 
 	http.Handle("/query", &relay.Handler{Schema: schema})
-	log.Print("listening at http://localhost:8080")
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
-
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	port := ":8080"
+	log.Printf("connect to http://localhost%s/ for GraphQL playground", port)
 
 	server := &http.Server{
 		Addr:              port,
