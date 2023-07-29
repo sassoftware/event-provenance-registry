@@ -4,13 +4,19 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/api"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
@@ -38,7 +44,7 @@ func GetUsageErr(err error) error {
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "generic",
+	Use:   "server",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
@@ -72,14 +78,77 @@ func preRun(cmd *cobra.Command, _ []string) error {
 	if strings.ToLower(envDebug) == `true` {
 		debug = true
 	}
-	fmt.Print(debug)
+	fmt.Print("debug: ", debug)
 	return nil
 }
 
 func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("If you can read this debug is on")
-	logger.Info("This is the main command")
-	GetUsage()
+
+	cfg, err := config.New(
+		config.WithServer(viper.GetString("host"), viper.GetString("port"), "", true, true),
+		config.WithStorage("localhost", "postgres", "", "", "postgres", 5432, 10, 10, 10),
+		// TODO: add these once kafka and auth have been turned on
+		// config.WithKafka(),
+		// config.WithAuth(),
+	)
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	router, connection, err := api.InitializeAPI(ctx, cfg)
+	if err != nil {
+		return err
+	}
+
+	err = connection.SyncSchema()
+	if err != nil {
+		logger.Error(err, "failed to sync storage schema")
+	}
+
+	server := &http.Server{
+		Addr:    cfg.GetSrvAddr(),
+		Handler: router,
+	}
+
+	listener, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		return err
+	}
+
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := server.Serve(listener)
+		if err != nil {
+			if err != http.ErrServerClosed {
+				panic(err)
+			}
+			logger.Info("listener closed")
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-ctx.Done()
+		logger.Info("shutting down server")
+		err := server.Shutdown(context.Background())
+		if err != nil {
+			if err != http.ErrServerClosed {
+				panic(err)
+			}
+		}
+		logger.Info("server shut down")
+	}()
+
+	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
+
+	wg.Wait()
 	return nil
 }
 
@@ -106,6 +175,11 @@ func initConfig() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
-	rootCmd.PersistentFlags().Bool("debug", false, "Enable debugging statements")
+
+	// create two new flags, one for host and one for port
+	rootCmd.Flags().String("host", "localhost", "host to listen on")
+	rootCmd.Flags().String("port", "8080", "port to listen on")
+
+	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
+	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }

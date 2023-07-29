@@ -9,7 +9,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jmoiron/sqlx/types"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
@@ -41,27 +40,38 @@ func TestTheStatus(t *testing.T) {
 		t.Fatal("could not parse test server address")
 	}
 	port := bits[1]
-	cfg := config.New("localhost", port)
 
-	// Create config data for application
-	cfg.Debug = true
-	cfg.DB = &config.DBConfig{
-		Host: "postgres",
-		User: "postgres",
-		Name: "server",
-		Port: 5432,
-		Pass: "asdasd",
-	}
-	cfg.Kafka = &config.KafkaConfig{
-		Peers: strings.Split(brokers, ","),
-		Topic: topic,
+	// create config object
+	cfg, err := config.New(
+		config.WithServer("localhost", port, "/resources", true, true),
+		config.WithStorage("postgres", "user", "pass", "ssl", "postgres", 5432, 10, 10, 10),
+		config.WithKafka(true, "2.6", strings.Split(brokers, ","), topic, nil, nil),
+	)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	var start time.Time
-	status := New(start, cfg, true)
+	// Create create status config from config object
+	status := New(cfg)
 
-	assert.Equal(t, status.MetaData.(*Metadata).Database.Port, 5432, "Unexpected Port")
-	assert.Equal(t, status.Service.Name, "server", "Unexpected Port")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.Port, 5432, "Unexpected Port")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.Host, "postgres", "Unexpected Host")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.Name, "postgres", "Unexpected Name")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.User, "user", "Unexpected User")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.Pass, "pass", "Unexpected Pass")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.SSLMode, "ssl", "Unexpected SSLMode")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.MaxConnections, 10, "Unexpected MaxConnections")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.IdleConnections, 10, "Unexpected IdleConnections")
+	assert.Equal(t, status.MetaData.(*Metadata).Storage.ConnectionLife, 10, "Unexpected ConnectionLife")
+	assert.DeepEqual(t, status.MetaData.(*Metadata).Kafka.Peers, strings.Split(brokers, ","))
+	assert.Equal(t, status.MetaData.(*Metadata).Kafka.Topic, topic, "Unexpected Topic")
+	assert.Equal(t, status.MetaData.(*Metadata).Kafka.Version, "2.6", "Unexpected Version")
+	assert.Equal(t, status.MetaData.(*Metadata).Verbose, true, "Unexpected Verbose")
+	assert.Equal(t, status.MetaData.(*Metadata).Resources, "/resources", "Unexpected Resources")
+
+	assert.Equal(t, status.Service.Name, "server", "Unexpected name")
+	assert.Equal(t, status.Service.Version, "dev", "Unexpected version")
+
 }
 
 func TestRequestResponseBody(t *testing.T) {

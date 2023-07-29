@@ -19,7 +19,7 @@ type Database struct {
 	Client *gorm.DB
 }
 
-func New(host, user, pass, sslMode, database string) (*Database, error) {
+func New(host, user, pass, sslMode, database string, port int) (*Database, error) {
 	glog := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
@@ -32,7 +32,7 @@ func New(host, user, pass, sslMode, database string) (*Database, error) {
 	if sslMode != "" {
 		sslMode = fmt.Sprintf("sslmode=%s", sslMode)
 	}
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 %s TimeZone=EST", host, user, pass, database, sslMode)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d %v TimeZone=EST", host, user, pass, database, port, sslMode)
 	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: glog})
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database. err %s", err)

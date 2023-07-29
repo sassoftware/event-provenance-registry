@@ -4,7 +4,11 @@
 package server
 
 import (
+	_ "embed"
 	"net/http"
+
+	"github.com/graph-gophers/graphql-go/relay"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema"
 )
 
 type contextKey string
@@ -97,9 +101,16 @@ func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 	}
 }
 
-func (s *Server) GraphQLHandler() http.HandlerFunc {
+//go:embed graphql.html
+var graphqlHTML []byte
+
+func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: This may need to to in it's own thing.
-		panic("implement me!")
+		_, _ = w.Write(graphqlHTML)
 	}
+}
+
+func (s *Server) GraphQLHandler() http.HandlerFunc {
+	handler := &relay.Handler{Schema: schema.New()}
+	return handler.ServeHTTP
 }

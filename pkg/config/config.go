@@ -22,25 +22,32 @@ var (
 
 // Config contains application data for the gatekeeper application
 type Config struct {
-	Debug         bool         `json:"debug"`
-	Verbose       bool         `json:"verbose"`
-	Host          string       `json:"host"`
-	Port          string       `json:"port"`
-	ResourceDir   string       `json:"resources"`
-	URI           string       `json:"uri"`
-	AzureClientID string       `json:"azure_client_id"`
-	StartTime     time.Time    `json:"start_time"`
-	DB            *DBConfig    `json:"database"`
-	Kafka         *KafkaConfig `json:"kafka"`
-	Auth          *AuthConfig  `json:"-"`
+	StartTime time.Time      `json:"start_time"`
+	Server    *ServerConfig  `json:"server"`
+	Storage   *StorageConfig `json:"storage"`
+	Kafka     *KafkaConfig   `json:"kafka"`
+	Auth      *AuthConfig    `json:"-"`
+}
+
+type ServerConfig struct {
+	Debug       bool   `json:"debug"`
+	VerboseAPI  bool   `json:"verbose"`
+	Host        string `json:"host"`
+	Port        string `json:"port"`
+	ResourceDir string `json:"resources"`
+}
+
+// GetSrvAddr returns a string HOST:PORT
+func (c *Config) GetSrvAddr() string {
+	return c.Server.Host + ":" + c.Server.Port
 }
 
 // DBConfig holds config information about the database.
-type DBConfig struct {
-	Host            string `json:"-"`
-	User            string `json:"-"`
+type StorageConfig struct {
 	Name            string `json:"name"`
+	Host            string `json:"-"`
 	Port            int    `json:"-"`
+	User            string `json:"-"`
 	Pass            string `json:"-"`
 	SSLMode         string `json:"-"`
 	MaxConnections  int    `json:"db_max_connections"`
@@ -50,7 +57,6 @@ type DBConfig struct {
 
 // AuthConfig holds config data for authentication.
 type AuthConfig struct {
-	// OIDC parameters
 	ClientID       string
 	TrustedIssuers []string
 }
@@ -59,40 +65,94 @@ type AuthConfig struct {
 type KafkaConfig struct {
 	TLS        bool                 `json:"tls"`
 	Version    string               `json:"version"`
-	ClientID   string               `json:"client_id"`
-	Mechanism  string               `json:"mechanism"`
 	Topic      string               `json:"topic"`
-	Topics     []string             `json:"topics"`
 	Peers      []string             `json:"peers"`
 	Producer   message.Producer     `json:"-"`
 	MsgChannel chan message.Message `json:"-"`
 }
 
-// GetSrvAddr returns a string HOST:PORT
-func (c *Config) GetSrvAddr() string {
-	srvaddr := c.Host + ":" + c.Port
-	return srvaddr
-}
-
 // LogConfigInfo Dumps most of the config info to the log.
 func (c *Config) LogInfo() {
-	logger.Info("Host: " + c.Host)
-	logger.Info("Port: " + c.Port)
-	logger.Info("URI: " + c.URI)
-	logger.Info("Database Host: " + c.DB.Host)
+	logger.Info("Host: " + c.Server.Host)
+	logger.Info("Port: " + c.Server.Port)
+	logger.Info("Storage Host: " + c.Storage.Host)
 	logger.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
 	logger.Info("Kafka Version: " + c.Kafka.Version)
 	logger.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))
-	logger.Info("Kafka Topic: " + c.Kafka.Topic)
-	logger.V(1).Info(fmt.Sprintf("Debug: %v", c.Debug))
-	logger.V(1).Info(fmt.Sprintf("Verbose: %v", c.Verbose))
+	logger.Info("Kafka Topic: ", c.Kafka.Topic)
+	logger.Info(fmt.Sprintf("Debug: %v", c.Server.Debug))
+	logger.Info(fmt.Sprintf("Verbose API: %v", c.Server.VerboseAPI))
 }
 
-// New returns a new instance of Config
-func New(host string, port string) *Config {
-	return &Config{
-		Host:      host,
-		Port:      port,
-		StartTime: time.Now(),
+// Options is a function that takes a config and returns an error
+type Options func(*Config) error
+
+// New returns a new config configured with the given options
+func New(opts ...Options) (*Config, error) {
+	config := &Config{}
+	for _, opt := range opts {
+		if err := opt(config); err != nil {
+			return nil, err
+		}
+	}
+	config.StartTime = time.Now()
+	return config, nil
+}
+
+// WithStorage returns an option that sets the storage config
+func WithStorage(host, user, pass, sslMode, name string, port, maxConnections, idleConnections, connectionLife int) Options {
+	return func(cfg *Config) error {
+		cfg.Storage = &StorageConfig{
+			Host:            host,
+			Port:            port,
+			User:            user,
+			Pass:            pass,
+			SSLMode:         sslMode,
+			Name:            name,
+			MaxConnections:  maxConnections,
+			IdleConnections: idleConnections,
+			ConnectionLife:  connectionLife,
+		}
+		return nil
+	}
+}
+
+// WithServer returns an option that sets the server config
+func WithServer(host, port, resourceDir string, debug, verbose bool) Options {
+	return func(cfg *Config) error {
+		cfg.Server = &ServerConfig{
+			Host:        host,
+			Port:        port,
+			ResourceDir: resourceDir,
+			Debug:       debug,
+			VerboseAPI:  verbose,
+		}
+		return nil
+	}
+}
+
+// WithKafka returns an option that sets the kafka config
+func WithKafka(tls bool, version string, peers []string, topic string, producer message.Producer, channel chan message.Message) Options {
+	return func(cfg *Config) error {
+		cfg.Kafka = &KafkaConfig{
+			TLS:        tls,
+			Version:    version,
+			Peers:      peers,
+			Topic:      topic,
+			Producer:   producer,
+			MsgChannel: channel,
+		}
+		return nil
+	}
+}
+
+// WithAuth returns an option that sets the auth config
+func WithAuth(clientID string, trustedIssuers []string) Options {
+	return func(cfg *Config) error {
+		cfg.Auth = &AuthConfig{
+			ClientID:       clientID,
+			TrustedIssuers: trustedIssuers,
+		}
+		return nil
 	}
 }

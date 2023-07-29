@@ -33,7 +33,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	router := chi.NewRouter()
 
 	// Create a new connection to our pg database
-	db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
+	db, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,10 +85,10 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	})
 
 	router.Route("/api", func(r chi.Router) {
-		r.Get("/", s.ServeOpenAPIDoc(cfg.ResourceDir))
+		r.Get("/", s.ServeOpenAPIDoc(cfg.Server.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
-			if cfg.Verbose {
+			if cfg.Server.VerboseAPI {
 				httpLogger := httplog.NewLogger("server-http-logger", httplog.Options{
 					JSON: true,
 					Tags: map[string]string{
@@ -98,7 +98,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 				})
 				r.Use(httplog.RequestLogger(httpLogger))
 			}
-			r.Get("/openapi", s.ServeOpenAPIDoc(cfg.ResourceDir))
+			r.Get("/openapi", s.ServeOpenAPIDoc(cfg.Server.ResourceDir))
 			// REST endpoints
 			r.Route("/events", func(r chi.Router) {
 				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEvents())
@@ -134,7 +134,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	})
 
 	// turn on the profiler in debug mode
-	if cfg.Debug {
+	if cfg.Server.Debug {
 		// profiler
 		router.Route("/", func(r chi.Router) {
 			r.Mount("/debug", middleware.Profiler())
@@ -149,8 +149,8 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	// Separate, to ensure no authentication required.
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
-
-		r.Post("/", s.GraphQLHandler())
+		r.Get("/", s.ServerGraphQLDoc())
+		r.Post("/query", s.GraphQLHandler())
 	})
 
 	// Public Api Endpoints
@@ -174,7 +174,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 		// r.Get("/status", s.GetServerStatusHTML())
 	})
 
-	FileServer(router, "/resources", cfg.ResourceDir)
+	FileServer(router, "/resources", cfg.Server.ResourceDir)
 	return router, db, nil
 }
 

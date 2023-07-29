@@ -39,10 +39,10 @@ type Status struct {
 
 // Metadata struct for info about service-specific fields
 type Metadata struct {
-	Verbose   bool                `json:"verbose" yaml:"verbose"`
-	Resources string              `json:"resources" yaml:"resources"`
-	Kafka     *config.KafkaConfig `json:"kafka" yaml:"kafka"`
-	Database  *config.DBConfig    `json:"database" yaml:"database"`
+	Verbose   bool                  `json:"verbose" yaml:"verbose"`
+	Resources string                `json:"resources" yaml:"resources"`
+	Kafka     *config.KafkaConfig   `json:"kafka" yaml:"kafka"`
+	Storage   *config.StorageConfig `json:"storage" yaml:"storage"`
 }
 
 // GetStatus returns a string of JSON equivalent
@@ -58,23 +58,23 @@ func (s *Status) GetStatus() string {
 // NewServerStatus creates a new Status struct for use in a Status service
 func NewMetadata(cfg *config.Config) *Metadata {
 	return &Metadata{
-		Resources: cfg.ResourceDir,
+		Resources: cfg.Server.ResourceDir,
 		Kafka:     cfg.Kafka,
-		Database:  cfg.DB,
-		Verbose:   cfg.Verbose,
+		Storage:   cfg.Storage,
+		Verbose:   cfg.Server.VerboseAPI,
 	}
 }
 
 // New will return a new Status struct for service
 // given a name, version, release, debug variable, and start time.
-func New(start time.Time, cfg *config.Config, debug bool) *Status {
+func New(cfg *config.Config) *Status {
 	server := cfg.GetSrvAddr()
 	metadata := NewMetadata(cfg)
 	stat := &Status{
 		Service:   NewVersion(),
-		Debug:     debug,
-		StartTime: start,
-		Uptime:    GetUptime(start),
+		Debug:     cfg.Server.Debug,
+		StartTime: cfg.StartTime,
+		Uptime:    GetUptime(cfg.StartTime),
 		Health:    NewHealth(server),
 		Info:      GetInfo(),
 		MetaData:  metadata,
