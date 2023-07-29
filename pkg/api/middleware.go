@@ -92,7 +92,7 @@ func securityHeaders() func(next http.Handler) http.Handler {
 			// TODO: add back in proper Content Security Policy hashes. if we decide to keep the graphql UI we need to add them
 			// to the allowed list of sources
 			// w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' 'sha256-pyVPiLlnqL9OWVoJPs/E6VVF5hBecRzM2gBiarnaqAo=';"+
-				// "  script-src 'self' 'sha512-Wr9OKCTtq1anK0hq5bY3X/AvDI5EflDSAh0mE9gma+4hl+kXdTJPKZ3TwLMBcrgUeoY0s3dq9JjhCQc7vddtFg==' 'sha512-Vf2xGDzpqUOEIKO+X2rgTLWPY+65++WPwCHkX2nFMu9IcstumPsf/uKKRd5prX3wOu8Q0GBylRpsDB26R6ExOg==' 'sha256-Xlt9flxaXkphLAysOndSSWNzqJqv2IMqjKSHJD4oyGU=' 'sha256-DRtIv6ccKNt2rE4esiPGKe0IuOC07WKQTprwIE3WfTk=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ='; img-src 'self' https://unpkg.com/graphiql@2.3.0/graphiql.min.css  https://unpkg.com/graphiql@2.3.0/graphiql.min.js w3.org *.swagger.io data:;")
+			// "  script-src 'self' 'sha512-Wr9OKCTtq1anK0hq5bY3X/AvDI5EflDSAh0mE9gma+4hl+kXdTJPKZ3TwLMBcrgUeoY0s3dq9JjhCQc7vddtFg==' 'sha512-Vf2xGDzpqUOEIKO+X2rgTLWPY+65++WPwCHkX2nFMu9IcstumPsf/uKKRd5prX3wOu8Q0GBylRpsDB26R6ExOg==' 'sha256-Xlt9flxaXkphLAysOndSSWNzqJqv2IMqjKSHJD4oyGU=' 'sha256-DRtIv6ccKNt2rE4esiPGKe0IuOC07WKQTprwIE3WfTk=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ=' 'sha256-CTX/EsBKST60M8ohR15xRvYYiWO0ryobO8uHPLdeBTQ='; img-src 'self' https://unpkg.com/graphiql@2.3.0/graphiql.min.css  https://unpkg.com/graphiql@2.3.0/graphiql.min.js w3.org *.swagger.io data:;")
 			w.Header().Set("X-XSS-Protection", "1; mode=block")
 			w.Header().Set("X-Frame-Options", "deny")
 			w.Header().Set("X-Content-Type-Options", "nosniff")

@@ -7,19 +7,24 @@ import (
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
-type QueryResolver struct{}
-
-func (r *QueryResolver) Event(args struct{ ID graphql.ID }) *storage.Event {
-	log.Print(args.ID)
-	return nil
+type QueryResolver struct {
+	Connection *storage.Database
 }
 
-func (r *QueryResolver) EventReceiver(args struct{ ID graphql.ID }) *storage.EventReceiver {
-	log.Print(args.ID)
-	return nil
+func (r *QueryResolver) Event(args struct{ ID graphql.ID }) (*storage.Event, error) {
+	event, err := storage.FindEvent(r.Connection.Client, args.ID)
+	if err != nil {
+		return nil, err
+	}
+	return event, nil
 }
 
-func (r *QueryResolver) EventReceiverGroup(args struct{ ID graphql.ID }) *storage.EventReceiverGroup {
+func (r *QueryResolver) EventReceiver(args struct{ ID graphql.ID }) (*storage.EventReceiver, error) {
 	log.Print(args.ID)
-	return nil
+	return nil, nil
+}
+
+func (r *QueryResolver) EventReceiverGroup(args struct{ ID graphql.ID }) (*storage.EventReceiverGroup, error) {
+	log.Print(args.ID)
+	return nil, nil
 }

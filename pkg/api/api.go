@@ -33,7 +33,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	router := chi.NewRouter()
 
 	// Create a new connection to our pg database
-	db, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
+	connection, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 		AllowCredentials: true,
 		ExposedHeaders:   []string{"X-Total-Count", "X-Last-Page"},
 		MaxAge:           300,
-		Debug:            true,
+		Debug:            false,
 	})
 
 	router.Route("/api", func(r chi.Router) {
@@ -150,7 +150,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
 		r.Get("/", s.ServerGraphQLDoc())
-		r.Post("/query", s.GraphQLHandler())
+		r.Post("/query", s.GraphQLHandler(connection))
 	})
 
 	// Public Api Endpoints
@@ -175,7 +175,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	})
 
 	FileServer(router, "/resources", cfg.Server.ResourceDir)
-	return router, db, nil
+	return router, connection, nil
 }
 
 // FileServer is serving static files

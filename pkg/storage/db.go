@@ -4,12 +4,15 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
+	"github.com/graph-gophers/graphql-go"
 	"github.com/jackc/pgconn"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -50,6 +53,10 @@ func (db *Database) SyncSchema() error {
 }
 
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
+	event.ID = graphql.ID(utils.NewULIDAsString())
+
+	// TODO: set fingerprint
+
 	result := tx.Create(&event)
 	if result.Error != nil {
 		return nil, pgError(result.Error)
@@ -57,7 +64,23 @@ func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	return &event, nil
 }
 
+func FindEvent(tx *gorm.DB, id graphql.ID) (*Event, error) {
+	var event Event
+	result := tx.Model(&Event{}).First(&event, &Event{ID: id})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("event %s not found", id)
+		}
+		return nil, pgError(result.Error)
+	}
+	return &event, nil
+}
+
 func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiver, error) {
+	eventReceiver.ID = graphql.ID(utils.NewULIDAsString())
+
+	// TODO: set fingerprint
+
 	result := tx.Create(&eventReceiver)
 	if result.Error != nil {
 		return nil, pgError(result.Error)
@@ -65,12 +88,40 @@ func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiv
 	return &eventReceiver, nil
 }
 
+func FindEventReceiver(tx *gorm.DB, id graphql.ID) (*EventReceiver, error) {
+	var eventReciever EventReceiver
+	result := tx.Model(&EventReceiver{}).First(&eventReciever, &EventReceiver{ID: id})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("eventReciever %s not found", id)
+		}
+		return nil, pgError(result.Error)
+	}
+	return &eventReciever, nil
+}
+
 func CreateEventReceiverGroup(tx *gorm.DB, eventReceiverGroup EventReceiverGroup) (*EventReceiverGroup, error) {
+	eventReceiverGroup.ID = graphql.ID(utils.NewULIDAsString())
+
+	// TODO: set fingerprint
+
 	result := tx.Create(&eventReceiverGroup)
 	if result.Error != nil {
 		return nil, pgError(result.Error)
 	}
 	return &eventReceiverGroup, nil
+}
+
+func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) (*EventReceiverGroup, error) {
+	var eventRecieverGroup EventReceiverGroup
+	result := tx.Model(&EventReceiverGroup{}).First(&eventRecieverGroup, &EventReceiverGroup{ID: id})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("eventRecieverGroup %s not found", id)
+		}
+		return nil, pgError(result.Error)
+	}
+	return &eventRecieverGroup, nil
 }
 
 func updateRecord(tx *gorm.DB, record any) error {

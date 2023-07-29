@@ -71,7 +71,6 @@ func TestTheStatus(t *testing.T) {
 
 	assert.Equal(t, status.Service.Name, "server", "Unexpected name")
 	assert.Equal(t, status.Service.Version, "dev", "Unexpected version")
-
 }
 
 func TestRequestResponseBody(t *testing.T) {

@@ -11,15 +11,16 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/resolvers"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
-func New() *graphql.Schema {
+func New(connection *storage.Database) *graphql.Schema {
 	s, err := String()
 	if err != nil {
 		log.Fatalf("reading embedded schema contents: %s", err)
 	}
 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
-	return graphql.MustParseSchema(s, &resolvers.Resolver{}, opts...)
+	return graphql.MustParseSchema(s, resolvers.New(connection), opts...)
 }
 
 //go:embed *.graphql types/*.graphql

@@ -38,20 +38,6 @@ The graphql playground will not be accessible at: <http://localhost:8080/api/v1/
 The current schema for all requests is availiable through the UI. A simple mutation
 and query command can be found below
 
-## Query
-
-This query is only returning a subset of the available fields.
-
-```graphql
-{
-  event(id: "1234") {
-    name
-    version
-    description
-  }
-}
-```
-
 ## Mutation
 
 ```graphql
@@ -65,5 +51,50 @@ mutation {
       schema: "{\"name\": \"value\"}"
     }
   )
+}
+```
+
+This will return the id of the newly created event receiver.
+
+```json
+{
+  "data": {
+    "create_event_receiver": "01H6HSPWNMR8HJ9WKA5AJWG430"
+  }
+}
+```
+
+This can then be used to create a new event
+
+```graphql
+mutation {
+  create_event(
+    event: {
+      name: "grant",
+      version: "1.0.0",
+      release: "some-action",
+      platformID: "platformID",
+      package: "package",
+      description: "a fake event reciever",
+      payload: "{\"name\": \"value\"}"
+      event_receiver_id: "01H6HSJGDJ9CH67D3BK30XD2Q5",
+      success: true
+    }
+  )
+}
+```
+
+## Query
+
+This query is only returning a subset of the available fields. Pass
+in the ID of the previously created event
+
+```graphql
+{
+  event(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+    name
+    version
+    description
+  }
 }
 ```

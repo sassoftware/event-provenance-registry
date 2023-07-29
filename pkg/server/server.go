@@ -9,6 +9,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go/relay"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 type contextKey string
@@ -110,7 +111,7 @@ func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
 	}
 }
 
-func (s *Server) GraphQLHandler() http.HandlerFunc {
-	handler := &relay.Handler{Schema: schema.New()}
+func (s *Server) GraphQLHandler(connection *storage.Database) http.HandlerFunc {
+	handler := &relay.Handler{Schema: schema.New(connection)}
 	return handler.ServeHTTP
 }

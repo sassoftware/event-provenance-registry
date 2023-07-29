@@ -9,7 +9,7 @@ import (
 )
 
 type Event struct {
-	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key"`
+	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key;not null"`
 	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
 	Version     string     `json:"version" gorm:"type:varchar(255);not null"`
 	Release     string     `json:"release" gorm:"type:varchar(255);not null"`
@@ -18,27 +18,27 @@ type Event struct {
 	Description string     `json:"description" gorm:"type:varchar(255);not null"`
 	Payload     types.JSON `json:"payload" gorm:"not null"`
 
-	Success   bool         `json:"success" gorm:"not null"`
-	CreatedAt graphql.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	Success   bool       `json:"success" gorm:"not null"`
+	CreatedAt types.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
 
 	EventReceiverID graphql.ID `json:"event_receiver_id" gorm:"type:varchar(255);not null"`
 	EventReceiver   EventReceiver
 }
 
 type EventReceiver struct {
-	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key"`
+	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key;not null"`
 	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
 	Type        string     `json:"type" gorm:"type:varchar(255);not null"`
 	Version     string     `json:"version" gorm:"type:varchar(255);not null"`
-	Description string     `json:"description" gorm:"type:varchar(255);not null"`
+	Description string     `json:"description" gorm:"type:varchar(255);not1 null"`
 
-	Schema      types.JSON   `json:"schema" gorm:"not null"`
-	Fingerprint string       `json:"fingerprint" gorm:"type:varchar(255);not null"`
-	CreatedAt   graphql.Time `json:"created_at" gorm:"type:timestamptz;not null;default:CURRENT_TIMESTAMP"`
+	Schema      types.JSON `json:"schema" gorm:"not null"`
+	Fingerprint string     `json:"fingerprint" gorm:"type:varchar(255);not null"`
+	CreatedAt   types.Time `json:"created_at" gorm:"type:timestamptz;not null;default:CURRENT_TIMESTAMP"`
 }
 
 type EventReceiverGroup struct {
-	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key"`
+	ID          graphql.ID `json:"id" gorm:"type:varchar(255);primary_key;not null"`
 	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
 	Type        string     `json:"type" gorm:"type:varchar(255);not null"`
 	Version     string     `json:"version" gorm:"type:varchar(255);not null"`
@@ -47,8 +47,8 @@ type EventReceiverGroup struct {
 
 	EventReceiverIDs []graphql.ID `json:"event_receiver_ids" gorm:"-"`
 
-	CreatedAt graphql.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
-	UpdatedAt graphql.Time `json:"updated_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	CreatedAt types.Time `json:"created_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
+	UpdatedAt types.Time `json:"updated_at" gorm:"type:timestamptz; not null; default:CURRENT_TIMESTAMP"`
 }
 
 type EventReceiverGroupToEventReceiver struct {

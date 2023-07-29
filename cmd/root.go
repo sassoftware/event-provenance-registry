@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -66,24 +67,17 @@ func Execute() {
 }
 
 func preRun(cmd *cobra.Command, _ []string) error {
-	viper.SetEnvPrefix("GENERIC")
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	err := viper.BindPFlags(cmd.Flags())
 	if err != nil {
 		return err
 	}
-	debug := viper.GetBool("debug")
-	envDebug := utils.GetEnv("GENERIC_OTHER_DEBUG", "false")
-	if strings.ToLower(envDebug) == `true` {
-		debug = true
-	}
-	fmt.Print("debug: ", debug)
 	return nil
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	logger.V(1).Info("If you can read this debug is on")
+	logger.V(1).Info("debug enabled")
 
 	cfg, err := config.New(
 		config.WithServer(viper.GetString("host"), viper.GetString("port"), "", true, true),
@@ -108,8 +102,9 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	server := &http.Server{
-		Addr:    cfg.GetSrvAddr(),
-		Handler: router,
+		Addr:              cfg.GetSrvAddr(),
+		Handler:           router,
+		ReadHeaderTimeout: 3 * time.Second,
 	}
 
 	listener, err := net.Listen("tcp", server.Addr)
