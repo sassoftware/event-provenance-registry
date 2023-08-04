@@ -5,6 +5,7 @@ package server
 
 import (
 	_ "embed"
+	"errors"
 	"net/http"
 
 	"github.com/graph-gophers/graphql-go/relay"
@@ -22,10 +23,16 @@ var (
 )
 
 type Server struct {
+	DBConnector *storage.Database
 }
 
-func New() *Server {
-	return &Server{}
+func New(conn *storage.Database) (*Server, error) {
+	if conn == nil {
+		return nil, errors.New("database connector cannot be nil")
+	}
+	return &Server{
+		DBConnector: conn,
+	}, nil
 }
 
 // Paginate implements pagination for endpoints

@@ -99,7 +99,6 @@ func securityHeaders() func(next http.Handler) http.Handler {
 			w.Header().Set("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
 			next.ServeHTTP(w, r)
 		}
-
 		return http.HandlerFunc(fn)
 	}
 }

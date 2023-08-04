@@ -15,19 +15,21 @@ import (
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormlog "gorm.io/gorm/logger"
 )
+
+var logger = utils.MustGetLogger("db", "pkg.storage")
 
 type Database struct {
 	Client *gorm.DB
 }
 
 func New(host, user, pass, sslMode, database string, port int) (*Database, error) {
-	glog := logger.New(
+	glog := gormlog.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
-		logger.Config{
+		gormlog.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Silent,
+			LogLevel:                  gormlog.Silent,
 			IgnoreRecordNotFoundError: true,
 			Colorful:                  false,
 		},
@@ -55,7 +57,9 @@ func (db *Database) SyncSchema() error {
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	event.ID = graphql.ID(utils.NewULIDAsString())
 
-	// TODO: set fingerprint
+	if !receiversExist(tx, []string{string(event.EventReceiverID)}) {
+		return nil, fmt.Errorf("cannot create event for non-existent receiver '%s'", event.EventReceiverID)
+	}
 
 	result := tx.Create(&event)
 	if result.Error != nil {
@@ -100,16 +104,32 @@ func FindEventReceiver(tx *gorm.DB, id graphql.ID) (*EventReceiver, error) {
 	return &eventReciever, nil
 }
 
-func CreateEventReceiverGroup(tx *gorm.DB, eventReceiverGroup EventReceiverGroup) (*EventReceiverGroup, error) {
-	eventReceiverGroup.ID = graphql.ID(utils.NewULIDAsString())
+func CreateEventReceiverGroup(tx *gorm.DB, receiverIDs []string, group EventReceiverGroup) (*EventReceiverGroup, error) {
+	group.ID = graphql.ID(utils.NewULIDAsString())
 
-	// TODO: set fingerprint
+	if !receiversExist(tx, receiverIDs) {
+		return nil, fmt.Errorf("not all receivers exist")
+	}
 
-	result := tx.Create(&eventReceiverGroup)
+	// TODO: find a way to make these two creations atomic
+	result := tx.Create(&group)
 	if result.Error != nil {
 		return nil, pgError(result.Error)
 	}
-	return &eventReceiverGroup, nil
+
+	// TODO: This is a horrible way to do this. Figure out something better.
+	for _, id := range receiverIDs {
+		recToGroup := EventReceiverGroupToEventReceiver{
+			EventReceiverGroupID: group.ID,
+			EventReceiverID:      graphql.ID(id),
+		}
+		tx.Create(&recToGroup)
+		if result.Error != nil {
+			return nil, pgError(result.Error)
+		}
+	}
+
+	return &group, nil
 }
 
 func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) (*EventReceiverGroup, error) {
@@ -147,4 +167,26 @@ func pgError(err error) error {
 	default:
 		return err
 	}
+}
+
+func receiversExist(tx *gorm.DB, ids []string) bool {
+	var recs []EventReceiver
+	for _, id := range ids {
+		rec := EventReceiver{
+			ID: graphql.ID(id),
+		}
+		recs = append(recs, rec)
+	}
+	result := tx.Find(&recs)
+	if result.Error != nil {
+		logger.V(1).Error(result.Error, "unable to obtain receiver")
+		return false
+	}
+
+	if result.RowsAffected != int64(len(ids)) {
+		//TODO: return data on missing receivers
+		logger.V(1).Info("some event receivers do not exist")
+		return false
+	}
+	return true
 }

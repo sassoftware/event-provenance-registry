@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api"
@@ -91,14 +91,9 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	ctx := context.Background()
-	router, connection, err := api.InitializeAPI(ctx, cfg)
+	router, err := api.InitializeAPI(ctx, cfg)
 	if err != nil {
 		return err
-	}
-
-	err = connection.SyncSchema()
-	if err != nil {
-		logger.Error(err, "failed to sync storage schema")
 	}
 
 	server := &http.Server{

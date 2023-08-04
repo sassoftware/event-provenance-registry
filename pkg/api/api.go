@@ -5,6 +5,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -28,15 +29,26 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // InitializeAPI starts the database, kafka message producer, middleware, and endpoints
-func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Database, error) {
-	// Create a new router
-	router := chi.NewRouter()
+func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
+	if cfg == nil {
+		return nil, fmt.Errorf("no config provided")
+	}
+
+	//// Create a new connection to our pg database
+	// db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
+	// if err != nil {
+	//	log.Fatal(err)
+	// }
 
 	// Create a new connection to our pg database
 	connection, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// resolver.Database.Client.
+	// TODO: we can't call the mutation resolver endpoints because they're private. Need a way to access the database
+	//  connector outside of the graphql handlers.
 
 	// db.SetMaxOpenConns(cfg.DB.MaxConnections)
 	// db.SetMaxIdleConns(cfg.DB.IdleConnections)
@@ -52,15 +64,20 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	// schema.AddExtensions(graph.NewLastPageExt())
 	// schema.AddExtensions(graph.NewTotalExt())
 	//
-	// //  Create a server struct that holds a pointer to our database as well
-	// //  as the address of our graphql schema
+	//// Create a server struct that holds a pointer to our database as well
+	//// as the address of our graphql schema
 	// authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
 	// if err != nil {
-	// 	return nil, nil, err
+	//	return nil, nil, err
 	// }
-	s := server.New() // cfg, &schema, db, cfg.Kafka.MsgChannel
+	s, err := server.New(connection) // cfg, &schema, db, cfg.Kafka.MsgChannel
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//  Add some middleware to our router
+	// Create a new router
+	router := chi.NewRouter()
+	// Add some middleware to our router
 	router.Use(
 		requestTimer(),
 		requestCounter(),
@@ -175,7 +192,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, *storage.Da
 	})
 
 	FileServer(router, "/resources", cfg.Server.ResourceDir)
-	return router, connection, nil
+	return router, nil
 }
 
 // FileServer is serving static files

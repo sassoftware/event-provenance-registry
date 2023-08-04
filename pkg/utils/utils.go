@@ -142,11 +142,10 @@ func DeepEqualStringArray(first []string, second []string) bool {
 
 // Seed struct for computing the fingerprint
 type Seed struct {
-	Name        string   `json:"name,omitempty"`
-	Action      string   `json:"action,omitempty"`
-	Version     string   `json:"version,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Type        string `json:"type,omitempty"`
+	Version     string `json:"version,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // Fingerprint creates a fingerprint for an Event Receiver and a Receiver Group
@@ -154,10 +153,7 @@ type Seed struct {
 // ["action", "description", "name", "tags", "version"]
 func (g *Seed) Fingerprint() string {
 	sep := " "
-	seed := "v1" + sep + g.Action + sep + g.Description + sep + g.Name
-	for _, x := range g.Tags {
-		seed = seed + sep + x
-	}
+	seed := "v1" + sep + g.Type + sep + g.Description + sep + g.Name
 	seed = seed + sep + g.Version
 	sum := sha256.Sum256([]byte(seed))
 	return fmt.Sprintf("%x", sum)
