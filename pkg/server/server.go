@@ -6,6 +6,9 @@ package server
 import (
 	_ "embed"
 	"errors"
+	"fmt"
+	"github.com/go-chi/render"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
 	"net/http"
 
 	"github.com/graph-gophers/graphql-go/relay"
@@ -123,4 +126,25 @@ func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
 func (s *Server) GraphQLHandler(connection *storage.Database) http.HandlerFunc {
 	handler := &relay.Handler{Schema: schema.New(connection)}
 	return handler.ServeHTTP
+}
+
+// handleGetResponse for a CRUD operation handle the response.
+func handleReadResponse(w http.ResponseWriter, r *http.Request, object any, err error) {
+	resp := models.RestResponse{
+		Data:   object,
+		Errors: []error{err},
+	}
+	if err != nil {
+		fmt.Println(err.Error())
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, resp)
+		return
+	}
+
+	if object == nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, resp)
+		return
+	}
+	render.JSON(w, r, resp)
 }

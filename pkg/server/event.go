@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/graph-gophers/graphql-go"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
@@ -45,7 +47,8 @@ func (s *Server) GetEvents() http.HandlerFunc {
 
 func (s *Server) GetEventByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: implement me
-		panic("implement me!")
+		id := chi.URLParam(r, "id")
+		event, err := storage.FindEvent(s.DBConnector.Client, graphql.ID(id))
+		handleReadResponse(w, r, event, err)
 	}
 }

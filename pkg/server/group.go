@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
@@ -62,7 +63,8 @@ func (s *Server) GetGroups() http.HandlerFunc {
 
 func (s *Server) GetGroupByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: implement me
-		panic("implement me!")
+		id := chi.URLParam(r, "id")
+		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
+		handleReadResponse(w, r, rec, err)
 	}
 }

@@ -118,7 +118,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEvents())
 				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetEvents())
 				r.Post("/", s.CreateEvent())
-				r.Route("/{eventID}", func(r chi.Router) {
+				r.Route("/{id}", func(r chi.Router) {
 					r.Get("/", s.GetEventByID())
 				})
 			})
@@ -126,7 +126,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 				r.Post("/", s.CreateReceiver())
 				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetReceivers())
 				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetReceivers())
-				r.Route("/{receiverID}", func(r chi.Router) {
+				r.Route("/{id}", func(r chi.Router) {
 					r.Get("/", s.GetReceiverByID())
 				})
 			})
@@ -134,7 +134,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 				r.Post("/", s.CreateGroup())
 				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetGroups())
 				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetGroups())
-				r.Route("/{groupID}", func(r chi.Router) {
+				r.Route("/{id}", func(r chi.Router) {
 					r.Get("/", s.GetGroupByID())
 				})
 			})

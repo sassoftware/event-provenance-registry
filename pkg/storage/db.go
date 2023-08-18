@@ -94,6 +94,7 @@ func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiv
 	return &eventReceiver, nil
 }
 
+// FindEventReceiver tries to find an event receiver by ID.
 func FindEventReceiver(tx *gorm.DB, id graphql.ID) (*EventReceiver, error) {
 	var eventReciever EventReceiver
 	result := tx.Model(&EventReceiver{}).First(&eventReciever, &EventReceiver{ID: id})
