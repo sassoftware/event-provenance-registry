@@ -41,18 +41,18 @@ type EventReceiverGroupInput struct {
 	EventReceiverIDs []graphql.ID
 }
 
-func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEvent(args struct{ Input EventInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventInput := storage.Event{
-		Name:            args.Event.Name,
-		Version:         args.Event.Version,
-		Release:         args.Event.Release,
-		PlatformID:      args.Event.PlatformID,
-		Package:         args.Event.Package,
-		Description:     args.Event.Description,
-		Payload:         args.Event.Payload,
-		Success:         args.Event.Success,
-		EventReceiverID: args.Event.EventReceiverID,
+		Name:            args.Input.Name,
+		Version:         args.Input.Version,
+		Release:         args.Input.Release,
+		PlatformID:      args.Input.PlatformID,
+		Package:         args.Input.Package,
+		Description:     args.Input.Description,
+		Payload:         args.Input.Payload,
+		Success:         args.Input.Success,
+		EventReceiverID: args.Input.EventReceiverID,
 	}
 
 	eventReciever, err := storage.CreateEvent(r.Connection.Client, eventInput)
@@ -64,14 +64,14 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphq
 	return &eventReciever.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiver(args struct{ Input EventReceiverInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventRecieverInput := storage.EventReceiver{
-		Name:        args.EventReceiver.Name,
-		Type:        args.EventReceiver.Type,
-		Version:     args.EventReceiver.Version,
-		Description: args.EventReceiver.Description,
-		Schema:      args.EventReceiver.Schema,
+		Name:        args.Input.Name,
+		Type:        args.Input.Type,
+		Version:     args.Input.Version,
+		Description: args.Input.Description,
+		Schema:      args.Input.Schema,
 	}
 
 	eventReciever, err := storage.CreateEventReceiver(r.Connection.Client, eventRecieverInput)
@@ -83,17 +83,43 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 	return &eventReciever.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (*graphql.ID, error) {
-	logger.Info("created", "eventReceiverGroup", args.EventReceiverGroup)
-	return nil, nil
+func (r *MutationResolver) CreateEventReceiverGroup(args struct{ Input EventReceiverGroupInput }) (*graphql.ID, error) {
+	// TODO: centralize this and make it look better
+	eventRecieverGroupInput := storage.EventReceiverGroup{
+		Name:             args.Input.Name,
+		Type:             args.Input.Type,
+		Version:          args.Input.Version,
+		Description:      args.Input.Description,
+		Enabled:          true,
+		EventReceiverIDs: args.Input.EventReceiverIDs,
+	}
+
+	eventRecieverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventRecieverGroupInput)
+	if err != nil {
+		logger.Error(err, "error creating event receiver group", "input", eventRecieverGroupInput)
+		return nil, err
+	}
+
+	logger.Info("created", "eventReceiverGroup", eventRecieverGroup)
+	return &eventRecieverGroup.ID, nil
 }
 
 func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, true)
+	if err != nil {
+		logger.Error(err, "error setting event receiver group enabled", "id", args.ID)
+		return nil, err
+	}
 	logger.Info("updated", "eventRecieverGroupEnabled", args.ID)
-	return nil, nil
+	return &args.ID, nil
 }
 
 func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, false)
+	if err != nil {
+		logger.Error(err, "error setting event receiver group disabled", "id", args.ID)
+		return nil, err
+	}
 	logger.Info("updated", "eventRecieverGroupDisabled", args.ID)
-	return nil, nil
+	return &args.ID, nil
 }

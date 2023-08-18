@@ -104,12 +104,14 @@ func (s *Server) Sorting(_ http.Handler) http.Handler {
 
 func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: implement me
+		// implement using swaggest/rest instead of statically
+		// writing an openapi doc
+		// https://github.com/swaggest/rest/
 		panic("implement me!")
 	}
 }
 
-//go:embed graphql.html
+//go:embed resources/graphql.html
 var graphqlHTML []byte
 
 func (s *Server) ServerGraphQLDoc() http.HandlerFunc {

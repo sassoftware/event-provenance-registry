@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-chi/render"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
 func (s *Server) CreateReceiver() http.HandlerFunc {
@@ -23,14 +22,6 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 			render.JSON(w, r, err)
 			return
 		}
-
-		seed := utils.Seed{
-			Name:        rec.Name,
-			Type:        rec.Type,
-			Version:     rec.Version,
-			Description: rec.Description,
-		}
-		rec.Fingerprint = seed.Fingerprint()
 
 		if rec.Schema.String() == "" {
 			msg := "schema is required"

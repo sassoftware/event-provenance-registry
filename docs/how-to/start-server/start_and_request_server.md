@@ -35,10 +35,12 @@ The graphql playground will not be accessible at: <http://localhost:8080/api/v1/
 
 ## Making a request
 
-The current schema for all requests is availiable through the UI. A simple mutation
+The current schema for all requests is available through the UI. A simple mutation
 and query command can be found below
 
 ## Mutation
+
+Create an event receiver
 
 ```graphql
 mutation {
@@ -84,14 +86,82 @@ mutation {
 }
 ```
 
+This can then be used to create a new event reciever group
+
+```graphql
+mutation {
+  create_event_receiver_group(
+    event_receiver_group: {
+      name: "grant",
+      version: "1.0.0",
+      description: "a fake event reciever",
+      event_receiver_ids: [
+        "ID_RETURNED_FROM_PREVIOUS_MUTATION"
+      ],
+      type: "test"
+    }
+  )
+}
+```
+
+This will return the id of the newly created event receiver group.
+
+```json
+{
+  "data": {
+    "create_event_receiver_group": "01H713QGDGCW546NV7QYEK3QJ7"
+  }
+}
+```
+
+Event Reciever Groups can be updated using the following mutation
+
+```graphql
+mutation {
+  set_event_receiver_group_enabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+}
+```
+
+```graphql
+mutation {
+  set_event_receiver_group_disabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+}
+```
+
 ## Query
 
 This query is only returning a subset of the available fields. Pass
 in the ID of the previously created event
 
 ```graphql
-{
+query {
   event(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+    name
+    version
+    description
+  }
+}
+```
+
+This query is only returning a subset of the available fields. Pass
+in the ID of the previously created event_receiver
+
+```graphql
+query {
+  event_receiver(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+    name
+    version
+    description
+  }
+}
+```
+
+This query is only returning a subset of the available fields. Pass
+in the ID of the previously created event_reciever_group
+
+```graphql
+query {
+  event_receiver_group(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
     name
     version
     description

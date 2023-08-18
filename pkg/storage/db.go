@@ -57,10 +57,6 @@ func (db *Database) SyncSchema() error {
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	event.ID = graphql.ID(utils.NewULIDAsString())
 
-	if !receiversExist(tx, []string{string(event.EventReceiverID)}) {
-		return nil, fmt.Errorf("cannot create event for non-existent receiver '%s'", event.EventReceiverID)
-	}
-
 	result := tx.Create(&event)
 	if result.Error != nil {
 		return nil, pgError(result.Error)
@@ -83,7 +79,13 @@ func FindEvent(tx *gorm.DB, id graphql.ID) (*Event, error) {
 func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiver, error) {
 	eventReceiver.ID = graphql.ID(utils.NewULIDAsString())
 
-	// TODO: set fingerprint
+	seed := utils.Seed{
+		Name:        eventReceiver.Name,
+		Type:        eventReceiver.Type,
+		Version:     eventReceiver.Version,
+		Description: eventReceiver.Description,
+	}
+	eventReceiver.Fingerprint = seed.Fingerprint()
 
 	result := tx.Create(&eventReceiver)
 	if result.Error != nil {
@@ -104,34 +106,37 @@ func FindEventReceiver(tx *gorm.DB, id graphql.ID) (*EventReceiver, error) {
 	return &eventReciever, nil
 }
 
-func CreateEventReceiverGroup(tx *gorm.DB, receiverIDs []string, group EventReceiverGroup) (*EventReceiverGroup, error) {
-	group.ID = graphql.ID(utils.NewULIDAsString())
+func CreateEventReceiverGroup(tx *gorm.DB, eventReceiverGroup EventReceiverGroup) (*EventReceiverGroup, error) {
+	eventReceiverGroup.ID = graphql.ID(utils.NewULIDAsString())
 
-	if !receiversExist(tx, receiverIDs) {
-		return nil, fmt.Errorf("not all receivers exist")
+	// create our EventReceiverGroupToEventReceivers
+	eventReceiverGroupToEventReceivers := []*EventReceiverGroupToEventReceiver{}
+	for _, eventReceiverID := range eventReceiverGroup.EventReceiverIDs {
+		eventReceiverGroupToEventReceivers = append(eventReceiverGroupToEventReceivers, &EventReceiverGroupToEventReceiver{
+			EventReceiverID:      eventReceiverID,
+			EventReceiverGroupID: eventReceiverGroup.ID,
+		})
 	}
 
-	// TODO: find a way to make these two creations atomic
-	result := tx.Create(&group)
-	if result.Error != nil {
-		return nil, pgError(result.Error)
-	}
-
-	// TODO: This is a horrible way to do this. Figure out something better.
-	for _, id := range receiverIDs {
-		recToGroup := EventReceiverGroupToEventReceiver{
-			EventReceiverGroupID: group.ID,
-			EventReceiverID:      graphql.ID(id),
-		}
-		tx.Create(&recToGroup)
+	// create both EventReceiverGroup and EventReceiverGroupToEventReceiver in a single transaction
+	err := tx.Transaction(func(tx *gorm.DB) error {
+		result := tx.Create(&eventReceiverGroup)
 		if result.Error != nil {
-			return nil, pgError(result.Error)
+			return pgError(result.Error)
 		}
+
+		result = tx.CreateInBatches(eventReceiverGroupToEventReceivers, len(eventReceiverGroupToEventReceivers))
+		if result.Error != nil {
+			return pgError(result.Error)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
-
-	return &group, nil
+	return &eventReceiverGroup, nil
 }
-
 func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) (*EventReceiverGroup, error) {
 	var eventRecieverGroup EventReceiverGroup
 	result := tx.Model(&EventReceiverGroup{}).First(&eventRecieverGroup, &EventReceiverGroup{ID: id})
@@ -141,23 +146,22 @@ func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) (*EventReceiverGroup, er
 		}
 		return nil, pgError(result.Error)
 	}
+
+	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
+		Select("event_receiver_group_id").
+		Find(&eventRecieverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: id})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("eventRecieverGroup %s not found in EventReceiverGroupToEventReceiver", id)
+		}
+		return nil, pgError(result.Error)
+	}
 	return &eventRecieverGroup, nil
 }
 
-func updateRecord(tx *gorm.DB, record any) error {
-	result := tx.Save(record)
-	if result.Error != nil {
-		return pgError(result.Error)
-	}
-	return nil
-}
-
-func deleteRecord(tx *gorm.DB, record any) error {
-	result := tx.Delete(record)
-	if result.Error != nil {
-		return pgError(result.Error)
-	}
-	return nil
+func SetEventReceiverGroupEnabled(tx *gorm.DB, id graphql.ID, enabled bool) error {
+	result := tx.Model(&EventReceiverGroup{ID: id}).Update("enabled", enabled)
+	return pgError(result.Error)
 }
 
 func pgError(err error) error {
@@ -167,26 +171,4 @@ func pgError(err error) error {
 	default:
 		return err
 	}
-}
-
-func receiversExist(tx *gorm.DB, ids []string) bool {
-	var recs []EventReceiver
-	for _, id := range ids {
-		rec := EventReceiver{
-			ID: graphql.ID(id),
-		}
-		recs = append(recs, rec)
-	}
-	result := tx.Find(&recs)
-	if result.Error != nil {
-		logger.V(1).Error(result.Error, "unable to obtain receiver")
-		return false
-	}
-
-	if result.RowsAffected != int64(len(ids)) {
-		//TODO: return data on missing receivers
-		logger.V(1).Info("some event receivers do not exist")
-		return false
-	}
-	return true
 }

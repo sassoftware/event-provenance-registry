@@ -9,14 +9,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/models"
+	"github.com/graph-gophers/graphql-go"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
+// GroupInput rest representation of the data for a storage.EventReceiverGroup
+type GroupInput struct {
+	storage.EventReceiverGroup
+	EventReceiverIDs []graphql.ID `json:"event_receiver_ids"`
+}
+
 func (s *Server) CreateGroup() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		group := &models.GroupInput{}
-		err := json.NewDecoder(r.Body).Decode(group)
+		input := &GroupInput{}
+		err := json.NewDecoder(r.Body).Decode(input)
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)
@@ -24,8 +30,16 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			return
 		}
 
-		newGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, group.EventReceiverIDs,
-			group.EventReceiverGroup)
+		eventRecieverGroupInput := storage.EventReceiverGroup{
+			Name:             input.Name,
+			Type:             input.Type,
+			Version:          input.Version,
+			Description:      input.Description,
+			Enabled:          true,
+			EventReceiverIDs: input.EventReceiverIDs,
+		}
+
+		eventRecieverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventRecieverGroupInput)
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)
@@ -35,7 +49,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 
 		//TODO: write to message bus
 
-		render.JSON(w, r, newGroup.ID)
+		render.JSON(w, r, eventRecieverGroup.ID)
 	}
 }
 

@@ -8,10 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -46,9 +42,10 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 		log.Fatal(err)
 	}
 
-	// resolver.Database.Client.
-	// TODO: we can't call the mutation resolver endpoints because they're private. Need a way to access the database
-	//  connector outside of the graphql handlers.
+	err = connection.SyncSchema()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// db.SetMaxOpenConns(cfg.DB.MaxConnections)
 	// db.SetMaxIdleConns(cfg.DB.IdleConnections)
@@ -190,36 +187,5 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 		// r.Get("/", s.GetIndexHTML())
 		// r.Get("/status", s.GetServerStatusHTML())
 	})
-
-	FileServer(router, "/resources", cfg.Server.ResourceDir)
 	return router, nil
-}
-
-// FileServer is serving static files
-func FileServer(r chi.Router, public string, static string) {
-	if strings.ContainsAny(public, "{}*") {
-		panic("FileServer does not permit URL parameters.")
-	}
-
-	root, _ := filepath.Abs(static)
-	if _, err := os.Stat(root); os.IsNotExist(err) {
-		panic("Static Documents Directory Not Found")
-	}
-
-	fs := http.StripPrefix(public, http.FileServer(http.Dir(root)))
-
-	if public != "/" && public[len(public)-1] != '/' {
-		r.Get(public, http.RedirectHandler(public+"/", http.StatusMovedPermanently).ServeHTTP)
-		public += "/"
-	}
-
-	// authorizer.RequireRole(multitoken.RoleUnauthenticated) https://rndjira.sas.com/browse/CPIPE-89
-	r.With().Get(public+"*", func(w http.ResponseWriter, r *http.Request) {
-		file := strings.Replace(r.RequestURI, public, "/", 1)
-		if _, err := os.Stat(root + file); os.IsNotExist(err) {
-			http.ServeFile(w, r, path.Join(root, "index.html"))
-			return
-		}
-		fs.ServeHTTP(w, r)
-	})
 }
