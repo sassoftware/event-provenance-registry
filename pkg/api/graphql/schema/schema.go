@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/resolvers"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/resolvers"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 

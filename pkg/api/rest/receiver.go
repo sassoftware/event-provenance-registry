@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2023, SAS Institute Inc., Cary, NC, USA.  All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-package server
+package rest
 
 import (
 	"encoding/json"
@@ -50,17 +50,10 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 	}
 }
 
-func (s *Server) GetReceivers() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO: implement me
-		panic("implement me!")
-	}
-}
-
 func (s *Server) GetReceiverByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		rec, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
-		handleReadResponse(w, r, rec, err)
+		handleGetResponse(w, r, rec, err)
 	}
 }

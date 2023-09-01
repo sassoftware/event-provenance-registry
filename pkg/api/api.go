@@ -16,7 +16,6 @@ import (
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/server"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
@@ -67,7 +66,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 	// if err != nil {
 	//	return nil, nil, err
 	// }
-	s, err := server.New(connection) // cfg, &schema, db, cfg.Kafka.MsgChannel
+	s, err := New(connection) // cfg, &schema, db, cfg.Kafka.MsgChannel
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +98,7 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 	})
 
 	router.Route("/api", func(r chi.Router) {
-		r.Get("/", s.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
 			if cfg.Server.VerboseAPI {
@@ -112,30 +111,26 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 				})
 				r.Use(httplog.RequestLogger(httpLogger))
 			}
-			r.Get("/openapi", s.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+			r.Get("/openapi", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
 			// REST endpoints
 			r.Route("/events", func(r chi.Router) {
-				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetEvents())
-				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetEvents())
-				r.Post("/", s.CreateEvent())
+				r.Post("/", s.Rest.CreateEvent())
 				r.Route("/{id}", func(r chi.Router) {
-					r.Get("/", s.GetEventByID())
+					r.Get("/", s.Rest.GetEventByID())
 				})
 			})
 			r.Route("/receivers", func(r chi.Router) {
-				r.Post("/", s.CreateReceiver())
-				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetReceivers())
-				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetReceivers())
+				r.Post("/", s.Rest.CreateReceiver())
 				r.Route("/{id}", func(r chi.Router) {
-					r.Get("/", s.GetReceiverByID())
+					r.Get("/", s.Rest.GetReceiverByID())
 				})
 			})
 			r.Route("/groups", func(r chi.Router) {
-				r.Post("/", s.CreateGroup())
-				r.With(s.Paginate).With(s.Sorting).Get("/", s.GetGroups())
-				r.With(s.Paginate).With(s.Sorting).Head("/", s.GetGroups())
+				r.Post("/", s.Rest.CreateGroup())
+				r.Put("/enable", s.Rest.SetGroupEnabled(true))
+				r.Put("/disable", s.Rest.SetGroupEnabled(false))
 				r.Route("/{id}", func(r chi.Router) {
-					r.Get("/", s.GetGroupByID())
+					r.Get("/", s.Rest.GetGroupByID())
 				})
 			})
 		})
@@ -163,8 +158,8 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 	// Separate, to ensure no authentication required.
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
-		r.Get("/", s.ServerGraphQLDoc())
-		r.Post("/query", s.GraphQLHandler(connection))
+		r.Get("/", s.GraphQL.ServerGraphQLDoc())
+		r.Post("/query", s.GraphQL.GraphQLHandler(connection))
 	})
 
 	// Public Api Endpoints

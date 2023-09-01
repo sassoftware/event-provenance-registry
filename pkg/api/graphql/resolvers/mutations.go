@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/graphql/schema/types"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
@@ -41,18 +41,18 @@ type EventReceiverGroupInput struct {
 	EventReceiverIDs []graphql.ID
 }
 
-func (r *MutationResolver) CreateEvent(args struct{ Input EventInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventInput := storage.Event{
-		Name:            args.Input.Name,
-		Version:         args.Input.Version,
-		Release:         args.Input.Release,
-		PlatformID:      args.Input.PlatformID,
-		Package:         args.Input.Package,
-		Description:     args.Input.Description,
-		Payload:         args.Input.Payload,
-		Success:         args.Input.Success,
-		EventReceiverID: args.Input.EventReceiverID,
+		Name:            args.Event.Name,
+		Version:         args.Event.Version,
+		Release:         args.Event.Release,
+		PlatformID:      args.Event.PlatformID,
+		Package:         args.Event.Package,
+		Description:     args.Event.Description,
+		Payload:         args.Event.Payload,
+		Success:         args.Event.Success,
+		EventReceiverID: args.Event.EventReceiverID,
 	}
 
 	eventReciever, err := storage.CreateEvent(r.Connection.Client, eventInput)
@@ -64,14 +64,14 @@ func (r *MutationResolver) CreateEvent(args struct{ Input EventInput }) (*graphq
 	return &eventReciever.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiver(args struct{ Input EventReceiverInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventRecieverInput := storage.EventReceiver{
-		Name:        args.Input.Name,
-		Type:        args.Input.Type,
-		Version:     args.Input.Version,
-		Description: args.Input.Description,
-		Schema:      args.Input.Schema,
+		Name:        args.EventReceiver.Name,
+		Type:        args.EventReceiver.Type,
+		Version:     args.EventReceiver.Version,
+		Description: args.EventReceiver.Description,
+		Schema:      args.EventReceiver.Schema,
 	}
 
 	eventReciever, err := storage.CreateEventReceiver(r.Connection.Client, eventRecieverInput)
@@ -83,15 +83,15 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ Input EventReceiverI
 	return &eventReciever.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiverGroup(args struct{ Input EventReceiverGroupInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventRecieverGroupInput := storage.EventReceiverGroup{
-		Name:             args.Input.Name,
-		Type:             args.Input.Type,
-		Version:          args.Input.Version,
-		Description:      args.Input.Description,
+		Name:             args.EventReceiverGroup.Name,
+		Type:             args.EventReceiverGroup.Type,
+		Version:          args.EventReceiverGroup.Version,
+		Description:      args.EventReceiverGroup.Description,
 		Enabled:          true,
-		EventReceiverIDs: args.Input.EventReceiverIDs,
+		EventReceiverIDs: args.EventReceiverGroup.EventReceiverIDs,
 	}
 
 	eventRecieverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventRecieverGroupInput)
