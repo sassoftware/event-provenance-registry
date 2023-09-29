@@ -6,8 +6,10 @@ package api
 import (
 	"context"
 	"fmt"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -23,8 +25,8 @@ import (
 
 var logger = utils.MustGetLogger("server", "server.api")
 
-// InitializeAPI starts the database, kafka message producer, middleware, and endpoints
-func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
+// Initialize starts the database, kafka message producer, middleware, and endpoints
+func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*chi.Mux, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
 	}
@@ -46,27 +48,21 @@ func InitializeAPI(_ context.Context, cfg *config.Config) (*chi.Mux, error) {
 		log.Fatal(err)
 	}
 
-	// db.SetMaxOpenConns(cfg.DB.MaxConnections)
-	// db.SetMaxIdleConns(cfg.DB.IdleConnections)
-	// db.SetConnMaxLifetime(time.Duration(cfg.DB.ConnectionLife) * time.Minute)
+	// set up kafka
+	kafkaCfg, err := message.NewConfig(cfg.Kafka.Version)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	//  TODO: add this stuff.
-	// schema, err := graph.NewSchema(db)
-	// if err != nil {
-	// 	logger.Error(err, "error creating schema")
-	// 	return nil, nil, err
-	// }
-	//
-	// schema.AddExtensions(graph.NewLastPageExt())
-	// schema.AddExtensions(graph.NewTotalExt())
-	//
-	//// Create a server struct that holds a pointer to our database as well
-	//// as the address of our graphql schema
-	// authorizer, err := auth.NewAuthorizer(ctx, cfg.Auth)
-	// if err != nil {
-	//	return nil, nil, err
-	// }
-	s, err := New(connection) // cfg, &schema, db, cfg.Kafka.MsgChannel
+	cfg.Kafka.Producer, err = message.NewProducer(cfg.Kafka.Peers, kafkaCfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cfg.Kafka.Producer.ConsumeSuccesses(wg)
+	cfg.Kafka.Producer.ConsumeErrors(wg)
+
+	s, err := New(ctx, connection, cfg.Kafka, wg)
 	if err != nil {
 		log.Fatal(err)
 	}

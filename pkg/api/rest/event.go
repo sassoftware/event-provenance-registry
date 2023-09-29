@@ -6,6 +6,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -32,8 +33,10 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 			render.JSON(w, r, err)
 			return
 		}
-		// TODO: write to message bus
 
+		s.kafkaCfg.MsgChannel <- message.Message{Data: message.Data{
+			Events: []*storage.Event{newEvent},
+		}}
 		render.JSON(w, r, newEvent.ID)
 	}
 }

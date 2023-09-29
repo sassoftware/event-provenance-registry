@@ -1,8 +1,11 @@
 package rest
 
 import (
+	"context"
 	"fmt"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"net/http"
+	"sync"
 
 	"github.com/go-chi/render"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
@@ -10,12 +13,17 @@ import (
 
 type Server struct {
 	DBConnector *storage.Database
+
+	kafkaCfg *config.KafkaConfig
 }
 
-func New(conn *storage.Database) *Server {
-	return &Server{
+func New(ctx context.Context, conn *storage.Database, cfg *config.KafkaConfig, wg *sync.WaitGroup) *Server {
+	svr := &Server{
 		DBConnector: conn,
+		kafkaCfg:    cfg,
 	}
+	svr.startProducer(ctx, wg)
+	return svr
 }
 
 func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
@@ -25,6 +33,22 @@ func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 		// https://github.com/swaggest/rest/
 		panic("implement me!")
 	}
+}
+
+func (s *Server) startProducer(ctx context.Context, wg *sync.WaitGroup) {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case msg := <-s.kafkaCfg.MsgChannel:
+				s.kafkaCfg.Producer.Async(s.kafkaCfg.Topic, msg)
+			}
+		}
+	}()
 }
 
 // RestResponse generic rest response for all object types.

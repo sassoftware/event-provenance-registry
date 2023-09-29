@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net"
 	"net/http"
 	"os"
@@ -79,11 +80,14 @@ func preRun(cmd *cobra.Command, _ []string) error {
 func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("debug enabled")
 
+	messageChannel := make(chan message.Message, 1)
+	defer close(messageChannel)
+
 	cfg, err := config.New(
 		config.WithServer(viper.GetString("host"), viper.GetString("port"), "", true, true),
 		config.WithStorage("localhost", "postgres", "", "", "postgres", 5432, 10, 10, 10),
-		// TODO: add these once kafka and auth have been turned on
-		// config.WithKafka(),
+		config.WithKafka(false, "3.4.0", []string{"localhost:19092"}, "test.foo", messageChannel),
+		// TODO: add this once auth have been turned on
 		// config.WithAuth(),
 	)
 	if err != nil {
@@ -91,7 +95,10 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	ctx := context.Background()
-	router, err := api.InitializeAPI(ctx, cfg)
+	var wg sync.WaitGroup
+	defer wg.Wait()
+
+	router, err := api.Initialize(ctx, cfg, &wg)
 	if err != nil {
 		return err
 	}
@@ -106,9 +113,6 @@ func run(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
-
-	var wg sync.WaitGroup
-	defer wg.Wait()
 
 	wg.Add(1)
 	go func() {
@@ -168,7 +172,7 @@ func init() {
 
 	// create two new flags, one for host and one for port
 	rootCmd.Flags().String("host", "localhost", "host to listen on")
-	rootCmd.Flags().String("port", "8080", "port to listen on")
+	rootCmd.Flags().String("port", "8042", "port to listen on")
 
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")

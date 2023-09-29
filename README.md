@@ -5,11 +5,6 @@
 A server for accepting events, storing events, and producing messages on a
 message bus.
 
-See these pages for specific details about different components:
-
-[Database](pkg/storage/README.md)
-[GraphQL API](pkg/graph/README.md)
-
 ## Build
 
 ```bash
@@ -48,24 +43,37 @@ make PREFIX=$(go env GOPATH) install-darwin
 
 ## Usage
 
+### Running the Server
+
+Start up Redpanda. See [the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more details.
+
+```bash
+docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
+```
+
+[Start up Postgres.](docs/how-to/start-server/start_and_request_server.md)
+
+### Interacting with the Server
+
 Create an event receiver:
 
 ```bash
-curl --location --request POST 'http://localhost:8080/api/v1/receivers' \
+curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 --header 'Content-Type: application/json' \
 --data-raw '{
   "name": "foobar",
   "type": "whatever",
   "version": "1.1.2",
   "description": "it does stuff",
-  "enabled": true
+  "enabled": true,
+  "schema": {}
 }'
 ```
 
 Create an event:
 
 ```bash
-curl --location --request POST 'http://localhost:8080/api/v1/events' \
+curl --location --request POST 'http://localhost:8042/api/v1/events' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "name": "idc",
@@ -76,14 +84,14 @@ curl --location --request POST 'http://localhost:8080/api/v1/events' \
     "description": "blah",
     "payload": "",
     "success": true,
-    "event_receiver_id": "01H5VWNWQ6ETAEW7DT6CMD5EC0"
+    "event_receiver_id": "01H9GW7FYY4XYE2R930YTFM7FM"
 }'
 ```
 
 Create a group:
 
 ```bash
-curl --location --request POST 'http://localhost:8080/api/v1/groups' \
+curl --location --request POST 'http://localhost:8042/api/v1/groups' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "name": "group",
@@ -91,7 +99,7 @@ curl --location --request POST 'http://localhost:8080/api/v1/groups' \
     "version": "3.3.3",
     "description": "foobar",
     "enabled": true,
-    "event_receiver_ids": ["01H5VWNWQ6ETAEW7DT6CMD5EC0"]
+    "event_receiver_ids": ["01H9GW7FYY4XYE2R930YTFM7FM"]
 }'
 ```
 

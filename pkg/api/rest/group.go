@@ -6,6 +6,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -40,7 +41,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			EventReceiverIDs: input.EventReceiverIDs,
 		}
 
-		eventRecieverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventRecieverGroupInput)
+		eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventRecieverGroupInput)
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)
@@ -48,9 +49,10 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			return
 		}
 
-		//TODO: write to message bus
-
-		render.JSON(w, r, eventRecieverGroup.ID)
+		s.kafkaCfg.MsgChannel <- message.Message{Data: message.Data{
+			EventGroups: []*storage.EventReceiverGroup{eventReceiverGroup},
+		}}
+		render.JSON(w, r, eventReceiverGroup.ID)
 	}
 }
 

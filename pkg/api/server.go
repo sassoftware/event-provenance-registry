@@ -4,8 +4,11 @@
 package api
 
 import (
+	"context"
 	_ "embed"
 	"errors"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
+	"sync"
 
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/rest"
@@ -17,12 +20,12 @@ type Server struct {
 	Rest    *rest.Server
 }
 
-func New(conn *storage.Database) (*Server, error) {
+func New(ctx context.Context, conn *storage.Database, config *config.KafkaConfig, wg *sync.WaitGroup) (*Server, error) {
 	if conn == nil {
 		return nil, errors.New("database connector cannot be nil")
 	}
 	return &Server{
-		graphql.New(conn),
-		rest.New(conn),
+		GraphQL: graphql.New(conn),
+		Rest:    rest.New(ctx, conn, config, wg),
 	}, nil
 }

@@ -17,7 +17,7 @@ docker run -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres
 ## Start server
 
 The server can be started using the default settings. This will make the server
-available on localhost:8080.
+available on localhost:8042.
 
 ```bash
 go run main.go
@@ -28,10 +28,10 @@ go run main.go
 On successful startup the server will display the message below:
 
 ```json
-{"level":"info","module":"cmd.root","v":0,"logger":"server","timestamp":"2023-07-29T13:56:22.378783-04:00","message":"connect to http://localhost:8080/api/v1/graphql for GraphQL playground"}
+{"level":"info","module":"cmd.root","v":0,"logger":"server","timestamp":"2023-07-29T13:56:22.378783-04:00","message":"connect to http://localhost:8042/api/v1/graphql for GraphQL playground"}
 ```
 
-The graphql playground will not be accessible at: <http://localhost:8080/api/v1/graphql>
+The graphql playground will not be accessible at: <http://localhost:8042/api/v1/graphql>
 
 ## Making a request
 

@@ -132,14 +132,13 @@ func WithServer(host, port, resourceDir string, debug, verbose bool) Options {
 }
 
 // WithKafka returns an option that sets the kafka config
-func WithKafka(tls bool, version string, peers []string, topic string, producer message.Producer, channel chan message.Message) Options {
+func WithKafka(tls bool, version string, peers []string, topic string, channel chan message.Message) Options {
 	return func(cfg *Config) error {
 		cfg.Kafka = &KafkaConfig{
 			TLS:        tls,
 			Version:    version,
 			Peers:      peers,
 			Topic:      topic,
-			Producer:   producer,
 			MsgChannel: channel,
 		}
 		return nil
