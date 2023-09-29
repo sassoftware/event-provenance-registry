@@ -3,15 +3,14 @@
 This how-to walks you through starting a server and making your first request
 using GraphQL.
 
-## Start database
+## Start dependencies
 
-The database must be started before the server can be started. This can be done
-using the command below. This command will start a postgres instance on
-port 5432 with no authentication. Be sure your docker daemon is available
-prior to running the command.
+This project contains a docker-compose file that will start up a postgres
+database, a redpanda kafka instance, and a redpanda UI. These three
+dependencies can be started by running the following command:
 
 ```bash
-docker run -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres
+docker-compose -f docs/how-to/start-server/docker-compose.yaml up
 ```
 
 ## Start server
