@@ -45,7 +45,9 @@ make PREFIX=$(go env GOPATH) install-darwin
 
 ### Running the Server
 
-Start up Redpanda. See [the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more details.
+Start up Redpanda.
+See [the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more
+details.
 
 ```bash
 docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
@@ -54,6 +56,9 @@ docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
 [Start up Postgres.](docs/how-to/start-server/start_and_request_server.md)
 
 ### Interacting with the Server
+
+An event receiver is an object that represents some type of action that would
+occur in your pipeline (i.e. a build, a test run, a deployment, etc...).
 
 Create an event receiver:
 
@@ -66,9 +71,22 @@ curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
   "version": "1.1.2",
   "description": "it does stuff",
   "enabled": true,
-  "schema": {}
+  "schema": {
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    }
+  }
+}
 }'
 ```
+
+When you create an event, you must specify an `event_receiver_id` to associate
+it with. An event is the record of some action being completed. You cannot
+create an event for a non-existent receiver ID. The payload field of the event
+must conform to the schema defined on the event receiver that you have given the
+ID of.
 
 Create an event:
 
@@ -82,9 +100,9 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
     "platform_id": "linux",
     "package": "docker",
     "description": "blah",
-    "payload": "",
+    "payload": {"name":"bob"},
     "success": true,
-    "event_receiver_id": "01H9GW7FYY4XYE2R930YTFM7FM"
+    "event_receiver_id": "01HDS785T0V8KTSTDM9XGT33QQ"
 }'
 ```
 

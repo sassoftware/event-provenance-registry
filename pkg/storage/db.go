@@ -6,6 +6,8 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
 	"log"
 	"os"
 	"time"
@@ -54,7 +56,12 @@ func (db *Database) SyncSchema() error {
 	)
 }
 
+// CreateEvent creates and event record in the database. Throws an error if the event receiver does not exist or if the
+// event payload does not match the receiver schema.
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
+	if err := validateReceiverSchema(tx, event.EventReceiverID, event.Payload); err != nil {
+		return nil, err
+	}
 	event.ID = graphql.ID(utils.NewULIDAsString())
 
 	result := tx.Create(&event)
@@ -172,4 +179,38 @@ func pgError(err error) error {
 	default:
 		return err
 	}
+}
+
+func validateReceiverSchema(tx *gorm.DB, receiverID graphql.ID, eventPayload types.JSON) error {
+	logger.Info("checking event payload against receiver schema", "receiver", receiverID)
+	var rec EventReceiver
+	result := tx.Model(&EventReceiver{}).First(&rec, &EventReceiver{ID: receiverID})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("could not validate event schema. event receiver %s not found",
+				string(receiverID))
+		}
+		return pgError(result.Error)
+	}
+
+	loader := gojsonschema.NewStringLoader(rec.Schema.String())
+	sch, err := gojsonschema.NewSchema(loader)
+	if err != nil {
+		return err
+	}
+	jsResult, err := sch.Validate(gojsonschema.NewStringLoader(eventPayload.String()))
+	if err != nil {
+		return err
+	}
+	if !jsResult.Valid() {
+		msg := "event payload did not match event receiver schema"
+		err := errors.New(msg)
+		for _, e := range jsResult.Errors() {
+			err = errors.Join(err, errors.New(e.String()))
+		}
+		logger.Error(err, "invalid schema")
+		return err
+	}
+
+	return nil
 }

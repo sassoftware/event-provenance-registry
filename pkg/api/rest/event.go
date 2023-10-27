@@ -20,17 +20,19 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 		event := &storage.Event{}
 		err := json.NewDecoder(r.Body).Decode(event)
 		if err != nil {
-			fmt.Println(err.Error())
+			msg := err.Error()
+			fmt.Println(msg)
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			render.JSON(w, r, msg)
 			return
 		}
 
 		newEvent, err := storage.CreateEvent(s.DBConnector.Client, *event)
 		if err != nil {
-			fmt.Println(err.Error())
+			msg := err.Error()
+			fmt.Println(msg)
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			render.JSON(w, r, msg)
 			return
 		}
 

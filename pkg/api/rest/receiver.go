@@ -6,6 +6,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/xeipuuv/gojsonschema"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
@@ -20,12 +21,14 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 		rec := &storage.EventReceiver{}
 		err := json.NewDecoder(r.Body).Decode(rec)
 		if err != nil {
-			fmt.Println(err.Error())
+			msg := err.Error()
+			fmt.Println(msg)
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			render.JSON(w, r, msg)
 			return
 		}
 
+		// Check that the schema is valid.
 		if rec.Schema.String() == "" {
 			msg := "schema is required"
 			fmt.Println(msg)
@@ -34,13 +37,22 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 			return
 		}
 
-		// TODO: validate the schema
+		loader := gojsonschema.NewStringLoader(rec.Schema.String())
+		_, err = gojsonschema.NewSchema(loader)
+		if err != nil {
+			msg := err.Error()
+			fmt.Println(msg)
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, msg)
+			return
+		}
 
 		newRec, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
 		if err != nil {
-			fmt.Println(err.Error())
+			msg := err.Error()
+			fmt.Println(msg)
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			render.JSON(w, r, msg)
 			return
 		}
 
