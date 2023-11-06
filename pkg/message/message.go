@@ -30,9 +30,9 @@ type Message struct {
 
 // Data contains the data that created the event
 type Data struct {
-	Events         []*storage.Event              `json:"events"`
-	EventReceivers []*storage.EventReceiver      `json:"event_receivers"`
-	EventGroups    []*storage.EventReceiverGroup `json:"event_groups"`
+	Events              []*storage.Event              `json:"events"`
+	EventReceivers      []*storage.EventReceiver      `json:"event_receivers"`
+	EventReceiverGroups []*storage.EventReceiverGroup `json:"event_receiver_groups"`
 }
 
 // ToJSON converts a Events struct to JSON
@@ -53,11 +53,76 @@ func (m *Message) ToYAML() (string, error) {
 	return string(content), nil
 }
 
-// New returns an Message
+// New returns a Message
 func New() *Message {
 	return &Message{
 		Specversion: CloudEventsSpec,
 		APIVersion:  APIv1,
+	}
+}
+
+// NewEvent returns a Message
+func NewEvent(e *storage.Event) Message {
+	er := &storage.EventReceiver{
+		ID:          e.EventReceiver.ID,
+		Name:        e.EventReceiver.Name,
+		Type:        e.EventReceiver.Type,
+		Version:     e.EventReceiver.Version,
+		Description: e.EventReceiver.Description,
+		Schema:      e.EventReceiver.Schema,
+		Fingerprint: e.EventReceiver.Fingerprint,
+		CreatedAt:   e.EventReceiver.CreatedAt,
+	}
+
+	return Message{
+		Success:     e.Success,
+		ID:          string(e.ID),
+		Specversion: CloudEventsSpec,
+		Type:        e.EventReceiver.Type,
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Release:     e.Release,
+		PlatformID:  e.PlatformID,
+		Package:     e.Package,
+		Data: Data{
+			Events:         []*storage.Event{e},
+			EventReceivers: []*storage.EventReceiver{er},
+		},
+	}
+}
+
+// NewEventReceiver returns a Message
+func NewEventReceiver(e *storage.EventReceiver) Message {
+	return Message{
+		Success:     true,
+		ID:          string(e.ID),
+		Specversion: CloudEventsSpec,
+		Type:        "epr.event.receiver.created",
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Package:     "event.receiver",
+		Data: Data{
+			EventReceivers: []*storage.EventReceiver{e},
+		},
+	}
+}
+
+// NewEventReceiverGroup returns a Message
+func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
+	return Message{
+		Success:     true,
+		ID:          string(e.ID),
+		Specversion: CloudEventsSpec,
+		Type:        "epr.event.receiver.group.modified",
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Package:     "event.receiver.group",
+		Data: Data{
+			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+		},
 	}
 }
 

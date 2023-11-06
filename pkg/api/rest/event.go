@@ -6,19 +6,19 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 func (s *Server) CreateEvent() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		event := &storage.Event{}
-		err := json.NewDecoder(r.Body).Decode(event)
+		e := &storage.Event{}
+		err := json.NewDecoder(r.Body).Decode(e)
 		if err != nil {
 			msg := err.Error()
 			fmt.Println(msg)
@@ -27,7 +27,7 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 			return
 		}
 
-		newEvent, err := storage.CreateEvent(s.DBConnector.Client, *event)
+		event, err := storage.CreateEvent(s.DBConnector.Client, *e)
 		if err != nil {
 			msg := err.Error()
 			fmt.Println(msg)
@@ -36,16 +36,20 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 			return
 		}
 
-		s.kafkaCfg.MsgChannel <- message.Message{Data: message.Data{
-			Events: []*storage.Event{newEvent},
-		}}
-		render.JSON(w, r, newEvent.ID)
+		s.kafkaCfg.MsgChannel <- message.NewEvent(event)
+
+		logger.V(1).Info("created", "event", event)
+
+		render.JSON(w, r, event.ID)
 	}
 }
 
 func (s *Server) GetEventByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
+
+		// logger.V(1).Info("GetEventByID", "event", id)
+		logger.Info("GetEventByID", "id", id)
 		event, err := storage.FindEvent(s.DBConnector.Client, graphql.ID(id))
 		handleGetResponse(w, r, event, err)
 	}

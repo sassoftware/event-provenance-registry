@@ -6,7 +6,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"log"
 	"net/http"
 	"sync"
@@ -18,6 +17,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
@@ -155,7 +155,7 @@ func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*c
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
 		r.Get("/", s.GraphQL.ServerGraphQLDoc())
-		r.Post("/query", s.GraphQL.GraphQLHandler(connection))
+		r.Post("/query", s.GraphQL.GraphQLHandler(connection, cfg.Kafka))
 	})
 
 	// Public Api Endpoints

@@ -6,14 +6,14 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"github.com/xeipuuv/gojsonschema"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
 	"log"
 	"os"
 	"time"
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/jackc/pgconn"
+	"github.com/xeipuuv/gojsonschema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -59,21 +59,31 @@ func (db *Database) SyncSchema() error {
 // CreateEvent creates and event record in the database. Throws an error if the event receiver does not exist or if the
 // event payload does not match the receiver schema.
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
-	if err := validateReceiverSchema(tx, event.EventReceiverID, event.Payload); err != nil {
+	var rec EventReceiver
+	result := tx.Model(&EventReceiver{}).First(&rec, &EventReceiver{ID: event.EventReceiverID})
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("could not validate event schema. event receiver %s not found", string(event.EventReceiverID))
+		}
+		return nil, pgError(result.Error)
+	}
+
+	if err := validateReceiverSchema(rec.Schema.String(), event.Payload); err != nil {
 		return nil, err
 	}
 	event.ID = graphql.ID(utils.NewULIDAsString())
 
-	result := tx.Create(&event)
+	results := tx.Create(&event)
 	if result.Error != nil {
-		return nil, pgError(result.Error)
+		return nil, pgError(results.Error)
 	}
+	event.EventReceiver = rec
 	return &event, nil
 }
 
 func FindEvent(tx *gorm.DB, id graphql.ID) (*Event, error) {
 	var event Event
-	result := tx.Model(&Event{}).First(&event, &Event{ID: id})
+	result := tx.Model(&Event{}).Preload("EventReceiver").First(&event, &Event{ID: id})
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("event %s not found", id)
@@ -181,19 +191,8 @@ func pgError(err error) error {
 	}
 }
 
-func validateReceiverSchema(tx *gorm.DB, receiverID graphql.ID, eventPayload types.JSON) error {
-	logger.Info("checking event payload against receiver schema", "receiver", receiverID)
-	var rec EventReceiver
-	result := tx.Model(&EventReceiver{}).First(&rec, &EventReceiver{ID: receiverID})
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("could not validate event schema. event receiver %s not found",
-				string(receiverID))
-		}
-		return pgError(result.Error)
-	}
-
-	loader := gojsonschema.NewStringLoader(rec.Schema.String())
+func validateReceiverSchema(schema string, eventPayload types.JSON) error {
+	loader := gojsonschema.NewStringLoader(schema)
 	sch, err := gojsonschema.NewSchema(loader)
 	if err != nil {
 		return err

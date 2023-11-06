@@ -6,13 +6,13 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xeipuuv/gojsonschema"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/xeipuuv/gojsonschema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
@@ -47,7 +47,7 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 			return
 		}
 
-		newRec, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
+		eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
 		if err != nil {
 			msg := err.Error()
 			fmt.Println(msg)
@@ -56,19 +56,19 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 			return
 		}
 
-		s.kafkaCfg.MsgChannel <- message.Message{Data: message.Data{
-			EventReceivers: []*storage.EventReceiver{newRec},
-		}}
+		s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+
+		logger.V(1).Info("created", "eventReceiver", eventReceiver)
 
 		// TODO: standardize responses
-		render.JSON(w, r, newRec.ID)
+		render.JSON(w, r, eventReceiver.ID)
 	}
 }
 
 func (s *Server) GetReceiverByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		rec, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
-		handleGetResponse(w, r, rec, err)
+		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
+		handleGetResponse(w, r, eventReceiver, err)
 	}
 }

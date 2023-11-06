@@ -3,13 +3,16 @@ package rest
 import (
 	"context"
 	"fmt"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"net/http"
 	"sync"
 
 	"github.com/go-chi/render"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
+
+var logger = utils.MustGetLogger("server", "pkg.api.rest")
 
 type Server struct {
 	DBConnector *storage.Database
@@ -51,15 +54,15 @@ func (s *Server) startProducer(ctx context.Context, wg *sync.WaitGroup) {
 	}()
 }
 
-// RestResponse generic rest response for all object types.
-type RestResponse struct {
+// Response generic rest response for all object types.
+type Response struct {
 	Data   any     `json:"data"`
 	Errors []error `json:"errors"`
 }
 
 // handleGetResponse for a CRUD operation handle the response.
 func handleGetResponse(w http.ResponseWriter, r *http.Request, object any, err error) {
-	resp := RestResponse{
+	resp := Response{
 		Data:   object,
 		Errors: []error{err},
 	}

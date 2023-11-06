@@ -27,6 +27,7 @@ vendor/
 /versioninfo.json
 /VERSION
 /status/version.go.*
+temp/
 
 .vscode/
 .idea/

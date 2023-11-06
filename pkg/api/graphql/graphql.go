@@ -6,16 +6,19 @@ import (
 
 	"github.com/graph-gophers/graphql-go/relay"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 type Server struct {
 	DBConnector *storage.Database
+	kafkaCfg    *config.KafkaConfig
 }
 
-func New(conn *storage.Database) *Server {
+func New(conn *storage.Database, cfg *config.KafkaConfig) *Server {
 	return &Server{
 		DBConnector: conn,
+		kafkaCfg:    cfg,
 	}
 }
 
@@ -28,7 +31,7 @@ func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
 	}
 }
 
-func (s *Server) GraphQLHandler(connection *storage.Database) http.HandlerFunc {
-	handler := &relay.Handler{Schema: schema.New(connection)}
+func (s *Server) GraphQLHandler(connection *storage.Database, cfg *config.KafkaConfig) http.HandlerFunc {
+	handler := &relay.Handler{Schema: schema.New(connection, cfg)}
 	return handler.ServeHTTP
 }

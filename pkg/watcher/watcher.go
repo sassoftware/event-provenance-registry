@@ -21,9 +21,9 @@ type Watcher struct {
 	taskChan chan *Record
 }
 
-/**
+/*
 	A sample watcher can be found below using the functions in this SDK
-	
+
 	func main() {
 		seeds := []string{"localhost:9092"}
 		topics := []string{"example.topic"}
@@ -48,7 +48,9 @@ type Watcher struct {
 		log.Default().Printf("I received a task with value '%s'", record.Value)
 		return nil
 	}
-**/
+*/
+
+// New returns a new Watcher
 func New(brokers, topics []string, consumerGroup string) (*Watcher, error) {
 	client, err := kgo.NewClient(
 		kgo.SeedBrokers(brokers...),
@@ -65,6 +67,7 @@ func New(brokers, topics []string, consumerGroup string) (*Watcher, error) {
 	}, nil
 }
 
+// ConsumeRecords returns matches of record results
 func (w *Watcher) ConsumeRecords(matches func(record *Record) bool) {
 	log.Default().Println("consuming records...")
 	ctx := context.Background()
@@ -85,6 +88,7 @@ func (w *Watcher) ConsumeRecords(matches func(record *Record) bool) {
 	}
 }
 
+// StartTaskHandler returns nil
 func (w *Watcher) StartTaskHandler(taskHandler func(*Record) error) {
 	for {
 		task := <-w.taskChan

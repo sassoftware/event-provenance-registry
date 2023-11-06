@@ -3,14 +3,19 @@ package resolvers
 import (
 	"github.com/graph-gophers/graphql-go"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
-var logger = utils.MustGetLogger("server", "pkg.graphql.resolvers.mutations")
-
+// The MutationResolver type is used to handle mutations in a GraphQL schema and has a connection to a
+// database.
+// @property Connection - The `Connection` property is a reference to a database connection object. It
+// is used to establish a connection to a database and perform various database operations such as
+// querying and modifying data.
 type MutationResolver struct {
 	Connection *storage.Database
+	kafkaCfg   *config.KafkaConfig
 }
 
 type EventInput struct {
@@ -55,18 +60,21 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphq
 		EventReceiverID: args.Event.EventReceiverID,
 	}
 
-	eventReciever, err := storage.CreateEvent(r.Connection.Client, eventInput)
+	event, err := storage.CreateEvent(r.Connection.Client, eventInput)
 	if err != nil {
 		logger.Error(err, "error creating event", "input", eventInput)
 		return nil, err
 	}
-	logger.Info("created", "eventReciever", eventReciever)
-	return &eventReciever.ID, nil
+
+	r.kafkaCfg.MsgChannel <- message.NewEvent(event)
+
+	logger.V(1).Info("created", "event", event)
+	return &event.ID, nil
 }
 
 func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
-	eventRecieverInput := storage.EventReceiver{
+	eventReceiverInput := storage.EventReceiver{
 		Name:        args.EventReceiver.Name,
 		Type:        args.EventReceiver.Type,
 		Version:     args.EventReceiver.Version,
@@ -74,18 +82,21 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 		Schema:      args.EventReceiver.Schema,
 	}
 
-	eventReciever, err := storage.CreateEventReceiver(r.Connection.Client, eventRecieverInput)
+	eventReceiver, err := storage.CreateEventReceiver(r.Connection.Client, eventReceiverInput)
 	if err != nil {
-		logger.Error(err, "error creating event receiver", "input", eventRecieverInput)
+		logger.Error(err, "error creating event receiver", "input", eventReceiverInput)
 		return nil, err
 	}
-	logger.Info("created", "eventReciever", eventReciever)
-	return &eventReciever.ID, nil
+
+	r.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+
+	logger.V(1).Info("created", "eventReceiver", eventReceiver)
+	return &eventReceiver.ID, nil
 }
 
 func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (*graphql.ID, error) {
 	// TODO: centralize this and make it look better
-	eventRecieverGroupInput := storage.EventReceiverGroup{
+	eventReceiverGroupInput := storage.EventReceiverGroup{
 		Name:             args.EventReceiverGroup.Name,
 		Type:             args.EventReceiverGroup.Type,
 		Version:          args.EventReceiverGroup.Version,
@@ -94,14 +105,16 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 		EventReceiverIDs: args.EventReceiverGroup.EventReceiverIDs,
 	}
 
-	eventRecieverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventRecieverGroupInput)
+	eventReceiverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventReceiverGroupInput)
 	if err != nil {
-		logger.Error(err, "error creating event receiver group", "input", eventRecieverGroupInput)
+		logger.Error(err, "error creating event receiver group", "input", eventReceiverGroupInput)
 		return nil, err
 	}
 
-	logger.Info("created", "eventReceiverGroup", eventRecieverGroup)
-	return &eventRecieverGroup.ID, nil
+	r.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
+
+	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
+	return &eventReceiverGroup.ID, nil
 }
 
 func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
@@ -110,7 +123,7 @@ func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.
 		logger.Error(err, "error setting event receiver group enabled", "id", args.ID)
 		return nil, err
 	}
-	logger.Info("updated", "eventRecieverGroupEnabled", args.ID)
+	logger.V(1).Info("updated", "eventReceiverGroupEnabled", args.ID)
 	return &args.ID, nil
 }
 
@@ -120,6 +133,6 @@ func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql
 		logger.Error(err, "error setting event receiver group disabled", "id", args.ID)
 		return nil, err
 	}
-	logger.Info("updated", "eventRecieverGroupDisabled", args.ID)
+	logger.V(1).Info("updated", "eventReceiverGroupDisabled", args.ID)
 	return &args.ID, nil
 }

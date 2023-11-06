@@ -6,7 +6,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net"
 	"net/http"
 	"os"
@@ -19,6 +18,7 @@ import (
 	"github.com/spf13/viper"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/api"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
@@ -47,13 +47,10 @@ func GetUsageErr(err error) error {
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "server",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Event Provenance Registry (EPR) server",
+	Long: `The Event Provenance Registry (EPR) server is a service 
+	that manages and stores events and tracks event-receivers 
+	and event-receiver-groups.`,
 	PreRunE: preRun,
 	RunE:    run,
 }
@@ -86,7 +83,7 @@ func run(_ *cobra.Command, _ []string) error {
 	cfg, err := config.New(
 		config.WithServer(viper.GetString("host"), viper.GetString("port"), "", true, true),
 		config.WithStorage("localhost", "postgres", "", "", "postgres", 5432, 10, 10, 10),
-		config.WithKafka(false, "3.4.0", []string{"localhost:19092"}, "test.foo", messageChannel),
+		config.WithKafka(false, "3.4.0", []string{"localhost:19092"}, "epr.dev.events", messageChannel),
 		// TODO: add this once auth have been turned on
 		// config.WithAuth(),
 	)

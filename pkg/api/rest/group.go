@@ -6,12 +6,12 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
+	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
 	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
@@ -49,9 +49,8 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			return
 		}
 
-		s.kafkaCfg.MsgChannel <- message.Message{Data: message.Data{
-			EventGroups: []*storage.EventReceiverGroup{eventReceiverGroup},
-		}}
+		s.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
+		logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
 		render.JSON(w, r, eventReceiverGroup.ID)
 	}
 }
@@ -72,9 +71,9 @@ func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, RestResponse{Errors: []error{err}})
+			render.JSON(w, r, Response{Errors: []error{err}})
 			return
 		}
-		render.JSON(w, r, RestResponse{})
+		render.JSON(w, r, Response{})
 	}
 }
