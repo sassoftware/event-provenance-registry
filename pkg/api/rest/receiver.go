@@ -67,7 +67,8 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 
 func (s *Server) GetReceiverByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
+		id := chi.URLParam(r, "receiverID")
+		logger.V(1).Info("GetReceiverByID", "receiverID", id)
 		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
 		handleGetResponse(w, r, eventReceiver, err)
 	}

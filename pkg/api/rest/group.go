@@ -57,7 +57,8 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 
 func (s *Server) GetGroupByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
+		id := chi.URLParam(r, "groupID")
+		logger.V(1).Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
 		handleGetResponse(w, r, rec, err)
 	}
@@ -65,7 +66,7 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 
 func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Query().Get("id")
+		id := chi.URLParam(r, "groupID")
 		err := storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), enabled)
 
 		if err != nil {

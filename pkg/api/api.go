@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
@@ -111,13 +111,13 @@ func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*c
 			// REST endpoints
 			r.Route("/events", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateEvent())
-				r.Route("/{id}", func(r chi.Router) {
+				r.Route("/{eventID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetEventByID())
 				})
 			})
 			r.Route("/receivers", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateReceiver())
-				r.Route("/{id}", func(r chi.Router) {
+				r.Route("/{receiverID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetReceiverByID())
 				})
 			})
@@ -125,7 +125,7 @@ func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*c
 				r.Post("/", s.Rest.CreateGroup())
 				r.Put("/enable", s.Rest.SetGroupEnabled(true))
 				r.Put("/disable", s.Rest.SetGroupEnabled(false))
-				r.Route("/{id}", func(r chi.Router) {
+				r.Route("/{groupID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetGroupByID())
 				})
 			})

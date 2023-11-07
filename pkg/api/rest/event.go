@@ -46,10 +46,7 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 
 func (s *Server) GetEventByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-
-		// logger.V(1).Info("GetEventByID", "event", id)
-		logger.Info("GetEventByID", "id", id)
+		id := chi.URLParam(r, "eventID")
 		event, err := storage.FindEvent(s.DBConnector.Client, graphql.ID(id))
 		handleGetResponse(w, r, event, err)
 	}

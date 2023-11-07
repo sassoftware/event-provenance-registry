@@ -59,13 +59,9 @@ func (db *Database) SyncSchema() error {
 // CreateEvent creates and event record in the database. Throws an error if the event receiver does not exist or if the
 // event payload does not match the receiver schema.
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
-	var rec EventReceiver
-	result := tx.Model(&EventReceiver{}).First(&rec, &EventReceiver{ID: event.EventReceiverID})
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("could not validate event schema. event receiver %s not found", string(event.EventReceiverID))
-		}
-		return nil, pgError(result.Error)
+	rec, err := FindEventReceiver(tx, event.EventReceiverID)
+	if err != nil {
+		return nil, fmt.Errorf("could not validate event schema. %w", err)
 	}
 
 	if err := validateReceiverSchema(rec.Schema.String(), event.Payload); err != nil {
@@ -74,10 +70,10 @@ func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	event.ID = graphql.ID(utils.NewULIDAsString())
 
 	results := tx.Create(&event)
-	if result.Error != nil {
+	if results.Error != nil {
 		return nil, pgError(results.Error)
 	}
-	event.EventReceiver = rec
+	event.EventReceiver = *rec
 	return &event, nil
 }
 
