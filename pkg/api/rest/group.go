@@ -26,9 +26,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 		input := &GroupInput{}
 		err := json.NewDecoder(r.Body).Decode(input)
 		if err != nil {
-			fmt.Println(err.Error())
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			handleErrorResponse(w, r, err)
 			return
 		}
 
@@ -43,9 +41,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 
 		eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventReceiverGroupInput)
 		if err != nil {
-			fmt.Println(err.Error())
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, err)
+			handleErrorResponse(w, r, err)
 			return
 		}
 
@@ -72,7 +68,7 @@ func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, Response{Errors: []error{err}})
+			render.JSON(w, r, RestResponse{Errors: []error{err}})
 			return
 		}
 		render.JSON(w, r, Response{})

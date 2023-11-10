@@ -5,6 +5,7 @@ package rest
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -21,19 +22,13 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 		rec := &storage.EventReceiver{}
 		err := json.NewDecoder(r.Body).Decode(rec)
 		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
+			handleGetResponse(w, r, nil, err)
 			return
 		}
 
 		// Check that the schema is valid.
 		if rec.Schema.String() == "" {
-			msg := "schema is required"
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
+			handleGetResponse(w, r, nil, errors.New("schema is required"))
 			return
 		}
 
@@ -49,10 +44,7 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 
 		eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
 		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
+			handleGetResponse(w, r, nil, err)
 			return
 		}
 

@@ -2,6 +2,7 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -60,20 +61,30 @@ type Response struct {
 	Errors []error `json:"errors"`
 }
 
-// handleGetResponse for a CRUD operation handle the response.
-func handleGetResponse(w http.ResponseWriter, r *http.Request, object any, err error) {
-	resp := Response{
-		Data:   object,
+func handleErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
+	resp := RestResponse{
 		Errors: []error{err},
 	}
+	// TODO: change error types so we can filter on them.
 	if err != nil {
+		// TODO: log
 		fmt.Println(err.Error())
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, resp)
 		return
 	}
 
+	render.JSON(w, r, resp)
+}
+
+// handleGetResponse for a CRUD operation handle the response.
+func handleGetResponse(w http.ResponseWriter, r *http.Request, object any) {
+	resp := RestResponse{
+		Data: object,
+	}
+
 	if object == nil {
+		resp.Errors = []error{errors.New("object not found")}
 		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, resp)
 		return
