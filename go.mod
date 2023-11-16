@@ -1,4 +1,4 @@
-module gitlab.sas.com/async-event-infrastructure/server
+module github.com/sassoftware/event-provenance-registry
 
 go 1.21
 
@@ -23,6 +23,7 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/twmb/franz-go v1.14.4
 	github.com/xdg/scram v1.0.5
+	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.11.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.2.0
@@ -36,7 +37,6 @@ require (
 	github.com/twmb/franz-go/pkg/kmsg v1.6.1 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 )
 
 require (

@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 type QueryResolver struct {

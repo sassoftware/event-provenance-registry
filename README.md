@@ -1,9 +1,8 @@
-# Async Event Infrastructure Server
+# Event Provenance Registry (EPR)
 
 ## Overview
 
-A server for accepting events, storing events, and producing messages on a
-message bus.
+The Event Provenance Registry (EPR) is a service that manages and stores events and tracks event-receivers and event-receiver-groups.
 
 ## Build
 

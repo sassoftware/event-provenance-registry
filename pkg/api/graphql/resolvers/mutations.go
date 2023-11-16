@@ -2,10 +2,10 @@ package resolvers
 
 import (
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 // The MutationResolver type is used to handle mutations in a GraphQL schema and has a connection to a

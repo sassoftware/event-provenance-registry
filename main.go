@@ -4,7 +4,7 @@
 package main
 
 import (
-	"gitlab.sas.com/async-event-infrastructure/server/cmd"
+	"github.com/sassoftware/event-provenance-registry/cmd"
 )
 
 func main() {

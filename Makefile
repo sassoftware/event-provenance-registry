@@ -1,5 +1,5 @@
-PACKAGE  = gitlab.sas.com/async-event-infrastructure/server
-BINARY   = bin/server
+PACKAGE  = github.com/sassoftware/event-provenance-registry
+BINARY   = bin/epr-server
 COMMIT  ?= $(shell git rev-parse --short=16 HEAD)
 gitversion := $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo 0.1.0-0)
@@ -25,7 +25,7 @@ TIMEOUT = 15
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
-M = $(shell printf "\033[34;1mserver ▶\033[0m")
+M = $(shell printf "\033[34;1epr ▶\033[0m")
 
 .PHONY: all
 all: megalint test $(BINARY) $(BINARY)-arm64 $(BINARY)-darwin   ## Build all the binary types
@@ -48,53 +48,19 @@ $(BINARY)-arm64: $(SOURCES); $(info $(M) building arm64 executable...) @ ## Buil
 $(BINARY)-darwin: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary
 	$Q GOOS=darwin GOARCH=amd64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
-GOIMPORTS = $(TOOLS)/goimports
-$(GOIMPORTS): ; $(info $(M) building goimports...)
-	$Q go build -o $@ golang.org/x/tools/cmd/goimports
-
-GOCOVMERGE = $(TOOLS)/gocovmerge
-$(GOCOVMERGE): ; $(info $(M) building gocovmerge...)
-	$Q go build -o $@ github.com/wadey/gocovmerge
-
-GOCOV = $(TOOLS)/gocov
-$(GOCOV): ; $(info $(M) building gocov...)
-	$Q go build -o $@ github.com/axw/gocov/gocov
-
-GOCOVXML = $(TOOLS)/gocov-xml
-$(GOCOVXML): ; $(info $(M) building gocov-xml...)
-	$Q go build -o $@ github.com/AlekSi/gocov-xml
-
-GO2XUNIT = $(TOOLS)/go2xunit
-$(GO2XUNIT): ; $(info $(M) building go2xunit...)
-	$Q go build -o $@ github.com/tebeka/go2xunit
-
-GOBINDATA = $(TOOLS)/go-bindata
-$(GOBINDATA): ; $(info $(M) building go-bindata...)
-	@mkdir -p $(TOOLS)
-	$Q go build -o $@ github.com/go-bindata/go-bindata/v3/go-bindata
-
-GOVERSIONINFO = $(TOOLS)/goversioninfo
-$(GOVERSIONINFO): ; $(info $(M) building goversioninfo...)
-	@mkdir -p $(TOOLS)
-	$Q go build -o $@ github.com/josephspurrier/goversioninfo/cmd/goversioninfo
-
-$(TOOLS)/protoc-gen-go: ; $(info $(M) building protoc-gen-go...)
-	@mkdir -p $(TOOLS)
-	$Q go build -o $@ github.com/golang/protobuf/protoc-gen-go
-
 .PHONY: docker-image
-docker-image:;$(info $(M) running docker build...) @ ## Builds a local docker image tagged "server:local"
-	$Q docker build -t server:local -f Dockerfile .
+docker-image:;$(info $(M) running docker build...) @ ## Builds a local docker image tagged "epr-server:local"
+	$Q docker build -t epr-server:local -f Dockerfile .
 
 .PHONY: install
-install: linux ;$(info $(M) installing server...) @ ## Installs server binary into DESTDIR
+install: linux ;$(info $(M) installing epr-server...) @ ## Installs epr-server binary into DESTDIR
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 ./bin/server $(DESTDIR)$(PREFIX)/bin/server
+	install -m 755 ./bin/epr-server $(DESTDIR)$(PREFIX)/bin/epr-server
 
 .PHONY: install-darwin
-install-darwin: darwin ;$(info $(M) installing server...) @ ## Installs server-darwin binary into DESTDIR aserver
+install-darwin: darwin ;$(info $(M) installing epr-server...) @ ## Installs epr-server-darwin binary into DESTDIR aepr-server
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 ./bin/server $(DESTDIR)$(PREFIX)/bin/server
+	install -m 755 ./bin/epr-server-darwin $(DESTDIR)$(PREFIX)/bin/epr-server
 
 .PHONY: list-updates
 list-updates: ;$(info $(M) listing available go library updates...) @ ## List available go library updates
