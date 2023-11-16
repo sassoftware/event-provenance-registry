@@ -3,8 +3,8 @@ package schema_test
 import (
 	"testing"
 
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema"
 	"github.com/stretchr/testify/require"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema"
 )
 
 func TestString(t *testing.T) {

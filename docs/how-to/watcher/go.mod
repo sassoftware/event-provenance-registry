@@ -1,10 +1,10 @@
 module watcher
 
-replace gitlab.sas.com/async-event-infrastructure/server => ../../../
+replace github.com/sassoftware/event-provenance-registry => ../../../
 
 go 1.21.0
 
-require gitlab.sas.com/async-event-infrastructure/server v0.0.0-20230901192240-3d330b648418
+require github.com/sassoftware/event-provenance-registry v0.0.0-20230901192240-3d330b648418
 
 require (
 	github.com/klauspost/compress v1.16.7 // indirect

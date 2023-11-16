@@ -11,9 +11,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/xeipuuv/gojsonschema"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
 )
 
 func (s *Server) CreateReceiver() http.HandlerFunc {

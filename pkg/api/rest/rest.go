@@ -7,9 +7,9 @@ import (
 	"sync"
 
 	"github.com/go-chi/render"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "pkg.api.rest")

@@ -10,9 +10,9 @@ import (
 	"strings"
 
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/resolvers"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/resolvers"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 func New(connection *storage.Database, cfg *config.KafkaConfig) *graphql.Schema {

@@ -9,10 +9,10 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	pscpu "github.com/shirou/gopsutil/cpu"
 	psmem "github.com/shirou/gopsutil/mem"
 	psnet "github.com/shirou/gopsutil/net"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "status.info")

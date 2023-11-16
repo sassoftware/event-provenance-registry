@@ -14,13 +14,13 @@ import (
 	"time"
 
 	"github.com/mitchellh/go-homedir"
+	"github.com/sassoftware/event-provenance-registry/pkg/api"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/status"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "cmd.root")

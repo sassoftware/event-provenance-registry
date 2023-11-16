@@ -3,7 +3,9 @@
 
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 // SearchTypeEventReceiver graphql event_receiver query tag
 const SearchTypeEventReceiver = "event_receiver"

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "config.config")

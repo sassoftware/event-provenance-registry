@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/graph-gophers/graphql-go/relay"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 type Server struct {
