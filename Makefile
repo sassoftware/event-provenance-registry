@@ -25,7 +25,7 @@ TIMEOUT = 15
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
-M = $(shell printf "\033[34;1epr ▶\033[0m")
+M = $(shell printf "\033[34;1mEvent Provenance Registry ▶\033[0m")
 
 .PHONY: all
 all: megalint test $(BINARY) $(BINARY)-arm64 $(BINARY)-darwin   ## Build all the binary types
