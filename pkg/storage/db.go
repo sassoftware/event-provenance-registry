@@ -12,9 +12,9 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/jackc/pgconn"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/xeipuuv/gojsonschema"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"

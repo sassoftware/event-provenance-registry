@@ -6,7 +6,7 @@ package status
 import (
 	"fmt"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
 )
 
 var (

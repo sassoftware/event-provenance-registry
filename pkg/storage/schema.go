@@ -5,7 +5,7 @@ package storage
 
 import (
 	"github.com/graph-gophers/graphql-go"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql/schema/types"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
 )
 
 type Event struct {

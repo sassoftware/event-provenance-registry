@@ -8,10 +8,10 @@ import (
 	"errors"
 	"sync"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/graphql"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/api/rest"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql"
+	"github.com/sassoftware/event-provenance-registry/pkg/api/rest"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 type Server struct {

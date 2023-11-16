@@ -16,11 +16,11 @@ import (
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/config"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/message"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/status"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/status"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
 var logger = utils.MustGetLogger("server", "server.api")

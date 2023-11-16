@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/utils"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
 // Producer defines an inteface for producing events

@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"gitlab.sas.com/async-event-infrastructure/server/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	yaml "gopkg.in/yaml.v3"
 )
 
