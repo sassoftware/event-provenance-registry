@@ -18,8 +18,8 @@ acronyms:
 
 ### Consumers
 
-Kafka message consumers. Event Provenance Registry components that listen for
-messages of specific types on the Kafka message bus.
+Kafka message consumers. Event Provenance Registry (EPR) components that listen
+for messages of specific types on the Kafka message bus.
 
 ### Event Receiver
 
@@ -30,12 +30,12 @@ requirements. If and when all the requirements (that is, events) for a
 event_receiver all have a "successful" status, the DU can progress through the
 event_receiver.
 
-### Event Receiver
+### Event Provenance Registry
 
-Polaris service that manages and stores events and tracks event_receivers and
-event_receiver_groups. Provides an API and a UI that let you create
-event_receivers and event_receiver_groups. Query the Event Receiver to get
-identifying information about event_receivers and events.
+Event Provenance Registry (EPR) service that manages and stores events and
+tracks event_receivers and event_receiver_groups. Provides an API that let you
+create event_receivers and event_receiver_groups. Query the Event Provenance
+Registry (EPR) to get identifying information about event_receivers and events.
 
 ### graphql
 
@@ -49,7 +49,7 @@ APIs over time, and enables powerful developer tools.
 
 An Apache distributed messaging system. Apache Kafka provides fast, highly
 scalable and redundant messaging through a publish-subscribe model. Kafka
-enables applications to add messages to _topics_. Polaris uses a Kafka bus for
+enables applications to add messages to _topics_. EPR uses a Kafka bus for
 messaging. For more information, see the
 [Kafka documentation](http://kafka.apache.org/documentation.html).
 
@@ -111,7 +111,7 @@ Examples:
 
 ### Universally Unique Lexicographically Sortable Identifier (ULID)
 
-All IDs in Polaris are ULIDs. They are compatible with UUIDs (Universal Unique
+All IDs in EPR are ULIDs. They are compatible with UUIDs (Universal Unique
 Identifier), but they contain a datestamp, are case-insensitive, are
 lexicographically sortable, and have fewer characters than UUIDs.
 

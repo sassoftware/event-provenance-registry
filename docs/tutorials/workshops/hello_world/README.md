@@ -7,7 +7,7 @@ Redpanda and create a event receiver and a few events.
 
 ## Requirements
 
-- [Golang 1.20+](https://go.dev/dl/)
+- [Golang 1.21+](https://go.dev/dl/)
 - [Docker](https://docs.docker.com/engine/install)
 - [Docker-Compose](https://docs.docker.com/engine/install)
 

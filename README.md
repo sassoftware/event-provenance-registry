@@ -2,7 +2,8 @@
 
 ## Overview
 
-The Event Provenance Registry (EPR) is a service that manages and stores events and tracks event-receivers and event-receiver-groups.
+The Event Provenance Registry (EPR) is a service that manages and stores events
+and tracks event-receivers and event-receiver-groups.
 
 ## Build
 
@@ -44,9 +45,8 @@ make PREFIX=$(go env GOPATH) install-darwin
 
 ### Running the Server
 
-Start up Redpanda.
-See [the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more
-details.
+Start up Redpanda. See
+[the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more details.
 
 ```bash
 docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
