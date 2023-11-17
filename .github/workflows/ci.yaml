@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21'
+      - run: make test
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21'
+          cache: false
+        env:
+          GO111MODULE: off
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.54
+
+      - run: make megalint
+
+  build-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: make docker-image
