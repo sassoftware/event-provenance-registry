@@ -8,7 +8,7 @@ start it up and continue running in the background. Be sure to stop the
 container when you are finished with development.
 
 ```bash
-docker run -d --pull=always --name=redpanda-1 --rm \
+docker run -d --pull=always --name=redpanda-0 --rm \
     -p 8081:8081 \
     -p 8082:8082 \
     -p 9092:9092 \
@@ -26,14 +26,14 @@ docker run -d --pull=always --name=redpanda-1 --rm \
 ## Create a topic
 
 ```bash
- docker exec -it redpanda-1 \
+ docker exec -it redpanda-0 \
  rpk topic create epr.dev.events --brokers=localhost:9092
 ```
 
 ## Produce a message
 
 ```bash
- docker exec -it redpanda-1 \
+ docker exec -it redpanda-0 \
  rpk topic produce epr.dev.events --brokers=localhost:9092
 ```
 
@@ -44,7 +44,7 @@ Press Ctrl + C to exit the produce command.
 ## Consume a message
 
 ```bash
- docker exec -it redpanda-1 \
+ docker exec -it redpanda-0 \
  rpk topic consume epr.dev.events --brokers=localhost:9092
 ```
 

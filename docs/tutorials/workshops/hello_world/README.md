@@ -7,12 +7,14 @@ Redpanda and create a event receiver and a few events.
 
 ## Requirements
 
-Golang 1.20+ Docker Docker-Compose
+- [Golang 1.20+](https://go.dev/dl/)
+- [Docker](https://docs.docker.com/engine/install)
+- [Docker-Compose](https://docs.docker.com/engine/install)
 
 ## Start dependencies
 
 This project contains a docker-compose file that will start up a postgres
-database, a redpanda kafka instance, and a redpanda UI. These three dependencies
+database, a Redpanda kafka instance, and a Redpanda UI. These three dependencies
 can be started by running the following command:
 
 ## Start Redpanda
@@ -24,7 +26,7 @@ using GraphQL.
 docker compose -f ./docs/tutorials/workshops/compose/docker-compose.yaml up
 ```
 
-The redpanda admin console will be at `http://localhost:8080/overview`
+The Redpanda admin console will be at `http://localhost:8080/overview`
 
 Create a topic. Only needed for initial setup
 
@@ -33,7 +35,7 @@ Using the admin console to create a topic called "epr.dev.events"
 Or use the docker container
 
 ```bash
-docker exec -it redpanda-1 \
+docker exec -it redpanda-0 \
     rpk topic create epr.dev.events --brokers=localhost:9092
 ```
 
@@ -92,7 +94,7 @@ This will return the id of the newly created event receiver.
 ```json
 {
   "data": {
-    "create_event_receiver": "01H6HSPWNMR8HJ9WKA5AJWG430"
+    "create_event_receiver": "01HFF6SDK7H9Z1FERBD9DAD0FN"
   }
 }
 ```
@@ -110,7 +112,7 @@ mutation {
       package: "package"
       description: "The Foo of Brixton"
       payload: "{\"name\": \"value\"}"
-      event_receiver_id: "01HEK2ZJHQJZPCTJRY88B04RVT"
+      event_receiver_id: "ID_RETURNED_FROM_PREVIOUS_MUTATION"
       success: true
     }
   )
@@ -138,7 +140,7 @@ This will return the id of the newly created event receiver group.
 ```json
 {
   "data": {
-    "create_event_receiver_group": "01H713QGDGCW546NV7QYEK3QJ7"
+    "create_event_receiver_group": "01HFF701QYB7S81C139HCYCXWM"
   }
 }
 ```
@@ -147,13 +149,13 @@ Event receiver Groups can be updated using the following mutation
 
 ```graphql
 mutation {
-  set_event_receiver_group_enabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+  set_event_receiver_group_enabled(id: "01HFF701QYB7S81C139HCYCXWM")
 }
 ```
 
 ```graphql
 mutation {
-  set_event_receiver_group_disabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+  set_event_receiver_group_disabled(id: "01HFF701QYB7S81C139HCYCXWM")
 }
 ```
 
@@ -164,10 +166,12 @@ the previously created event
 
 ```graphql
 query {
-  event(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event(id: "01HFF6VY24WVGS0P8FZY93JP22") {
     name
     version
     description
+    payload
+    success
   }
 }
 ```
@@ -177,7 +181,7 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receiver(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event_receiver(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
     name
     version
     description
@@ -190,7 +194,7 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_group(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event_receiver_group(id: "01HFF701QYB7S81C139HCYCXWM") {
     name
     version
     description
@@ -264,4 +268,28 @@ curl --location --request POST 'http://localhost:8042/api/v1/groups' \
     "enabled": true,
     "event_receiver_ids": ["PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND"]
 }'
+```
+
+## Query using the REST API
+
+We can query the event information using a GET on the events endpoint as
+follows:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/events/01HFF6VY24WVGS0P8FZY93JP22'
+```
+
+Query the information for an event receiver:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/receivers/01HFF7N2XTVP7KQCEBEK2SYCVD'
+```
+
+And query the information for an event receiver group:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/groups/01HFF7REANVRHZ42KA7AYT5YAA'
 ```

@@ -12,7 +12,7 @@ In a new terminal run the command below. This will start the container up as a
 daemon, so be sure to stop the container when you are finished with development.
 
 ```bash
-docker run -d --pull=always --name=redpanda-1 --rm \
+docker run -d --pull=always --name=redpanda-0 --rm \
     -p 8081:8081 \
     -p 8082:8082 \
     -p 9092:9092 \
@@ -32,7 +32,7 @@ docker run -d --pull=always --name=redpanda-1 --rm \
 Create topic. Only needed for initial setup
 
 ```bash
-docker exec -it redpanda-1 \
+docker exec -it redpanda-0 \
     rpk topic create epr.dev.events --brokers=localhost:9092
 ```
 
@@ -50,7 +50,7 @@ You should see a log stating that we have begin consuming records
 In a second terminal run the command below
 
 ```bash
-docker exec -it redpanda-1 \
+docker exec -it redpanda-0 \
     rpk topic produce epr.dev.events --brokers=localhost:9092
 ```
 
