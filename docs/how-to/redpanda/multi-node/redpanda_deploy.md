@@ -3,12 +3,12 @@
 ## Overview
 
 An event streaming platform conforming to the Apache Kafka API is required to
-run the `async-event-infrastructure` server. This how-to is intended to guide a
+run the `event-provenance-registry` server. This how-to is intended to guide a
 user through deploying one such platform, Redpanda, on their local machine.
 
 ## Prerequisites
 
-* Docker
+- Docker
 
 ## Installation
 
@@ -27,8 +27,8 @@ accessible from `localhost:19092`. A web console is also hosted and can be
 accessed in your browser at http://localhost:8080/overview.
 
 To later tear down the Redpanda deployment, run the following command from the
-same directory as before with access to your copy
-of [docker-compose.yaml](./docker-compose.yaml).
+same directory as before with access to your copy of
+[docker-compose.yaml](./docker-compose.yaml).
 
 ```bash
 docker compose down -v

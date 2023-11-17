@@ -9,7 +9,7 @@ import (
 func main() {
 	seeds := []string{"localhost:9092"}
 	topics := []string{"epr.dev.events"}
-	consumerGroup := "foo-consumer-group"
+	consumerGroup := "the-watcher-consumer-group"
 
 	watcher, err := watcher.New(seeds, topics, consumerGroup)
 	if err != nil {

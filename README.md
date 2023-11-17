@@ -52,7 +52,7 @@ details.
 docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
 ```
 
-[Start up Postgres.](docs/how-to/start-server/start_and_request_server.md)
+[Start up Postgres.](docs/how-to/start-server/README.md)
 
 ### Interacting with the Server
 

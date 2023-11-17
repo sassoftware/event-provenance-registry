@@ -56,7 +56,7 @@ mutation {
       name: "grant"
       version: "1.0.0"
       type: "some-action"
-      description: "a fake event reciever"
+      description: "a fake event receiver"
       schema: "{\"name\": \"value\"}"
     }
   )
@@ -84,7 +84,7 @@ mutation {
       release: "some-action"
       platformID: "platformID"
       package: "package"
-      description: "a fake event reciever"
+      description: "a fake event receiver"
       payload: "{\"name\": \"value\"}"
       event_receiver_id: "01H6HSJGDJ9CH67D3BK30XD2Q5"
       success: true
@@ -93,7 +93,7 @@ mutation {
 }
 ```
 
-This can then be used to create a new event reciever group
+This can then be used to create a new event receiver group
 
 ```graphql
 mutation {
@@ -101,7 +101,7 @@ mutation {
     event_receiver_group: {
       name: "grant"
       version: "1.0.0"
-      description: "a fake event reciever"
+      description: "a fake event receiver"
       event_receiver_ids: ["ID_RETURNED_FROM_PREVIOUS_MUTATION"]
       type: "test"
     }
@@ -119,7 +119,7 @@ This will return the id of the newly created event receiver group.
 }
 ```
 
-Event Reciever Groups can be updated using the following mutation
+Event receiver Groups can be updated using the following mutation
 
 ```graphql
 mutation {
@@ -140,7 +140,7 @@ the previously created event
 
 ```graphql
 query {
-  event(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event(id: "01HEK4REW0S93V8Y10E8A8M8HC") {
     name
     version
     description
@@ -162,7 +162,7 @@ query {
 ```
 
 This query is only returning a subset of the available fields. Pass in the ID of
-the previously created event_reciever_group
+the previously created event_receiver_group
 
 ```graphql
 query {
