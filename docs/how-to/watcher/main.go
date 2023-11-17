@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/watcher"
 )
 
@@ -22,11 +23,11 @@ func main() {
 	watcher.ConsumeRecords(customMatcher)
 }
 
-func customMatcher(record *watcher.Record) bool {
-	return string(record.Value) == "match"
+func customMatcher(msg *message.Message) bool {
+	return string(msg.Name) == "match"
 }
 
-func customTaskHandler(record *watcher.Record) error {
-	log.Default().Printf("I received a task with value '%s'", record.Value)
+func customTaskHandler(msg *message.Message) error {
+	log.Default().Printf("I received a task with value '%v'", msg)
 	return nil
 }
