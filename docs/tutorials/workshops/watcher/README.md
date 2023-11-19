@@ -67,25 +67,7 @@ func customTaskHandler(record *watcher.Record) error {
 
 Save the file and run `go mod init` then
 
-Add the following line to the `go.mod` file under the module line.
-
-```bash
-replace github.com/sassoftware/event-provenance-registry => ../../../../../
-
-```
-
-File should look like this:
-
-```bash
-module github.sas.com/sassoftware/event-provenance-registry/docs/tutorials/workshops/watcher/foo
-
-replace github.com/sassoftware/event-provenance-registry => ../../../../../
-
-go 1.21.4
-```
-
-Now we can run `go mode tidy` to fill in our dependencies.
-
+Now we can run `go mod tidy` to fill in our dependencies.
 ## Begin consuming
 
 We can now start up the watcher and start consuming messages.
