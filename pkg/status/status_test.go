@@ -93,5 +93,5 @@ func TestRequestResponseBody(t *testing.T) {
 	assert.Equal(t, resp.String(), `{"error" : "failed to perform Get request from 'fakeurl'"}`)
 
 	resp = RequestResponseBody(ts.URL + "/badStatus")
-	assert.Equal(t, resp.String(), `{"error" : bad status: 403 at '`+ts.URL+`/badStatus'"}`)
+	assert.Equal(t, resp.String(), `{"error" : "bad status: 403 at '`+ts.URL+`/badStatus'"}`)
 }
