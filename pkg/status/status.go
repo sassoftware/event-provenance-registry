@@ -102,7 +102,7 @@ func RequestResponseBody(url string) []byte {
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return []byte(`{"error" : "failed formulate request for '` + url + `'"}`)
+		return []byte(`{"error" : "failed formulate request for '` + url + `'"}`) //nolint: goconst
 	}
 
 	resp, err := http.DefaultClient.Do(req)
