@@ -32,7 +32,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			return
 		}
 
-		eventRecieverGroupInput := storage.EventReceiverGroup{
+		eventReceiverGroupInput := storage.EventReceiverGroup{
 			Name:             input.Name,
 			Type:             input.Type,
 			Version:          input.Version,
@@ -41,7 +41,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 			EventReceiverIDs: input.EventReceiverIDs,
 		}
 
-		eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventRecieverGroupInput)
+		eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventReceiverGroupInput)
 		if err != nil {
 			fmt.Println(err.Error())
 			render.Status(r, http.StatusBadRequest)

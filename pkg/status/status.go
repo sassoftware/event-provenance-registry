@@ -99,26 +99,27 @@ func NewHealth(server string) *Health {
 func RequestResponseBody(url string) []byte {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
-
+	pre := `{"error" : `
+	end := `'` + url + `'"}`
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return []byte(`{"error" : "failed formulate request for '` + url + `'"}`)
+		return []byte(pre + `"failed formulate request for ` + end)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		fmt.Printf("error: %s", err)
-		return []byte(`{"error" : "failed to perform Get request from '` + url + `'"}`)
+		return []byte(pre + `"failed to perform Get request from ` + end)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return []byte(`{"error" : bad status: ` + fmt.Sprint(resp.StatusCode) + ` at '` + url + `'"}`)
+		return []byte(pre + `"bad status: ` + fmt.Sprint(resp.StatusCode) + ` at ` + end)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return []byte(`{"error" : unable to read response body from ` + url + `}`)
+		return []byte(pre + `"unable to read response body from ` + end)
 	}
 	return body
 }

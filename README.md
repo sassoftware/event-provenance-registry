@@ -2,7 +2,20 @@
 
 ## Overview
 
-The Event Provenance Registry (EPR) is a service that manages and stores events and tracks event-receivers and event-receiver-groups.
+Event Provenance Registry (EPR) is a provenance store. It keeps track of events.
+With EPR, you can use the API to create, retrieve, and query events, event
+receivers, and groups of event receivers.
+
+## Description
+
+The Event Provenance Registry (EPR) is a service that stores events and tracks
+event-receivers and event-receiver-groups. EPR provides an API that lets you
+create events, event-receivers, and event-receiver-groups. You can query the EPR
+using the GraphQL endpoint to get identifying information about events,
+event-receivers, and event-receiver-groups. EPR collects events from the supply
+chain to record the lifecycle of a unit in the SDLC. EPR validates
+event-receivers have events. EPR emits a message when a event is received as
+well as when an event-receiver-groups is complete for a unit version.
 
 ## Build
 
@@ -40,19 +53,35 @@ Mac OS X
 make PREFIX=$(go env GOPATH) install-darwin
 ```
 
+## Tests
+
+Run the go unit tests:
+
+```bash
+make test
+```
+
+## Linter
+
+Run golangci-lint (requires
+[golangci-lint](https://golangci-lint.run/usage/install/)):
+
+```bash
+make megalint
+```
+
 ## Usage
 
 ### Running the Server
 
-Start up Redpanda.
-See [the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more
-details.
+Start up Redpanda. See
+[the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more details.
 
 ```bash
 docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
 ```
 
-[Start up Postgres.](docs/how-to/start-server/start_and_request_server.md)
+[Start up Postgres.](docs/how-to/start-server/README.md)
 
 ### Interacting with the Server
 
