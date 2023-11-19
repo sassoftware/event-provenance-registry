@@ -2,9 +2,11 @@ package watcher
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -18,7 +20,7 @@ type Watcher struct {
 	// defer watcher.Client.Close()
 	Client *kgo.Client
 
-	taskChan chan *Record
+	taskChan chan *message.Message
 }
 
 /*
@@ -63,12 +65,12 @@ func New(brokers, topics []string, consumerGroup string) (*Watcher, error) {
 
 	return &Watcher{
 		Client:   client,
-		taskChan: make(chan *Record, 100),
+		taskChan: make(chan *message.Message, 100),
 	}, nil
 }
 
 // ConsumeRecords returns matches of record results
-func (w *Watcher) ConsumeRecords(matches func(record *Record) bool) {
+func (w *Watcher) ConsumeRecords(matches func(message *message.Message) bool) {
 	log.Default().Println("consuming records...")
 	ctx := context.Background()
 	for {
@@ -79,9 +81,13 @@ func (w *Watcher) ConsumeRecords(matches func(record *Record) bool) {
 
 		fetches.EachPartition(func(p kgo.FetchTopicPartition) {
 			p.EachRecord(func(r *kgo.Record) {
-				record := &Record{Record: r}
-				if match := matches(record); match {
-					w.taskChan <- record
+				var msg message.Message
+				err := json.Unmarshal(r.Value, &msg)
+				if err != nil {
+					panic(err)
+				}
+				if match := matches(&msg); match {
+					w.taskChan <- &msg
 				}
 			})
 		})
@@ -89,7 +95,7 @@ func (w *Watcher) ConsumeRecords(matches func(record *Record) bool) {
 }
 
 // StartTaskHandler returns nil
-func (w *Watcher) StartTaskHandler(taskHandler func(*Record) error) {
+func (w *Watcher) StartTaskHandler(taskHandler func(*message.Message) error) {
 	for {
 		task := <-w.taskChan
 		if task == nil {
