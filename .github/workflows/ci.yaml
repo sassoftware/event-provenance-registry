@@ -31,8 +31,8 @@ jobs:
         with:
           go-version: '>=1.21'
           cache: false
-        env:
-          GO111MODULE: off
+      - name: preload dependencies
+        run: go mod tidy
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
