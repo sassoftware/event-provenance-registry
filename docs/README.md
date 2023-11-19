@@ -1,16 +1,5 @@
 # Event Provenance Registry Documentation
 
-## Overview
-
-The Event Provenance Registry (EPR) is a service that manages and stores events
-and tracks event-receivers and event-receiver-groups. EPR provides an API that
-lets you create events, event-receivers, and event-receiver-groups. You can
-query the EPR using the GraphQL endpoint to get identifying information about
-events, event-receivers, and event-receiver-groups. EPR collects events from the
-supply chain to record the lifecycle of a unit in the SDLC. EPR validates
-event-receivers have events. EPR emits a message when a event is received as
-well as when an event-receiver-groups is complete for a unit version.
-
 ## Documentation
 
 The Event Provenance Registry (EPR) documentation will follow the
