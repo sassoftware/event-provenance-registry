@@ -5,12 +5,9 @@ package rest
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
@@ -22,38 +19,33 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 		rec := &storage.EventReceiver{}
 		err := json.NewDecoder(r.Body).Decode(rec)
 		if err != nil {
-			handleGetResponse(w, r, nil, err)
+			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
 			return
 		}
 
 		// Check that the schema is valid.
 		if rec.Schema.String() == "" {
-			handleGetResponse(w, r, nil, errors.New("schema is required"))
+			err := invalidInputError{msg: "schema is required"}
+			handleResponse(w, r, nil, err)
 			return
 		}
 
 		loader := gojsonschema.NewStringLoader(rec.Schema.String())
 		_, err = gojsonschema.NewSchema(loader)
 		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
+			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
 			return
 		}
 
 		eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
 		if err != nil {
-			handleGetResponse(w, r, nil, err)
+			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
 			return
 		}
 
 		s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
-
 		logger.V(1).Info("created", "eventReceiver", eventReceiver)
-
-		// TODO: standardize responses
-		render.JSON(w, r, eventReceiver.ID)
+		handleResponse(w, r, eventReceiver.ID, nil)
 	}
 }
 
@@ -62,6 +54,9 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 		id := chi.URLParam(r, "receiverID")
 		logger.V(1).Info("GetReceiverByID", "receiverID", id)
 		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
-		handleGetResponse(w, r, eventReceiver, err)
+		if err != nil {
+			err = missingObjectError{msg: err.Error()}
+		}
+		handleResponse(w, r, eventReceiver, err)
 	}
 }

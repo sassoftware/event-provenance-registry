@@ -5,11 +5,9 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
@@ -26,7 +24,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 		input := &GroupInput{}
 		err := json.NewDecoder(r.Body).Decode(input)
 		if err != nil {
-			handleErrorResponse(w, r, err)
+			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
 			return
 		}
 
@@ -41,13 +39,13 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 
 		eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventReceiverGroupInput)
 		if err != nil {
-			handleErrorResponse(w, r, err)
+			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
 			return
 		}
 
 		s.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
 		logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
-		render.JSON(w, r, eventReceiverGroup.ID)
+		handleResponse(w, r, eventReceiverGroup.ID, nil)
 	}
 }
 
@@ -56,7 +54,10 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 		id := chi.URLParam(r, "groupID")
 		logger.V(1).Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
-		handleGetResponse(w, r, rec, err)
+		if err != nil {
+			err = missingObjectError{msg: err.Error()}
+		}
+		handleResponse(w, r, rec, err)
 	}
 }
 
@@ -64,13 +65,9 @@ func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "groupID")
 		err := storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), enabled)
-
 		if err != nil {
-			fmt.Println(err.Error())
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, RestResponse{Errors: []error{err}})
-			return
+			err = missingObjectError{msg: err.Error()}
 		}
-		render.JSON(w, r, Response{})
+		handleResponse(w, r, id, err)
 	}
 }
