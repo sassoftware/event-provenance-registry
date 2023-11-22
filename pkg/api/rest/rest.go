@@ -54,8 +54,8 @@ func (s *Server) startProducer(ctx context.Context, wg *sync.WaitGroup) {
 	}()
 }
 
-// RestResponse generic rest response for all object types.
-type RestResponse struct {
+// Response generic rest response for all object types.
+type Response struct {
 	Data   any      `json:"data,omitempty"`
 	Errors []string `json:"errors,omitempty"`
 }
@@ -77,7 +77,7 @@ func (n invalidInputError) Error() string {
 }
 
 func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error) {
-	resp := RestResponse{
+	resp := Response{
 		Data: data,
 	}
 	if err == nil {

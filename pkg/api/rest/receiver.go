@@ -16,36 +16,8 @@ import (
 
 func (s *Server) CreateReceiver() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rec := &storage.EventReceiver{}
-		err := json.NewDecoder(r.Body).Decode(rec)
-		if err != nil {
-			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
-			return
-		}
-
-		// Check that the schema is valid.
-		if rec.Schema.String() == "" {
-			err := invalidInputError{msg: "schema is required"}
-			handleResponse(w, r, nil, err)
-			return
-		}
-
-		loader := gojsonschema.NewStringLoader(rec.Schema.String())
-		_, err = gojsonschema.NewSchema(loader)
-		if err != nil {
-			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
-			return
-		}
-
-		eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
-		if err != nil {
-			handleResponse(w, r, nil, invalidInputError{msg: err.Error()})
-			return
-		}
-
-		s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
-		logger.V(1).Info("created", "eventReceiver", eventReceiver)
-		handleResponse(w, r, eventReceiver.ID, nil)
+		id, err := s.createReceiver(r)
+		handleResponse(w, r, id, err)
 	}
 }
 
@@ -59,4 +31,32 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 		}
 		handleResponse(w, r, eventReceiver, err)
 	}
+}
+
+func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
+	rec := &storage.EventReceiver{}
+	err := json.NewDecoder(r.Body).Decode(rec)
+	if err != nil {
+		return "", invalidInputError{msg: err.Error()}
+	}
+
+	// Check that the schema is valid.
+	if rec.Schema.String() == "" {
+		return "", invalidInputError{msg: "schema is required"}
+	}
+
+	loader := gojsonschema.NewStringLoader(rec.Schema.String())
+	_, err = gojsonschema.NewSchema(loader)
+	if err != nil {
+		return "", invalidInputError{msg: err.Error()}
+	}
+
+	eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
+	if err != nil {
+		return "", err
+	}
+
+	s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+	logger.V(1).Info("created", "eventReceiver", eventReceiver)
+	return eventReceiver.ID, nil
 }
