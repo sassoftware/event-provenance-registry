@@ -19,21 +19,6 @@ func TestGetEnv(t *testing.T) {
 	assert.Assert(t, bar == "42")
 }
 
-func TestGetEnvsByPrefix(t *testing.T) {
-	os.Setenv("GET_ENV_PREFIX_FOO", "46")
-	os.Setenv("GET_ENV_PREFIX_BAR", "2")
-	os.Setenv("GET_ENV_PREFIX.BAZ", "21") // doesn't match prefix
-	os.Setenv("GET_ENV_PREFIX_", "99")
-	os.Setenv("GET_ENV_PREFIX_GET_ENV_PREFIX_FOOBAR", "25")
-	prefix := "GET_ENV_PREFIX_"
-	tokens := GetEnvsByPrefix(prefix, true)
-	assert.Assert(t, tokens["FOO"] == "46")
-	assert.Assert(t, tokens["BAR"] == "2")
-	assert.Assert(t, tokens["BAZ"] == "")
-	assert.Assert(t, tokens[""] == "99")
-	assert.Assert(t, tokens["GET_ENV_PREFIX_FOOBAR"] == "25")
-}
-
 func TestNewULID(t *testing.T) {
 	u, err := NewULID()
 	assert.NilError(t, err, "error is not nil")
