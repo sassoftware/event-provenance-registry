@@ -38,7 +38,7 @@ func GetEnvsByPrefix(prefix string, strip bool) map[string]string {
 			if len(pair[1]) > 0 {
 				k := pair[0]
 				if strip {
-					k = strings.Split(pair[0], prefix+"_")[1]
+					k = strings.TrimPrefix(pair[0], prefix)
 				}
 				envs[k] = pair[1]
 			}
