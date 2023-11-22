@@ -26,15 +26,15 @@ docker run -d --pull=always --name=redpanda-0 --rm \
 ## Create a topic
 
 ```bash
- docker exec -it redpanda-0 \
- rpk topic create epr.dev.events --brokers=localhost:9092
+docker exec -it redpanda-0 \
+  rpk topic create epr.dev.events --brokers=localhost:9092
 ```
 
 ## Produce a message
 
 ```bash
- docker exec -it redpanda-0 \
- rpk topic produce epr.dev.events --brokers=localhost:9092
+docker exec -it redpanda-0 \
+  rpk topic produce epr.dev.events --brokers=localhost:9092
 ```
 
 Type text into the topic and press Ctrl + D to separate between messages.
@@ -44,8 +44,8 @@ Press Ctrl + C to exit the produce command.
 ## Consume a message
 
 ```bash
- docker exec -it redpanda-0 \
- rpk topic consume epr.dev.events --brokers=localhost:9092
+docker exec -it redpanda-0 \
+  rpk topic consume epr.dev.events --brokers=localhost:9092
 ```
 
 Each message is shown with its metadata, like this:

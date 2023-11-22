@@ -36,7 +36,7 @@ Or use the docker container
 
 ```bash
 docker exec -it redpanda-0 \
-    rpk topic create epr.dev.events --brokers=localhost:9092
+    rpk topic create epr.dev.events --brokers=localhost:19092
 ```
 
 ## Start Event Provenance Registry server

@@ -38,7 +38,7 @@ services:
       - --mode dev-container
       # enable logs for debugging.
       - --default-log-level=debug
-    image: docker.redpanda.com/redpandadata/redpanda:v23.2.8
+    image: docker.redpanda.com/redpandadata/redpanda:latest
     container_name: redpanda-0
     volumes:
       - redpanda-0:/var/lib/redpanda/data
@@ -51,7 +51,7 @@ services:
       - 19644:9644
   console:
     container_name: redpanda-console
-    image: docker.redpanda.com/redpandadata/console:v2.3.1
+    image: docker.redpanda.com/redpandadata/console:latest
     networks:
       - redpanda_network
     entrypoint: /bin/sh
