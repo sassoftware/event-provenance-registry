@@ -5,11 +5,9 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
@@ -18,50 +16,8 @@ import (
 
 func (s *Server) CreateReceiver() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rec := &storage.EventReceiver{}
-		err := json.NewDecoder(r.Body).Decode(rec)
-		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
-			return
-		}
-
-		// Check that the schema is valid.
-		if rec.Schema.String() == "" {
-			msg := "schema is required"
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
-			return
-		}
-
-		loader := gojsonschema.NewStringLoader(rec.Schema.String())
-		_, err = gojsonschema.NewSchema(loader)
-		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
-			return
-		}
-
-		eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
-		if err != nil {
-			msg := err.Error()
-			fmt.Println(msg)
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, msg)
-			return
-		}
-
-		s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
-
-		logger.V(1).Info("created", "eventReceiver", eventReceiver)
-
-		// TODO: standardize responses
-		render.JSON(w, r, eventReceiver.ID)
+		id, err := s.createReceiver(r)
+		handleResponse(w, r, id, err)
 	}
 }
 
@@ -70,6 +26,37 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 		id := chi.URLParam(r, "receiverID")
 		logger.V(1).Info("GetReceiverByID", "receiverID", id)
 		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
-		handleGetResponse(w, r, eventReceiver, err)
+		if err != nil {
+			err = missingObjectError{msg: err.Error()}
+		}
+		handleResponse(w, r, eventReceiver, err)
 	}
+}
+
+func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
+	rec := &storage.EventReceiver{}
+	err := json.NewDecoder(r.Body).Decode(rec)
+	if err != nil {
+		return "", invalidInputError{msg: err.Error()}
+	}
+
+	// Check that the schema is valid.
+	if rec.Schema.String() == "" {
+		return "", invalidInputError{msg: "schema is required"}
+	}
+
+	loader := gojsonschema.NewStringLoader(rec.Schema.String())
+	_, err = gojsonschema.NewSchema(loader)
+	if err != nil {
+		return "", invalidInputError{msg: err.Error()}
+	}
+
+	eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
+	if err != nil {
+		return "", err
+	}
+
+	s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+	logger.V(1).Info("created", "eventReceiver", eventReceiver)
+	return eventReceiver.ID, nil
 }

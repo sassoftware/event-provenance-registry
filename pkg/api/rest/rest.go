@@ -56,27 +56,45 @@ func (s *Server) startProducer(ctx context.Context, wg *sync.WaitGroup) {
 
 // Response generic rest response for all object types.
 type Response struct {
-	Data   any     `json:"data"`
-	Errors []error `json:"errors"`
+	Data   any      `json:"data,omitempty"`
+	Errors []string `json:"errors,omitempty"`
 }
 
-// handleGetResponse for a CRUD operation handle the response.
-func handleGetResponse(w http.ResponseWriter, r *http.Request, object any, err error) {
+type missingObjectError struct {
+	msg string
+}
+
+func (m missingObjectError) Error() string {
+	return fmt.Sprintf("object not found: %s", m.msg)
+}
+
+type invalidInputError struct {
+	msg string
+}
+
+func (n invalidInputError) Error() string {
+	return fmt.Sprintf("request parameters invalid: %s", n.msg)
+}
+
+func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error) {
 	resp := Response{
-		Data:   object,
-		Errors: []error{err},
+		Data: data,
 	}
-	if err != nil {
-		fmt.Println(err.Error())
-		render.Status(r, http.StatusBadRequest)
+	if err == nil {
+		render.Status(r, http.StatusOK)
 		render.JSON(w, r, resp)
 		return
 	}
 
-	if object == nil {
+	resp.Errors = []string{err.Error()}
+	switch err.(type) {
+	case missingObjectError:
 		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, resp)
-		return
+	case invalidInputError:
+		render.Status(r, http.StatusBadRequest)
+	default:
+		render.Status(r, http.StatusInternalServerError)
 	}
+	logger.Error(err, "error during request", "url", r.URL)
 	render.JSON(w, r, resp)
 }
