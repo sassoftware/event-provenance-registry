@@ -151,6 +151,12 @@ curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 }'
 ```
 
+The results of the command should look like this:
+
+```json
+{ "data": "01HFW5HXQR28951NR8NH3WJBN6" }
+```
+
 Next we will POST and event to the event receiver. The event payload will be in
 the form of an artifact published event.
 
@@ -192,6 +198,12 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
 }'
 ```
 
+The results of the command should look like this:
+
+```json
+{ "data": "01HFW5MZARPAQME9M9VKC3Z2ZD" }
+```
+
 Now we send an event with a payload that doesn't match the schema and it should
 error out.
 
@@ -207,14 +219,19 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
     "description": "packaged oci image foo",
     "payload": { "name" : "foo" },
     "success": true,
-    "event_receiver_id": "01HFFDS17FA20PZRWR23KHPK9Y"
+    "event_receiver_id": "01HFW5HXQR28951NR8NH3WJBN6"
 }'
 ```
 
 Error Message
 
-```txt
-"event payload did not match event receiver schema\n(root): context is required\n(root): subject is required\n(root): Additional property name is not allowed"
+```json
+{
+  "data": "",
+  "errors": [
+    "event payload did not match event receiver schema\n(root): context is required\n(root): subject is required\n(root): Additional property name is not allowed"
+  ]
+}
 ```
 
 ## Create a watcher to match CDEvent
@@ -235,7 +252,6 @@ Add the following code:
 package main
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
@@ -263,12 +279,20 @@ func customMatcher(msg *message.Message) bool {
 	return msg.Type == "dev.cdevents.artifact.packaged.0.1.1"
 }
 
-func customTaskHandler(record *watcher.Record) error {
-	log.Default().Printf("I received a task with value '%s'", record.Value)
+func customTaskHandler(msg *message.Message) error {
+	log.Default().Printf("I received a task with value '%v'", msg)
 	return nil
 }
 
 ```
+
+We can now start up the watcher and start consuming messages.
+
+```bash
+go run main.go
+```
+
+You should see a log stating that we have begin consuming records.
 
 Now we create a new event with a CDEvents payload:
 
@@ -306,6 +330,6 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
 }
     ,
     "success": true,
-    "event_receiver_id": "01HFFDS17FA20PZRWR23KHPK9Y"
+    "event_receiver_id": "01HFW5HXQR28951NR8NH3WJBN6"
 }'
 ```

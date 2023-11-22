@@ -53,8 +53,8 @@ ffunc customMatcher(msg *message.Message) bool {
 	return msg.Type == "foo.bar"
 }
 
-func customTaskHandler(record *watcher.Record) error {
-	log.Default().Printf("I received a task with value '%s'", record.Value)
+func customTaskHandler(msg *message.Message) error {
+	log.Default().Printf("I received a task with value '%v'", msg)
 	return nil
 }
 

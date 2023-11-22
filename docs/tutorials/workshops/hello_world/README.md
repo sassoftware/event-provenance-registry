@@ -229,6 +229,14 @@ curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 }'
 ```
 
+The results should look like this:
+
+```json
+{ "data": "01HFW56YF6BZHAPHNX0ZGHZPAC" }
+```
+
+We need the ULID of the event receiver in the next step.
+
 Create an event using curl.
 
 When you create an event, you must specify an `event_receiver_id` to associate
@@ -254,6 +262,16 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
     "event_receiver_id": "<PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND>"
 }'
 ```
+
+The results of the command should look like this:
+
+```json
+{ "data": "01HFW5AJSBJ2HH6AB405G73S0M" }
+```
+
+Event Receiver Groups are a way to group together several event receivers. When
+all the event receivers in a group have successful events for a given unit the
+event receiver group will produce a message on the topic.
 
 Create an event receiver group:
 
