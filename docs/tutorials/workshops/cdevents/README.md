@@ -151,6 +151,12 @@ curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 }'
 ```
 
+The results of the command should look like this:
+
+```json
+{ "data": "01HFW5HXQR28951NR8NH3WJBN6" }
+```
+
 Next we will POST and event to the event receiver. The event payload will be in
 the form of an artifact published event.
 
@@ -192,6 +198,12 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
 }'
 ```
 
+The results of the command should look like this:
+
+```json
+{ "data": "01HFW5MZARPAQME9M9VKC3Z2ZD" }
+```
+
 Now we send an event with a payload that doesn't match the schema and it should
 error out.
 
@@ -207,23 +219,39 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
     "description": "packaged oci image foo",
     "payload": { "name" : "foo" },
     "success": true,
-    "event_receiver_id": "01HFFDS17FA20PZRWR23KHPK9Y"
+    "event_receiver_id": "01HFW5HXQR28951NR8NH3WJBN6"
 }'
 ```
 
 Error Message
 
-```txt
-"event payload did not match event receiver schema\n(root): context is required\n(root): subject is required\n(root): Additional property name is not allowed"
+```json
+{
+  "data": "",
+  "errors": [
+    "event payload did not match event receiver schema\n(root): context is required\n(root): subject is required\n(root): Additional property name is not allowed"
+  ]
+}
 ```
 
-## Create a watcher to match CDEvents
+## Create a watcher to match CDEvent
+
+Make a new directory for your watcher and create a `main.go` in that directory.
+
+```bash
+mkdir foo
+cd foo
+touch main.go
+```
+
+Now open the `main.go` in your favorite editor (Vim).
+
+Add the following code:
 
 ```go
 package main
 
 import (
-	"encoding/json"
 	"log"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
@@ -246,18 +274,62 @@ func main() {
 	watcher.ConsumeRecords(customMatcher)
 }
 
-func customMatcher(record *watcher.Record) bool {
-	var msg message.Message
-	err := json.Unmarshal(record.Value, &msg)
-	if err != nil {
-		log.Fatal(err)
-	}
+// customMatcher matches a cdevent type
+func customMatcher(msg *message.Message) bool {
 	return msg.Type == "dev.cdevents.artifact.packaged.0.1.1"
 }
 
-func customTaskHandler(record *watcher.Record) error {
-	log.Default().Printf("I received a task with value '%s'", record.Value)
+func customTaskHandler(msg *message.Message) error {
+	log.Default().Printf("I received a task with value '%v'", msg)
 	return nil
 }
 
+```
+
+We can now start up the watcher and start consuming messages.
+
+```bash
+go run main.go
+```
+
+You should see a log stating that we have begin consuming records.
+
+Now we create a new event with a CDEvents payload:
+
+Create an event:
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/events' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "foo",
+    "version": "1.0.2",
+    "release": "2023.11.20",
+    "platform_id": "aarch64-gnu-linux-7",
+    "package": "oci",
+    "description": "packaged oci image foo",
+    "payload": {
+  "context": {
+    "version": "0.4.0-draft",
+    "id": "271069a8-fc18-44f1-b38f-9d70a1695819",
+    "source": "/event/source/123",
+    "type": "dev.cdevents.artifact.packaged.0.1.1",
+    "timestamp": "2023-03-20T14:27:05.315384Z"
+  },
+  "subject": {
+    "id": "pkg:golang/mygit.com/myorg/myapp@234fd47e07d1004f0aed9c",
+    "source": "/event/source/123",
+    "type": "artifact",
+    "content": {
+      "change": {
+        "id": "myChange123",
+        "source": "my-git.example/an-org/a-repo"
+      }
+    }
+  }
+}
+    ,
+    "success": true,
+    "event_receiver_id": "01HFW5HXQR28951NR8NH3WJBN6"
+}'
 ```

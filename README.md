@@ -17,7 +17,11 @@ chain to record the lifecycle of a unit in the SDLC. EPR validates
 event-receivers have events. EPR emits a message when a event is received as
 well as when an event-receiver-groups is complete for a unit version.
 
-## Build
+[EPR Documentation](./docs/README.md)
+
+## Develop
+
+### Build
 
 ```bash
 make

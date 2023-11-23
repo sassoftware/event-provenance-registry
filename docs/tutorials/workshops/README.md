@@ -8,3 +8,4 @@ of contents.
 | -------------------------------------- | ---------------------------------------------------------------- |
 | [Hello World](./hello_world/README.md) | Hello world for the Event Provenance Registry (EPR) Service      |
 | [The Watcher](./watcher/README.md)     | Create a watcher for the Event Provenance Registry (EPR) Service |
+| [CDEvents](./cdevents/README.md)       | Integrate CDEvents into the Event Provenance Registry (EPR)      |

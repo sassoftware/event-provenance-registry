@@ -36,17 +36,22 @@ linux: test $(BINARY) ## build linux binary
 .PHONY: darwin
 darwin: test $(BINARY)-darwin  ## build darwin binary
 
+.PHONY: darwin-arm64
+darwin-arm64: test $(BINARY)-darwin-arm64 ## build darwin aarch64 binary
 
 SOURCES = $(shell find -name vendor -prune -o -name \*.go -print)
 
-$(BINARY): $(SOURCES); $(info $(M) building linux executable...) @ ## Build program binary
+$(BINARY): $(SOURCES); $(info $(M) building linux executable...) @ ## Build program binary for amd64
 	$Q GOOS=linux GOARCH=amd64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
 $(BINARY)-arm64: $(SOURCES); $(info $(M) building arm64 executable...) @ ## Build program binary for arm64
 	$Q GOOS=linux GOARCH=arm64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
-$(BINARY)-darwin: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary
+$(BINARY)-darwin: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin
 	$Q GOOS=darwin GOARCH=amd64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
+
+$(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin aarch64 
+	$Q GOOS=darwin GOARCH=arm64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
 .PHONY: docker-image
 docker-image:;$(info $(M) running docker build...) @ ## Builds a local docker image tagged "epr-server:local"
@@ -58,9 +63,14 @@ install: linux ;$(info $(M) installing epr-server...) @ ## Installs epr-server b
 	install -m 755 ./bin/epr-server $(DESTDIR)$(PREFIX)/bin/epr-server
 
 .PHONY: install-darwin
-install-darwin: darwin ;$(info $(M) installing epr-server...) @ ## Installs epr-server-darwin binary into DESTDIR aepr-server
+install-darwin: darwin ;$(info $(M) installing epr-server...) @ ## Installs epr-server-darwin binary into DESTDIR epr-server
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 ./bin/epr-server-darwin $(DESTDIR)$(PREFIX)/bin/epr-server
+
+.PHONY: install-darwin-arm64
+install-darwin: darwin-arm64 ;$(info $(M) installing epr-server arm64...) @ ## Installs epr-server-darwin-arm64 binary into DESTDIR epr-server
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 ./bin/epr-server-darwin-arm64 $(DESTDIR)$(PREFIX)/bin/epr-server
 
 .PHONY: list-updates
 list-updates: ;$(info $(M) listing available go library updates...) @ ## List available go library updates

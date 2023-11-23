@@ -57,7 +57,7 @@ docker exec -it redpanda-0 \
 Type a message you would like to send, then press Ctrl+C
 
 ```bash
-match Ctrl+C
+{"name" : "match"}
 ```
 
 ## Receive message
@@ -65,7 +65,7 @@ match Ctrl+C
 You should now see a message like the one below.
 
 ```bash
-2023/09/01 22:11:19 I received a task with value 'match'
+2023/11/20 15:58:11 I received a task with value '&{false      match     {[] [] []}}'
 ```
 
 **Note**: the matcher being run is looking for kafka messages with the value

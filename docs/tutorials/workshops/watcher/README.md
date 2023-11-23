@@ -49,17 +49,12 @@ func main() {
 	watcher.ConsumeRecords(customMatcher)
 }
 
-func customMatcher(record *watcher.Record) bool {
-	var msg message.Message
-	err := json.Unmarshal(record.Value, &msg)
-	if err != nil {
-		log.Fatal(err)
-	}
+ffunc customMatcher(msg *message.Message) bool {
 	return msg.Type == "foo.bar"
 }
 
-func customTaskHandler(record *watcher.Record) error {
-	log.Default().Printf("I received a task with value '%s'", record.Value)
+func customTaskHandler(msg *message.Message) error {
+	log.Default().Printf("I received a task with value '%v'", msg)
 	return nil
 }
 
@@ -68,6 +63,7 @@ func customTaskHandler(record *watcher.Record) error {
 Save the file and run `go mod init` then
 
 Now we can run `go mod tidy` to fill in our dependencies.
+
 ## Begin consuming
 
 We can now start up the watcher and start consuming messages.
@@ -129,7 +125,7 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
 You should now see a message like the one below.
 
 ```bash
-2023/11/17 16:18:30 I received a task with value '{"success":true,"id":"01HFFJCJYZN02RR1JSCE9DDAS4","specversion":"1.0","type":"foo.bar","source":"","api_version":"v1","name":"magnificent","version":"7.0.1","release":"2023.11.16","platform_id":"linux","package":"docker","data":{"events":[{"id":"01HFFJCJYZN02RR1JSCE9DDAS4","name":"magnificent","version":"7.0.1","release":"2023.11.16","platform_id":"linux","package":"docker","description":"blah","payload":{"name":"joe"},"success":true,"created_at":"16:18:30.000879894","event_receiver_id":"01HFFJ69HHJ506SRDYQMFF1H5A","EventReceiver":{"id":"01HFFJ69HHJ506SRDYQMFF1H5A","name":"watcher-workshop","type":"foo.bar","version":"1.0.0","description":"The event receiver of Brixton","schema":{"type":"object","properties":{"name":{"type":"string"}}},"fingerprint":"b183c34c7ba56b17f89dfe0c0b22c0a340889cae88d8e87a3f16bc5bdc8f7acb","created_at":"16:15:04.000626147"}}],"event_receivers":[{"id":"01HFFJ69HHJ506SRDYQMFF1H5A","name":"watcher-workshop","type":"foo.bar","version":"1.0.0","description":"The event receiver of Brixton","schema":{"type":"object","properties":{"name":{"type":"string"}}},"fingerprint":"b183c34c7ba56b17f89dfe0c0b22c0a340889cae88d8e87a3f16bc5bdc8f7acb","created_at":"16:15:04.000626147"}],"event_receiver_groups":null}}'2023/09/01 22:11:19 I received a task with value 'match'
+2023/11/17 16:18:30 I received a task with value '{"success":true,"id":"01HFFJCJYZN02RR1JSCE9DDAS4","specversion":"1.0","type":"foo.bar","source":"","api_version":"v1","name":"magnificent","version":"7.0.1","release":"2023.11.16","platform_id":"linux","package":"docker","data":{"events":[{"id":"01HFFJCJYZN02RR1JSCE9DDAS4","name":"magnificent","version":"7.0.1","release":"2023.11.16","platform_id":"linux","package":"docker","description":"blah","payload":{"name":"joe"},"success":true,"created_at":"16:18:30.000879894","event_receiver_id":"01HFFJ69HHJ506SRDYQMFF1H5A","EventReceiver":{"id":"01HFFJ69HHJ506SRDYQMFF1H5A","name":"watcher-workshop","type":"foo.bar","version":"1.0.0","description":"The event receiver of Brixton","schema":{"type":"object","properties":{"name":{"type":"string"}}},"fingerprint":"b183c34c7ba56b17f89dfe0c0b22c0a340889cae88d8e87a3f16bc5bdc8f7acb","created_at":"16:15:04.000626147"}}],"event_receivers":[{"id":"01HFFJ69HHJ506SRDYQMFF1H5A","name":"watcher-workshop","type":"foo.bar","version":"1.0.0","description":"The event receiver of Brixton","schema":{"type":"object","properties":{"name":{"type":"string"}}},"fingerprint":"b183c34c7ba56b17f89dfe0c0b22c0a340889cae88d8e87a3f16bc5bdc8f7acb","created_at":"16:15:04.000626147"}],"event_receiver_groups":null}}
 ```
 
 **Note**: the matcher being run is looking for kafka messages with the value
