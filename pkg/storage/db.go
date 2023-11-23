@@ -162,7 +162,7 @@ func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) (*EventReceiverGroup, er
 	}
 
 	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
-		Select("event_receiver_group_id").
+		Select("event_receiver_id").
 		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: id})
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
