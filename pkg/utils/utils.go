@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -26,25 +25,6 @@ func GetEnv(key, fallback string) string {
 		return value
 	}
 	return fallback
-}
-
-// GetEnvsByPrefix finds all ENV vars that start with prefix
-// GetEnvsByPrefix func takes no as input and returns prefix string, strip bool map[string]string
-func GetEnvsByPrefix(prefix string, strip bool) map[string]string {
-	envs := make(map[string]string)
-	for _, e := range os.Environ() {
-		pair := strings.Split(e, "=")
-		if strings.HasPrefix(pair[0], prefix) {
-			if len(pair[1]) > 0 {
-				k := pair[0]
-				if strip {
-					k = strings.Split(pair[0], prefix+"_")[1]
-				}
-				envs[k] = pair[1]
-			}
-		}
-	}
-	return envs
 }
 
 // NewULID returns a ULID.
