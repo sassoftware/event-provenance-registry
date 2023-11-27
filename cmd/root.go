@@ -62,7 +62,6 @@ func preRun(cmd *cobra.Command, _ []string) error {
 
 func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("debug enabled")
-
 	// TODO probably need some better input validation
 	brokers := strings.Split(viper.GetString("brokers"), ",")
 	topic := viper.GetString("topic")
@@ -160,7 +159,7 @@ func initConfig() {
 		for _, dir := range xdg.ConfigDirs {
 			viper.AddConfigPath(filepath.Join(dir, "epr"))
 		}
-		viper.SetConfigName("epr")
+		viper.SetConfigName(".epr")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
 	if err := viper.MergeInConfig(); err == nil {
