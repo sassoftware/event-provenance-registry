@@ -76,6 +76,21 @@ make megalint
 
 ## Usage
 
+```txt
+Usage:
+  epr-server [flags]
+
+Flags:
+      --brokers string   brokers uri (default "localhost:9092")
+      --config string    config file (default is $HOME/.generic.yaml)
+      --db string        database connection string (default "postgres://localhost:5432")
+      --debug            Enable debugging statements
+  -h, --help             help for epr-server
+      --host string      host to listen on (default "localhost")
+      --port string      port to listen on (default "8042")
+      --topic string     topic to produce events on (default "epr.dev.events")
+```
+
 ### Running the Server
 
 Start up Redpanda. See

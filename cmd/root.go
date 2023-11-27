@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -17,7 +19,6 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/api"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
-	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,28 +26,11 @@ import (
 
 var logger = utils.MustGetLogger("server", "cmd.root")
 
-const usage = `
-server - A server for accepting events, storing events, and producing messages on a message bus.
-`
-
 var cfgFile string
-
-// GetUsage prints version and usage
-func GetUsage() {
-	fmt.Println(status.GetVersion())
-	fmt.Printf("%s\n", usage)
-}
-
-// GetUsageErr returns an error after printing version and usage
-func GetUsageErr(err error) error {
-	fmt.Printf("ERROR : %s\n", err.Error())
-	GetUsage()
-	return fmt.Errorf("use help")
-}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "server",
+	Use:   "epr-server",
 	Short: "Event Provenance Registry (EPR) server",
 	Long: `The Event Provenance Registry (EPR) server is a service 
 	that manages and stores events and tracks event-receivers 
@@ -66,6 +50,7 @@ func Execute() {
 
 func preRun(cmd *cobra.Command, _ []string) error {
 	viper.AutomaticEnv()
+	viper.SetEnvPrefix("EPR")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	err := viper.BindPFlags(cmd.Flags())
 	if err != nil {
@@ -76,14 +61,30 @@ func preRun(cmd *cobra.Command, _ []string) error {
 
 func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("debug enabled")
+	// TODO probably need some better input validation
+	brokers := strings.Split(viper.GetString("brokers"), ",")
+	topic := viper.GetString("topic")
+	host := viper.GetString("host")
+	port := viper.GetString("port")
+
+	dburl, err := url.Parse(viper.GetString("db"))
+	if err != nil {
+		panic(err)
+	}
+
+	dbhost, dbportstr, _ := net.SplitHostPort(dburl.Host)
+	dbport, err := strconv.Atoi(dbportstr)
+	if err != nil {
+		panic(err)
+	}
 
 	messageChannel := make(chan message.Message, 1)
 	defer close(messageChannel)
 
 	cfg, err := config.New(
-		config.WithServer(viper.GetString("host"), viper.GetString("port"), "", true, true),
-		config.WithStorage("localhost", "postgres", "", "", "postgres", 5432, 10, 10, 10),
-		config.WithKafka(false, "3.4.0", []string{"localhost:19092"}, "epr.dev.events", messageChannel),
+		config.WithServer(host, port, "", true, true),
+		config.WithStorage(dbhost, "postgres", "", "", "postgres", dbport, 10, 10, 10),
+		config.WithKafka(false, "3.4.0", brokers, topic, messageChannel),
 		// TODO: add this once auth have been turned on
 		// config.WithAuth(),
 	)
@@ -154,9 +155,9 @@ func initConfig() {
 		if err != nil {
 			fmt.Print("unable to find home directory")
 		}
-		// Search config in home directory with name ".generic" (without extension).
+		// Search config in home directory with name ".epr" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".generic")
+		viper.SetConfigName(".epr")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
 	if err := viper.MergeInConfig(); err == nil {
@@ -170,6 +171,9 @@ func init() {
 	// create two new flags, one for host and one for port
 	rootCmd.Flags().String("host", "localhost", "host to listen on")
 	rootCmd.Flags().String("port", "8042", "port to listen on")
+	rootCmd.Flags().String("brokers", "localhost:9092", "brokers uri")
+	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
+	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
 
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
