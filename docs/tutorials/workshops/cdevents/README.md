@@ -157,7 +157,7 @@ The results of the command should look like this:
 { "data": "01HFW5HXQR28951NR8NH3WJBN6" }
 ```
 
-Next we will POST and event to the event receiver. The event payload will be in
+Next we will POST an event to the event receiver. The event payload will be in
 the form of an artifact published event.
 
 Create an event:
