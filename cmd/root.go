@@ -175,6 +175,6 @@ func init() {
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
 
-	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.generic.yaml)")
+	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
