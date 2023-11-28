@@ -171,7 +171,7 @@ func init() {
 	// create two new flags, one for host and one for port
 	rootCmd.Flags().String("host", "localhost", "host to listen on")
 	rootCmd.Flags().String("port", "8042", "port to listen on")
-	rootCmd.Flags().String("brokers", "localhost:9092", "brokers uri")
+	rootCmd.Flags().String("brokers", "localhost:9092", "broker uris separated by commas")
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
 
