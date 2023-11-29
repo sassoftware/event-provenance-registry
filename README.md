@@ -82,7 +82,7 @@ Usage:
 
 Flags:
       --brokers string   brokers uri (default "localhost:9092")
-      --config string    config file (default is $HOME/.generic.yaml)
+      --config string    config file (default is $HOME/.epr.yaml)
       --db string        database connection string (default "postgres://localhost:5432")
       --debug            Enable debugging statements
   -h, --help             help for epr-server
