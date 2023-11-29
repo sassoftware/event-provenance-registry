@@ -151,6 +151,9 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		viper.AddConfigPath(filepath.Join(xdg.ConfigHome, "epr"))
+		for _, dir := range xdg.ConfigDirs {
+			viper.AddConfigPath(filepath.Join(dir, "epr"))
+		}
 		viper.SetConfigName("epr")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
