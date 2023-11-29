@@ -159,7 +159,7 @@ func initConfig() {
 		for _, dir := range xdg.ConfigDirs {
 			viper.AddConfigPath(filepath.Join(dir, "epr"))
 		}
-		viper.SetConfigName(".epr")
+		viper.SetConfigName("epr")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
 	if err := viper.MergeInConfig(); err == nil {
@@ -177,6 +177,6 @@ func init() {
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
 
-	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.epr.yaml)")
+	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
