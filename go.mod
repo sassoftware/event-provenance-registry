@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/Shopify/sarama v1.38.1
+	github.com/adrg/xdg v0.4.0
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httplog v0.3.0
@@ -14,7 +15,6 @@ require (
 	github.com/graph-gophers/graphql-go v1.5.1-0.20230420075959-f0f4e10d6a70
 	github.com/jackc/pgconn v1.14.0
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/oklog/ulid v1.3.1
 	github.com/prometheus/client_golang v1.15.1
 	github.com/rs/zerolog v1.29.0

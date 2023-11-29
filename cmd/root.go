@@ -10,12 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/mitchellh/go-homedir"
+	"github.com/adrg/xdg"
 	"github.com/sassoftware/event-provenance-registry/pkg/api"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
@@ -155,14 +156,11 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Print("unable to find home directory")
+		viper.AddConfigPath(filepath.Join(xdg.ConfigHome, "epr"))
+		for _, dir := range xdg.ConfigDirs {
+			viper.AddConfigPath(filepath.Join(dir, "epr"))
 		}
-		// Search config in home directory with name ".epr" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".epr")
+		viper.SetConfigName("epr")
 	}
 	viper.AutomaticEnv() // read in environment variables that match
 	if err := viper.MergeInConfig(); err == nil {
@@ -180,6 +178,6 @@ func init() {
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
 
-	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.epr.yaml)")
+	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
