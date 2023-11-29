@@ -117,7 +117,7 @@ mutation {
       name: "foo"
       version: "1.0.0"
       release: "20231103"
-      platformID: "platformID"
+      platform_id: "platformID"
       package: "package"
       description: "The Foo of Brixton"
       payload: "{\"name\": \"value\"}"

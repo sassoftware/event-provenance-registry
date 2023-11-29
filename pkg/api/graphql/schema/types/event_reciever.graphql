@@ -1,5 +1,5 @@
 type EventReceiver {
-  ID: ID!
+  id: ID!
   name: String!
   type: String!
   version: String!
