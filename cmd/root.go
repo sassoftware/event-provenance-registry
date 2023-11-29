@@ -61,6 +61,7 @@ func preRun(cmd *cobra.Command, _ []string) error {
 
 func run(_ *cobra.Command, _ []string) error {
 	logger.V(1).Info("debug enabled")
+
 	// TODO probably need some better input validation
 	brokers := strings.Split(viper.GetString("brokers"), ",")
 	topic := viper.GetString("topic")
@@ -69,13 +70,17 @@ func run(_ *cobra.Command, _ []string) error {
 
 	dburl, err := url.Parse(viper.GetString("db"))
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	dbhost, dbportstr, _ := net.SplitHostPort(dburl.Host)
+	dbhost, dbportstr, err := net.SplitHostPort(dburl.Host)
+	if err != nil {
+		return err
+	}
+
 	dbport, err := strconv.Atoi(dbportstr)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	messageChannel := make(chan message.Message, 1)
