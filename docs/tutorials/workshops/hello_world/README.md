@@ -39,7 +39,16 @@ docker exec -it redpanda-0 \
     rpk topic create epr.dev.events --brokers=localhost:19092
 ```
 
+
 ## Start Event Provenance Registry server
+
+Export the environment variables for the server
+
+```bash
+export EPR_TOPIC=epr.dev.events
+export EPR_BROKERS=localhost:19092
+export EPR_DB=postgres://localhost:5432
+```
 
 The server can be started using the default settings. This will make the server
 available on localhost:8042.

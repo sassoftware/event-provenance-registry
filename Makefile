@@ -68,7 +68,7 @@ install-darwin: darwin ;$(info $(M) installing epr-server...) @ ## Installs epr-
 	install -m 755 ./bin/epr-server-darwin $(DESTDIR)$(PREFIX)/bin/epr-server
 
 .PHONY: install-darwin-arm64
-install-darwin: darwin-arm64 ;$(info $(M) installing epr-server arm64...) @ ## Installs epr-server-darwin-arm64 binary into DESTDIR epr-server
+install-darwin-arm64: darwin-arm64 ;$(info $(M) installing epr-server arm64...) @ ## Installs epr-server-darwin-arm64 binary into DESTDIR epr-server
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 ./bin/epr-server-darwin-arm64 $(DESTDIR)$(PREFIX)/bin/epr-server
 
