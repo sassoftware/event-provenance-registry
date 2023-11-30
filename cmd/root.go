@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -33,8 +34,8 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "epr-server",
 	Short: "Event Provenance Registry (EPR) server",
-	Long: `The Event Provenance Registry (EPR) server is a service 
-	that manages and stores events and tracks event-receivers 
+	Long: `The Event Provenance Registry (EPR) server is a service
+	that manages and stores events and tracks event-receivers
 	and event-receiver-groups.`,
 	PreRunE: preRun,
 	RunE:    run,
@@ -67,6 +68,8 @@ func run(_ *cobra.Command, _ []string) error {
 	topic := viper.GetString("topic")
 	host := viper.GetString("host")
 	port := viper.GetString("port")
+	cert := viper.GetString("cert")
+	key := viper.GetString("key")
 
 	dburl, err := url.Parse(viper.GetString("db"))
 	if err != nil {
@@ -115,6 +118,30 @@ func run(_ *cobra.Command, _ []string) error {
 	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
 		return err
+	}
+
+	if cert != "" && key != "" {
+		servTLSCert, err := tls.LoadX509KeyPair(cert, key)
+		if err != nil {
+			logger.Info("invalid key pair: %v", err)
+			return err
+		}
+
+		// Create the TLS Config with the CA pool and enable Client certificate validation
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{servTLSCert},
+			MinVersion:   tls.VersionTLS13,
+		}
+
+		// Create a Server instance to listen on port 8443 with the TLS config
+		server.TLSConfig = tlsConfig
+
+		listener = tls.NewListener(listener, tlsConfig)
+
+		logger.Info("TLS Enabled")
+	} else {
+		// Run insecure if certs are not provided.
+		logger.Info("TLS Not Enabled")
 	}
 
 	wg.Add(1)
@@ -176,7 +203,8 @@ func init() {
 	rootCmd.Flags().String("brokers", "localhost:9092", "broker uris separated by commas")
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
-
+	rootCmd.Flags().StringP("cert", "", "", `Path to the cert for the server`)
+	rootCmd.Flags().StringP("key", "", "", `Path to the server key`)
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
