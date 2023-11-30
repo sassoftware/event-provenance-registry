@@ -102,6 +102,24 @@ docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
 
 [Start up Postgres.](docs/how-to/start-server/README.md)
 
+Start EPR
+
+Export the environment variables for the server
+
+```bash
+export EPR_TOPIC=epr.dev.events
+export EPR_BROKERS=localhost:19092
+export EPR_DB=postgres://localhost:5432
+```
+
+The server can be started using the default settings. This will make the server
+available on localhost:8042.
+
+```bash
+go run main.go
+```
+
+
 ### Interacting with the Server
 
 An event receiver is an object that represents some type of action that would
