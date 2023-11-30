@@ -82,7 +82,7 @@ mutation {
       name: "grant"
       version: "1.0.0"
       release: "some-action"
-      platformID: "platformID"
+      platform_id: "platformID"
       package: "package"
       description: "a fake event receiver"
       payload: "{\"name\": \"value\"}"

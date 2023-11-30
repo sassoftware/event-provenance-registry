@@ -1,5 +1,5 @@
 type Event {
-  ID: ID!
+  id: ID!
   name: String!
   version: String!
   release: String!
@@ -16,7 +16,7 @@ input EventInput {
   name: String!
   version: String!
   release: String!
-  platformID: String!
+  platform_id: String!
   package: String!
   description: String!
   payload: JSON!
