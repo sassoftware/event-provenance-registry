@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"sync"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -26,7 +25,7 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
-func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*chi.Mux, error) {
+func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
 	}
@@ -59,10 +58,10 @@ func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*c
 		log.Fatal(err)
 	}
 
-	cfg.Kafka.Producer.ConsumeSuccesses(wg)
-	cfg.Kafka.Producer.ConsumeErrors(wg)
+	cfg.Kafka.Producer.ConsumeSuccesses()
+	cfg.Kafka.Producer.ConsumeErrors()
 
-	s, err := New(ctx, connection, cfg.Kafka, wg)
+	s, err := New(ctx, connection, cfg.Kafka)
 	if err != nil {
 		log.Fatal(err)
 	}

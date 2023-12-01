@@ -5,15 +5,16 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/adrg/xdg"
@@ -23,6 +24,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
 
 var logger = utils.MustGetLogger("server", "cmd.root")
@@ -97,14 +99,27 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	ctx := context.Background()
-	var wg sync.WaitGroup
-	defer wg.Wait()
+	ctx, ccancel := context.WithCancel(context.Background())
+	defer ccancel()
+	interruptChan := make(chan os.Signal, 1)
+	signal.Notify(interruptChan, os.Interrupt)
+	go func() {
+		sig := <-interruptChan
+		signal.Stop(interruptChan)
+		logger.Info("received signal", "signal", sig)
+		ccancel()
+	}()
 
-	router, err := api.Initialize(ctx, cfg, &wg)
+	errGroup, ctx := errgroup.WithContext(ctx)
+
+	router, err := api.Initialize(ctx, cfg)
 	if err != nil {
 		return err
 	}
+	errGroup.Go(func() error {
+		<-ctx.Done()
+		return cfg.Kafka.Producer.Close()
+	})
 
 	server := &http.Server{
 		Addr:              cfg.GetSrvAddr(),
@@ -114,39 +129,34 @@ func run(_ *cobra.Command, _ []string) error {
 
 	listener, err := net.Listen("tcp", server.Addr)
 	if err != nil {
+		logger.Error(err, "failed to listen", "addr", server.Addr)
 		return err
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	errGroup.Go(func() error {
 		err := server.Serve(listener)
 		if err != nil {
-			if err != http.ErrServerClosed {
-				panic(err)
+			if !errors.Is(err, http.ErrServerClosed) {
+				return err
 			}
 			logger.Info("listener closed")
 		}
-	}()
+		return nil
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	errGroup.Go(func() error {
 		<-ctx.Done()
 		logger.Info("shutting down server")
-		err := server.Shutdown(context.Background())
-		if err != nil {
-			if err != http.ErrServerClosed {
-				panic(err)
-			}
+		if err := server.Shutdown(context.Background()); err != nil {
+			return err
 		}
 		logger.Info("server shut down")
-	}()
+		return nil
+	})
 
 	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
 
-	wg.Wait()
-	return nil
+	return errGroup.Wait()
 }
 
 // initConfig reads in config file and ENV variables if set.

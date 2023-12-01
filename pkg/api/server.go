@@ -6,7 +6,6 @@ package api
 import (
 	"context"
 	"errors"
-	"sync"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/rest"
@@ -19,12 +18,12 @@ type Server struct {
 	Rest    *rest.Server
 }
 
-func New(ctx context.Context, conn *storage.Database, config *config.KafkaConfig, wg *sync.WaitGroup) (*Server, error) {
+func New(ctx context.Context, conn *storage.Database, config *config.KafkaConfig) (*Server, error) {
 	if conn == nil {
 		return nil, errors.New("database connector cannot be nil")
 	}
 	return &Server{
 		GraphQL: graphql.New(conn, config),
-		Rest:    rest.New(ctx, conn, config, wg),
+		Rest:    rest.New(ctx, conn, config),
 	}, nil
 }
