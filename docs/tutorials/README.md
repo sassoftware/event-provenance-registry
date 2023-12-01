@@ -2,12 +2,15 @@
 
 ## Overview
 
-Tutorials should be learning oriented. The idea is to get the users started.
-Tutorials must be repeatable and work every time. They should inspire confidence
-in the user as they learn how-to use the system.
+A collection of tutorials to start learning the Provenance Registry (EPR).
+Tutorials build on each other so they are best done in the order that they are
+listed in the table of contents.
 
 ## Sections
 
-| Name                                        | Description                                           |
-| ------------------------------------------- | ----------------------------------------------------- |
-| [Workshop Tutorials](./workshops/README.md) | Workshops to learn about EPR and event driven systems |
+| Name                                   | Description                                                        |
+| -------------------------------------- | ------------------------------------------------------------------ |
+| [Hello World](./hello_world/README.md) | Hello world for the Event Provenance Registry (EPR) Service        |
+| [The Watcher](./watcher/README.md)     | Create a watcher for the Event Provenance Registry (EPR) Service   |
+| [CDEvents](./cdevents/README.md)       | Integrate CDEvents into the Event Provenance Registry (EPR)        |
+| [CycloneDX SBOM](./sboms/README.md)    | Integrate CycloneDX SBOMs into the Event Provenance Registry (EPR) |
