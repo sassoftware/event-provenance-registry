@@ -26,8 +26,8 @@ vendor/
 /tests/coverage.*
 /versioninfo.json
 /VERSION
-/status/version.go.*
 temp/
+/certs
 
 .vscode/
 .idea/
