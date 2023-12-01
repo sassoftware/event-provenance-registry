@@ -200,7 +200,6 @@ func (c *Client) Search(queryName string, queryFor string, params map[string]int
 
 // searchQuery implements the searching for the eventReceiverkeeper
 func (c *Client) searchQuery(params map[string]interface{}, queryName, queryFor, endpoint string, fields []string) (string, error) {
-	s := 
 	gqlBody := NewGraphQLRequest(queryName, queryFor, fields, params)
 	enc, err := json.Marshal(gqlBody)
 	if err != nil {

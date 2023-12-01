@@ -30,14 +30,14 @@ func TestEvent(t *testing.T) {
 		EventReceiver:   EventReceiver{},
 	}
 
-	json_out, err := event.ToJSON()
-	fmt.Printf("%s\n", json_out)
+	jsonOut, err := event.ToJSON()
+	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
-	assert.Assert(t, strings.HasPrefix(json_out, "{"))
-	assert.Assert(t, strings.HasSuffix(json_out, "}"))
+	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
+	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))
 
 	// Test the event from JSON
-	e, err := EventFromJSON(strings.NewReader(json_out))
+	e, err := EventFromJSON(strings.NewReader(jsonOut))
 	assert.NilError(t, err)
 	assert.Assert(t, e.ID == event.ID)
 	assert.Assert(t, e.Name == event.Name)
@@ -92,14 +92,14 @@ func TestEventReceiver(t *testing.T) {
 		t.Errorf("Name exceeds the maximum length of 255 characters")
 	}
 
-	json_out, err := eventReceiver.ToJSON()
-	fmt.Printf("%s\n", json_out)
+	jsonOut, err := eventReceiver.ToJSON()
+	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
-	assert.Assert(t, strings.HasPrefix(json_out, "{"))
-	assert.Assert(t, strings.HasSuffix(json_out, "}"))
+	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
+	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))
 
 	// Test the event from JSON
-	e, err := EventReceiverFromJSON(strings.NewReader(json_out))
+	e, err := EventReceiverFromJSON(strings.NewReader(jsonOut))
 	assert.NilError(t, err)
 	assert.Assert(t, e.ID == eventReceiver.ID)
 	assert.Assert(t, e.Name == eventReceiver.Name)
@@ -152,14 +152,14 @@ func TestEventReceiverGroup(t *testing.T) {
 		t.Errorf("Expected Name to be empty, but got '%s'", eventReceiverGroup.Name)
 	}
 
-	json_out, err := eventReceiverGroup.ToJSON()
-	fmt.Printf("%s\n", json_out)
+	jsonOut, err := eventReceiverGroup.ToJSON()
+	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
-	assert.Assert(t, strings.HasPrefix(json_out, "{"))
-	assert.Assert(t, strings.HasSuffix(json_out, "}"))
+	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
+	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))
 
 	// Test the event from JSON
-	e, err := EventReceiverGroupFromJSON(strings.NewReader(json_out))
+	e, err := EventReceiverGroupFromJSON(strings.NewReader(jsonOut))
 	assert.NilError(t, err)
 	assert.Assert(t, e.ID == eventReceiverGroup.ID)
 	assert.Assert(t, e.Name == eventReceiverGroup.Name)
