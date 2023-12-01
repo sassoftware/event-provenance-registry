@@ -71,8 +71,8 @@ func run(_ *cobra.Command, _ []string) error {
 	topic := viper.GetString("topic")
 	host := viper.GetString("host")
 	port := viper.GetString("port")
-	cert := viper.GetString("cert")
-	key := viper.GetString("key")
+	cert := viper.GetString("tls-cert")
+	key := viper.GetString("tls-key")
 
 	dburl, err := url.Parse(viper.GetString("db"))
 	if err != nil {
