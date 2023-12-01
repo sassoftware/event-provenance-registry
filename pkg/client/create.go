@@ -63,7 +63,7 @@ func (c *Client) CreateEventReceiverGroup(erg *storage.EventReceiverGroup) (stri
 // ModifyEventReceiverGroup takes a EventReceiverGroup object and updates the "Disabled" field in the EPR based on the EventReceiverGroup ID. This
 // function returns a JSON blob with the ID of the EventReceiverGroup it modified.
 func (c *Client) ModifyEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error) {
-	endpoint := c.GetEndpoint("/groups/" + erg.ID)
+	endpoint := c.GetEndpoint("/groups/" + string(erg.ID))
 
 	enc, err := json.Marshal(erg)
 	if err != nil {

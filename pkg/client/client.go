@@ -127,12 +127,12 @@ func (c *Client) doReq(reqType string, endpoint string, payload []byte) (string,
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest || resp.StatusCode < http.StatusOK {
-		var rb responses.Resp
-		err := json.Unmarshal(content, &rb)
+		r := &Response{}
+		err := json.Unmarshal(content, r)
 		if err != nil {
 			return string(content), fmt.Errorf("request returned status code %d", resp.StatusCode)
 		}
-		return string(content), fmt.Errorf("request returned status code %d (%s)", resp.StatusCode, rb.Errors)
+		return string(content), fmt.Errorf("request returned status code %d (%s)", resp.StatusCode, r.Errors)
 	}
 
 	return string(content), nil
