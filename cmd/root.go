@@ -139,7 +139,7 @@ func run(_ *cobra.Command, _ []string) error {
 	if cert != "" && key != "" {
 		servTLSCert, err := tls.LoadX509KeyPair(cert, key)
 		if err != nil {
-			logger.Info("invalid key pair: %v", err)
+			logger.Error(err, "invalid key pair", "certFile", cert, "keyFile", key)
 			return err
 		}
 
@@ -215,8 +215,8 @@ func init() {
 	rootCmd.Flags().String("brokers", "localhost:9092", "broker uris separated by commas")
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
-	rootCmd.Flags().StringP("cert", "", "", `Path to the cert for the server`)
-	rootCmd.Flags().StringP("key", "", "", `Path to the server key`)
+	rootCmd.Flags().String("tls-cert", "", "Path to the cert for the server")
+	rootCmd.Flags().String("tls-key", "", "Path to the server key")
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
