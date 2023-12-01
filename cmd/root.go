@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/adrg/xdg"
@@ -105,7 +106,7 @@ func run(_ *cobra.Command, _ []string) error {
 	ctx, ccancel := context.WithCancel(context.Background())
 	defer ccancel()
 	interruptChan := make(chan os.Signal, 1)
-	signal.Notify(interruptChan, os.Interrupt)
+	signal.Notify(interruptChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-interruptChan
 		signal.Stop(interruptChan)
@@ -173,7 +174,9 @@ func run(_ *cobra.Command, _ []string) error {
 	errGroup.Go(func() error {
 		<-ctx.Done()
 		logger.Info("shutting down server")
-		if err := server.Shutdown(context.Background()); err != nil {
+		ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
 			return err
 		}
 		logger.Info("server shut down")
