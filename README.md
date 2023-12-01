@@ -81,8 +81,8 @@ Usage:
   epr-server [flags]
 
 Flags:
-      --brokers string   brokers uri (default "localhost:9092")
-      --config string    config file (default is $HOME/.epr.yaml)
+      --brokers string   broker uris separated by commas (default "localhost:9092")
+      --config string    config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)
       --db string        database connection string (default "postgres://localhost:5432")
       --debug            Enable debugging statements
   -h, --help             help for epr-server
@@ -101,6 +101,24 @@ docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
 ```
 
 [Start up Postgres.](docs/how-to/start-server/README.md)
+
+Start EPR
+
+Export the environment variables for the server
+
+```bash
+export EPR_TOPIC=epr.dev.events
+export EPR_BROKERS=localhost:19092
+export EPR_DB=postgres://localhost:5432
+```
+
+The server can be started using the default settings. This will make the server
+available on localhost:8042.
+
+```bash
+go run main.go
+```
+
 
 ### Interacting with the Server
 
