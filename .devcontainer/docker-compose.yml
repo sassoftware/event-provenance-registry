@@ -20,6 +20,8 @@ services:
     volumes:
       - ../..:/workspaces:cached
     tty: true
+    ports:
+      - 8042:8042
     networks:
       - db-network
       - redpanda-network

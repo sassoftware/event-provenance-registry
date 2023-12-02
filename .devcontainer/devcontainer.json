@@ -10,6 +10,7 @@
 	// Configure tool-specific properties.
 	// "customizations": {},
 	"forwardPorts": [
-		"redpanda-console:8080"
+		"redpanda-console:8080",
+		8042
 	]
 }
