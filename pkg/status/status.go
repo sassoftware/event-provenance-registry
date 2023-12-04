@@ -30,7 +30,6 @@ type Status struct {
 	Uptime    string      `json:"uptime" yaml:"uptime"`
 	Debug     bool        `json:"debug" yaml:"debug"`
 	Health    *Health     `json:"health" yaml:"health"`
-	Info      *Info       `json:"info" yaml:"info"`
 	StartTime time.Time   `json:"start_time" yaml:"start_time"`
 	Host      string      `json:"host" yaml:"host"`
 	Port      string      `json:"port" yaml:"port"`
@@ -76,7 +75,6 @@ func New(cfg *config.Config) *Status {
 		StartTime: cfg.StartTime,
 		Uptime:    GetUptime(cfg.StartTime),
 		Health:    NewHealth(server),
-		Info:      GetInfo(),
 		MetaData:  metadata,
 	}
 
