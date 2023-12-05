@@ -133,6 +133,10 @@ func run(_ *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+	errGroup.Go(func() error {
+		<-ctx.Done()
+		return cfg.Kafka.Producer.Close()
+	})
 
 	server := &http.Server{
 		Addr:              cfg.Server.GetSrvAddr(),
