@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/go-chi/render"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
@@ -28,12 +27,12 @@ type Server struct {
 }
 
 // New function creates a new Server instance and starts a Kafka producer.
-func New(ctx context.Context, conn *storage.Database, cfg *config.KafkaConfig, wg *sync.WaitGroup) *Server {
+func New(ctx context.Context, conn *storage.Database, cfg *config.KafkaConfig) *Server {
 	svr := &Server{
 		DBConnector: conn,
 		kafkaCfg:    cfg,
 	}
-	svr.startProducer(ctx, wg)
+	svr.startProducer(ctx)
 	return svr
 }
 
@@ -48,11 +47,8 @@ func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 	}
 }
 
-func (s *Server) startProducer(ctx context.Context, wg *sync.WaitGroup) {
-	wg.Add(1)
+func (s *Server) startProducer(ctx context.Context) {
 	go func() {
-		defer wg.Done()
-
 		for {
 			select {
 			case <-ctx.Done():
