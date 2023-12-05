@@ -6,15 +6,17 @@ package cmd
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
+	"syscall"
 	"time"
 
 	"github.com/adrg/xdg"
@@ -24,6 +26,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
 
 var logger = utils.MustGetLogger("server", "cmd.root")
@@ -68,8 +71,8 @@ func run(_ *cobra.Command, _ []string) error {
 	topic := viper.GetString("topic")
 	host := viper.GetString("host")
 	port := viper.GetString("port")
-	cert := viper.GetString("cert")
-	key := viper.GetString("key")
+	cert := viper.GetString("tls-cert")
+	key := viper.GetString("tls-key")
 
 	dburl, err := url.Parse(viper.GetString("db"))
 	if err != nil {
@@ -100,14 +103,27 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	ctx := context.Background()
-	var wg sync.WaitGroup
-	defer wg.Wait()
+	ctx, ccancel := context.WithCancel(context.Background())
+	defer ccancel()
+	interruptChan := make(chan os.Signal, 1)
+	signal.Notify(interruptChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-interruptChan
+		signal.Stop(interruptChan)
+		logger.Info("received signal", "signal", sig)
+		ccancel()
+	}()
 
-	router, err := api.Initialize(ctx, cfg, &wg)
+	errGroup, ctx := errgroup.WithContext(ctx)
+
+	router, err := api.Initialize(ctx, cfg)
 	if err != nil {
 		return err
 	}
+	errGroup.Go(func() error {
+		<-ctx.Done()
+		return cfg.Kafka.Producer.Close()
+	})
 
 	server := &http.Server{
 		Addr:              cfg.GetSrvAddr(),
@@ -123,7 +139,7 @@ func run(_ *cobra.Command, _ []string) error {
 	if cert != "" && key != "" {
 		servTLSCert, err := tls.LoadX509KeyPair(cert, key)
 		if err != nil {
-			logger.Info("invalid key pair: %v", err)
+			logger.Error(err, "invalid key pair", "certFile", cert, "keyFile", key)
 			return err
 		}
 
@@ -144,36 +160,32 @@ func run(_ *cobra.Command, _ []string) error {
 		logger.Info("TLS Not Enabled")
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	errGroup.Go(func() error {
 		err := server.Serve(listener)
 		if err != nil {
-			if err != http.ErrServerClosed {
-				panic(err)
+			if !errors.Is(err, http.ErrServerClosed) {
+				return err
 			}
 			logger.Info("listener closed")
 		}
-	}()
+		return nil
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	errGroup.Go(func() error {
 		<-ctx.Done()
 		logger.Info("shutting down server")
-		err := server.Shutdown(context.Background())
-		if err != nil {
-			if err != http.ErrServerClosed {
-				panic(err)
-			}
+		ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			return err
 		}
 		logger.Info("server shut down")
-	}()
+		return nil
+	})
 
 	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
 
-	wg.Wait()
-	return nil
+	return errGroup.Wait()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -203,8 +215,8 @@ func init() {
 	rootCmd.Flags().String("brokers", "localhost:9092", "broker uris separated by commas")
 	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
 	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
-	rootCmd.Flags().StringP("cert", "", "", `Path to the cert for the server`)
-	rootCmd.Flags().StringP("key", "", "", `Path to the server key`)
+	rootCmd.Flags().String("tls-cert", "", "Path to the cert for the server")
+	rootCmd.Flags().String("tls-key", "", "Path to the server key")
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }

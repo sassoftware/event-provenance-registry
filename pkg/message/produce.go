@@ -5,19 +5,18 @@ package message
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
-// Producer defines an inteface for producing events
+// Producer defines an interface for producing events
 type Producer interface {
 	Async(string, interface{})
 	Send(string, interface{}) error
-	ConsumeSuccesses(*sync.WaitGroup)
-	ConsumeErrors(*sync.WaitGroup)
+	ConsumeSuccesses()
+	ConsumeErrors()
 	Close() error
 }
 
@@ -138,6 +137,7 @@ func NewProducer(brokers []string, config *sarama.Config) (Producer, error) {
 
 // Close closes down the Kafka producer
 func (p *producer) Close() error {
+	logger.Info("shutting down kafka producer")
 	if p.sync == nil && p.async == nil {
 		return nil
 	}
@@ -148,14 +148,12 @@ func (p *producer) Close() error {
 }
 
 // ConsumeSuccesses consumes and logs successful message sends.
-func (p *producer) ConsumeSuccesses(wg *sync.WaitGroup) {
+func (p *producer) ConsumeSuccesses() {
 	if p.async == nil {
 		logger.V(1).Info("kafka messaging disabled")
 		return
 	}
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for suc := range p.async.Successes() {
 			e, _ := suc.Value.Encode()
 			logger.V(1).Info(fmt.Sprintf("message sent successfully: '%s'\n", string(e)))
@@ -164,14 +162,12 @@ func (p *producer) ConsumeSuccesses(wg *sync.WaitGroup) {
 }
 
 // ConsumeErrors consumes and logs messaging errors
-func (p *producer) ConsumeErrors(wg *sync.WaitGroup) {
+func (p *producer) ConsumeErrors() {
 	if p.async == nil {
 		logger.V(1).Info("kafka messaging disabled")
 		return
 	}
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for err := range p.async.Errors() {
 			logger.V(1).Info(fmt.Sprintf("error sending message '%s'\n", err))
 		}
