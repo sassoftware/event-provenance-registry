@@ -10,4 +10,4 @@ FROM scratch
 
 COPY --from=builder /build/bin/epr-server /usr/local/bin/epr-server
 
-CMD /usr/local/bin/epr-server
+CMD ["/usr/local/bin/epr-server"]

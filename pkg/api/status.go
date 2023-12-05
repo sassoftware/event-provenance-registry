@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/status"
 )
 
 func (s *Server) CheckLiveness() http.HandlerFunc {
@@ -21,8 +23,9 @@ func (s *Server) CheckReadiness() http.HandlerFunc {
 	}
 }
 
-func (s *Server) CheckStatus() http.HandlerFunc {
+func (s *Server) CheckStatus(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, `{"ready":true}`)
+		s := status.New(cfg)
+		render.JSON(w, r, s)
 	}
 }
