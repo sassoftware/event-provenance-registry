@@ -23,7 +23,7 @@ This how-to walks you through starting a server and making your first request
 using GraphQL.
 
 ```bash
-docker compose -f ./docs/tutorials/workshops/compose/docker-compose.yaml up
+docker compose -f ./docs/tutorials/compose/docker-compose.yaml up
 ```
 
 The Redpanda admin console will be at `http://localhost:8080/overview`

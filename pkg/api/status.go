@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/status"
 )
 
 // CheckLiveness() is a method of the `Server` struct. It
@@ -29,8 +31,9 @@ func (s *Server) CheckReadiness() http.HandlerFunc {
 // CheckStatus() is a method of the `Server` struct. It returns
 // an `http.HandlerFunc` function that handles the status check endpoint. When this endpoint is called,
 // it will respond with a JSON object `{"ready": true}` using the `render.JSON` function.
-func (s *Server) CheckStatus() http.HandlerFunc {
+func (s *Server) CheckStatus(cfg *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, `{"ready":true}`)
+		s := status.New(cfg)
+		render.JSON(w, r, s)
 	}
 }

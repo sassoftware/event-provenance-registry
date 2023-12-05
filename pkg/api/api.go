@@ -135,7 +135,7 @@ func Initialize(ctx context.Context, cfg *config.Config, wg *sync.WaitGroup) (*c
 	router.Route("/healthz", func(r chi.Router) {
 		r.Get("/liveness", s.CheckLiveness())
 		r.Get("/readiness", s.CheckReadiness())
-		r.Get("/status", s.CheckStatus())
+		r.Get("/status", s.CheckStatus(cfg))
 	})
 
 	// turn on the profiler in debug mode
