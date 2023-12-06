@@ -4,13 +4,14 @@
 package client
 
 import (
+	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 // make sure the mock implements the interface
 var _ Contract = &MockEPR{}
 
-// MockEPR a fake implementation of the gatekeeper for unit testing. Change the EventReceiver/EventReceiverGroup/Event
+// MockEPR a fake implementation of the EPR for unit testing. Change the EventReceiver/EventReceiverGroup/Event
 // fields to determine what gets returned.
 type MockEPR struct {
 	Error              error
@@ -77,6 +78,15 @@ func (m MockEPR) CheckReadiness() (bool, error) {
 func (m MockEPR) CheckLiveness() (bool, error) {
 	if m.Error != nil {
 		return false, m.Error
+	}
+
+	panic("implement me")
+}
+
+// CheckStatus fake status check
+func (m MockEPR) CheckStatus(cfg *config.Config) (string, error) {
+	if m.Error != nil {
+		return "", m.Error
 	}
 
 	panic("implement me")
