@@ -40,6 +40,7 @@ type Contract interface {
 	SearchEventReceiverGroupsObj(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error)
 	CheckReadiness() (bool, error)
 	CheckLiveness() (bool, error)
+	CheckStatus() (string, error)
 	GetEndpoint(end string) string
 }
 

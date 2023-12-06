@@ -49,7 +49,7 @@ func formatValues(k string, v interface{}) (string, string) {
 
 // NewGraphQLRequestIds returns a new instance of GraphQLRequest given params
 func NewGraphQLRequestIds(params map[string]interface{}) *GraphQLRequest {
-	query := `query FindAny($ulids: [String]){any (ulids: $ulids) { receivers groups events }}`
+	query := `query FindAny($ulids: [String]){any (ulids: $ulids) { events receivers groups }}`
 	return &GraphQLRequest{
 		Query:     query,
 		Variables: params,

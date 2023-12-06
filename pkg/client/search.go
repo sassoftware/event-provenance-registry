@@ -11,77 +11,6 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
-// QueryEventByID for querying EPR for Event by ID. Returns nil if no results.
-// fields := []string{"id", "name", "version", "description", "release", "platform_id", "package", "mutipass", "revoked", "timestamp", "eventReceiver_id"}
-func (c *Client) QueryEventByID(id string, fields []string) (*storage.Event, error) {
-	params := map[string]interface{}{
-		"id": id,
-	}
-
-	events, err := c.SearchEventsObj(params, fields)
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(events) {
-	case 0:
-		return nil, nil
-	case 1:
-		return &events[0], nil
-	default:
-		// This shouldn't happen, but return first entry if it does
-		logger.Error(nil, "two events found with same", "ID:", id)
-		return &events[0], nil
-	}
-}
-
-// QueryEventReceiverByID for querying EPR for EventReceiver by ID. Returns nil if no results.
-// fields := []string{"id", "name", "type", "version", "description", "fingerprint", "schema",}
-func (c *Client) QueryEventReceiverByID(id string, fields []string) (*storage.EventReceiver, error) {
-	params := map[string]interface{}{
-		"id": id,
-	}
-
-	eventReceivers, err := c.SearchEventReceiversObj(params, fields)
-	if err != nil {
-		return nil, err
-	}
-	switch len(eventReceivers) {
-	case 0:
-		return nil, nil
-	case 1:
-		return &eventReceivers[0], nil
-	default:
-		// This shouldn't happen, but return first entry if it does
-		logger.Error(nil, "two eventReceivers found with same", "ID:", id)
-		return &eventReceivers[0], nil
-	}
-}
-
-// QueryEventReceiverGroupByID for querying EPR for EventReceiverGroup by ID. Returns nil if no results.
-// fields := []string{"id", "name", "type", "version", "description", "fingerprint", "disabled"}
-func (c *Client) QueryEventReceiverGroupByID(id string, fields []string) (*storage.EventReceiverGroup, error) {
-	params := map[string]interface{}{
-		"id": id,
-	}
-
-	eventReceiverGroups, err := c.SearchEventReceiverGroupsObj(params, fields)
-	if err != nil {
-		return nil, err
-	}
-
-	switch len(eventReceiverGroups) {
-	case 0:
-		return nil, nil
-	case 1:
-		return &eventReceiverGroups[0], nil
-	default:
-		// This shouldn't happen, but return first entry if it does
-		logger.Error(nil, "two eventReceiverGroups found with same", "ID:", id)
-		return &eventReceiverGroups[0], nil
-	}
-}
-
 // getGraphqlEndpoint use for getting endpoints
 func (c *Client) getGraphqlEndpoint() string {
 	return fmt.Sprintf(`%s%s/graphql`, c.url, c.apiVersion)
@@ -100,24 +29,19 @@ func (c *Client) SearchEventReceiverGroupsObj(params map[string]interface{}, fie
 		return nil, err
 	}
 
-	respObj, err := DecodeRespFromJSON(strings.NewReader(response))
+	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for presence of errors in respObj from searching eventReceiverGroups
-	if respObj.Errors != nil {
+	if respObj.Errors != "" {
 		return nil, fmt.Errorf("when searching for eventReceiverGroup returned: errors: %s ", respObj.Errors)
 	}
 
 	eventReceiverGroupList := []storage.EventReceiverGroup{}
-	for _, gqlEventReceiverGroup := range respObj.Data.EventReceiverGroups {
-		erg, err := gqlEventReceiverGroup.ToEventReceiverGroup()
-		if err != nil {
-			return eventReceiverGroupList, err
-		}
-
-		eventReceiverGroupList = append(eventReceiverGroupList, *erg)
+	for _, erg := range respObj.Data.EventReceiverGroups {
+		eventReceiverGroupList = append(eventReceiverGroupList, erg)
 	}
 
 	return eventReceiverGroupList, nil
@@ -136,24 +60,19 @@ func (c *Client) SearchEventReceiversObj(params map[string]interface{}, fields [
 		return nil, err
 	}
 
-	respObj, err := DecodeRespFromJSON(strings.NewReader(response))
+	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for presence of errors in respObj from searching eventReceiver
-	if respObj.Errors != nil {
+	if respObj.Errors != "" {
 		return nil, fmt.Errorf("when searching for eventReceiver returned: errors: %s ", respObj.Errors)
 	}
 
 	eventReceiverList := []storage.EventReceiver{}
-	for _, gqlEventReceiver := range respObj.Data.EventReceivers {
-		er, err := gqlEventReceiver.ToEventReceiver()
-		if err != nil {
-			return eventReceiverList, err
-		}
-
-		eventReceiverList = append(eventReceiverList, *er)
+	for _, er := range respObj.Data.EventReceivers {
+		eventReceiverList = append(eventReceiverList, er)
 	}
 	return eventReceiverList, nil
 }
@@ -170,23 +89,19 @@ func (c *Client) SearchEventsObj(params map[string]interface{}, fields []string)
 	if err != nil {
 		return nil, err
 	}
-	respObj, err := DecodeRespFromJSON(strings.NewReader(response))
+	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for presence of errors in responseObj from searching event
-	if respObj.Errors != nil {
+	if respObj.Errors != "" {
 		return nil, fmt.Errorf("when searching for event returned: errors: %s ", respObj.Errors)
 	}
 
 	eventList := []storage.Event{}
-	for _, gqlRec := range respObj.Data.Events {
-		e, err := gqlRec.ToEvent()
-		if err != nil {
-			return eventList, err
-		}
-		eventList = append(eventList, *e)
+	for _, e := range respObj.Data.Events {
+		eventList = append(eventList, e)
 	}
 
 	return eventList, nil
@@ -198,7 +113,7 @@ func (c *Client) Search(queryName string, queryFor string, params map[string]int
 	return c.searchQuery(params, queryName, queryFor, endpoint, fields)
 }
 
-// searchQuery implements the searching for the eventReceiverkeeper
+// searchQuery implements the searching
 func (c *Client) searchQuery(params map[string]interface{}, queryName, queryFor, endpoint string, fields []string) (string, error) {
 	gqlBody := NewGraphQLRequest(queryName, queryFor, fields, params)
 	enc, err := json.Marshal(gqlBody)
@@ -220,7 +135,7 @@ func (c *Client) IDSearch(params map[string]interface{}) (string, error) {
 	return c.idSearchQuery(params, endpoint)
 }
 
-// idSearchQuery implements the searching by ids for the eventReceiverkeeper
+// idSearchQuery implements the searching by ids
 func (c *Client) idSearchQuery(params map[string]interface{}, endpoint string) (string, error) {
 	gqlBody := NewGraphQLRequestIds(params)
 	enc, err := json.Marshal(gqlBody)

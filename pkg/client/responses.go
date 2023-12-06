@@ -6,6 +6,9 @@ package client
 import (
 	"encoding/json"
 	"io"
+
+	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
 // Response type is a struct that represents a JSON response with a data field and an optional
@@ -21,27 +24,38 @@ type Response struct {
 	Errors string      `json:"errors,omitempty"`
 }
 
-// // RespGraphQL type represents a response from a GraphQL API that includes data for events, event
-// // receivers, and event receiver groups.
-// // @property Data - The `Data` property is a struct that contains three arrays: `Events`,
-// // `EventReceivers`, and `EventReceiverGroups`. Each of these arrays contains objects that have
-// // specific properties related to events, event receivers, and event receiver groups respectively.
-// // @property Errors - The `Errors` property is of type `types.JSON` and is used to store any errors
-// // that occur during the execution of the GraphQL query. It is an optional property, meaning it may be
-// // omitted if there are no errors.
-// type RespGraphQL struct {
-// 	Data struct {
-// 		Events              []ERespGraphQL   `json:"events"`
-// 		EventReceivers      []ERRespGraphQL  `json:"event_receivers"`
-// 		EventReceiverGroups []ERGRespGraphQL `json:"event_receiver_groups"`
-// 	} `json:"data"`
-// 	Errors types.JSON `json:"errors,omitempty"`
-// }
-
-// DecodeRespFromJSON decodes a JSON input from a reader into a RespGraphQ struct
+// DecodeRespFromJSON decodes a JSON input from a reader into a Response struct
 // in Go.
 func DecodeRespFromJSON(reader io.Reader) (*Response, error) {
 	r := &Response{}
+	err := json.NewDecoder(reader).Decode(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// RespGraphQL type is a struct that represents the response data from a GraphQL query, including
+// event, event receiver, and event receiver group information.
+// @property Data - The `Data` property is a struct that contains the following properties:
+// @property {string} Errors - The `Errors` property is a string that is used to store any error
+// messages that may occur during the execution of the GraphQL query. It is optional and will only be
+// present if there are any errors.
+type RespGraphQL struct {
+	Data struct {
+		Event                    storage.Event              `json:"event,omitempty"`
+		EventReceiver            storage.EventReceiver      `json:"event_receiver,omitempty"`
+		EventReceiverGroup       storage.EventReceiverGroup `json:"event_receiver_group,omitempty"`
+		CreateEvent              graphql.ID                 `json:"create_event,omitempty"`
+		CreateEventReceiver      graphql.ID                 `json:"create_event_receiver,omitempty"`
+		CreateEventReceiverGroup graphql.ID                 `json:"create_event_receiver_group,omitempty"`
+	} `json:"data"`
+	Errors string `json:"errors,omitempty"`
+}
+
+// The function `DecodeGraphQLRespFromJSON` decodes a JSON response into a `RespGraphQL` struct.
+func DecodeGraphQLRespFromJSON(reader io.Reader) (*RespGraphQL, error) {
+	r := &RespGraphQL{}
 	err := json.NewDecoder(reader).Decode(r)
 	if err != nil {
 		return nil, err
