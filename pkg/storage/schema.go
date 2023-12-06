@@ -85,7 +85,7 @@ type EventReceiver struct {
 	Name        string     `json:"name" gorm:"type:varchar(255);not null"`
 	Type        string     `json:"type" gorm:"type:varchar(255);not null"`
 	Version     string     `json:"version" gorm:"type:varchar(255);not null"`
-	Description string     `json:"description" gorm:"type:varchar(255);not1 null"`
+	Description string     `json:"description" gorm:"type:varchar(255);not null"`
 
 	Schema      types.JSON `json:"schema" gorm:"not null"`
 	Fingerprint string     `json:"fingerprint" gorm:"type:varchar(255);not null"`
