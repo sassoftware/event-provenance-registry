@@ -15,6 +15,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      EPR_BROKERS: redpanda:19092
+      EPR_DB: postgres://db:5432
     env_file:
       - db.env
     volumes:
