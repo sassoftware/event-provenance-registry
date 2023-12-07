@@ -1,15 +1,15 @@
 // For format details, see https://aka.ms/devcontainer.json.
 {
 	"name": "EPR Development",
-	"dockerComposeFile": "docker-compose.yml",
+	"dockerComposeFile": ["../docker-compose.yaml", "docker-compose.extend.yaml"],
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 	"forwardPorts": [
 		"redpanda-console:8080",
 		8042
-	]
+	],
+	"shutdownAction": "stopCompose"
 }
