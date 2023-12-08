@@ -4,9 +4,9 @@ schema {
 }
 
 type Query {
-  event(id: ID!): Event
-  event_receiver(id: ID!): EventReceiver
-  event_receiver_group(id: ID!): EventReceiverGroup
+  events(id: ID!): [Event]
+  event_receivers(id: ID!): [EventReceiver]
+  event_receiver_groups(id: ID!): [EventReceiverGroup]
 }
 
 type Mutation {
