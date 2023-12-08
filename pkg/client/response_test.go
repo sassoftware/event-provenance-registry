@@ -16,10 +16,11 @@ import (
 func TestRespGraphQL(t *testing.T) {
 	var resp RespGraphQL
 
+	event := storage.Event{ID: "1", Name: "Event 1"}
 	// Positive test case
-	resp.Data.Event = storage.Event{ID: "1", Name: "Event 1"}
-	assert.Equal(t, "1", resp.Data.Event.ID)
-	assert.Equal(t, "Event 1", resp.Data.Event.Name)
+	resp.Data.Events = []storage.Event{event}
+	assert.Equal(t, "1", string(resp.Data.Events[0].ID))
+	assert.Equal(t, "Event 1", resp.Data.Events[0].Name)
 
 	// Negative test case
 	resp.Errors = "Error occurred"
@@ -30,21 +31,23 @@ func TestDecodeGraphQLRespFromJSON(t *testing.T) {
 	// Positive test case
 	jsonData := `{
   "data": {
-    "event": {
-      "id": "01HGV1MPCYHNR1A528Z7W1BS23",
-      "name": "foo",
-      "version": "1.0.0",
-      "release": "20231103",
-      "platform_id": "platformID",
-      "package": "package",
-      "description": "The Foo of Brixton",
-      "payload": {
-        "name": "value"
-      },
-      "success": true,
-      "created_at": "13:32:25.000758276",
-      "event_receiver_id": "01HFF7N2XTVP7KQCEBEK2SYCVD"
-    }
+    "events": [
+      {
+        "id": "01HGDYVD995K6F24SAW6GP17HZ",
+        "name": "test",
+        "version": "0.1.1",
+        "release": "20231129",
+        "platform_id": "aarch64-gnu-linux-7",
+        "package": "OCI",
+        "description": "Test Description",
+        "payload": {
+          "name": "value"
+        },
+        "success": true,
+        "created_at": "13:32:25.000758276",
+        "event_receiver_id": "01HGDZ1D3KPZHYADNSJC4K4BQF"
+      }
+    ]
   }
 }`
 	reader := strings.NewReader(jsonData)
@@ -65,7 +68,7 @@ func TestDecodeGraphQLRespFromJSON(t *testing.T) {
 		EventReceiverID: "01HGDZ1D3KPZHYADNSJC4K4BQF",
 	}
 
-	assert.Assert(t, resp.Data.Event.ID == expected.ID)
+	assert.Assert(t, resp.Data.Events[0].ID == expected.ID)
 
 	// Negative test case - invalid JSON
 	jsonData = `{"field1": "value1", "field2": "value2"`

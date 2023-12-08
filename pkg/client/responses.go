@@ -43,12 +43,12 @@ func DecodeRespFromJSON(reader io.Reader) (*Response, error) {
 // present if there are any errors.
 type RespGraphQL struct {
 	Data struct {
-		Event                    storage.Event              `json:"event,omitempty"`
-		EventReceiver            storage.EventReceiver      `json:"event_receiver,omitempty"`
-		EventReceiverGroup       storage.EventReceiverGroup `json:"event_receiver_group,omitempty"`
-		CreateEvent              graphql.ID                 `json:"create_event,omitempty"`
-		CreateEventReceiver      graphql.ID                 `json:"create_event_receiver,omitempty"`
-		CreateEventReceiverGroup graphql.ID                 `json:"create_event_receiver_group,omitempty"`
+		Events                   []storage.Event              `json:"events,omitempty"`
+		EventReceivers           []storage.EventReceiver      `json:"event_receivers,omitempty"`
+		EventReceiverGroups      []storage.EventReceiverGroup `json:"event_receiver_groups,omitempty"`
+		CreateEvent              graphql.ID                   `json:"create_event,omitempty"`
+		CreateEventReceiver      graphql.ID                   `json:"create_event_receiver,omitempty"`
+		CreateEventReceiverGroup graphql.ID                   `json:"create_event_receiver_group,omitempty"`
 	} `json:"data"`
 	Errors string `json:"errors,omitempty"`
 }

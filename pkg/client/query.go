@@ -4,10 +4,6 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-	"strings"
-
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 

@@ -22,7 +22,8 @@ func (c *Client) SearchEventReceiverGroups(params map[string]interface{}, fields
 	return c.searchQuery(params, "FindEventReceiverGroup", "eventReceiverGroups", endpoint, fields)
 }
 
-// SearchEventReceiverGroupsObj unmarshals the result of SearchEventReceiverGroups into a list of EventReceiverGroups
+// SearchEventReceiverGroupsObj function is used to search for event receiver groups based on the
+// provided parameters and retrieve the results as a list of `storage.EventReceiverGroup` objects.
 func (c *Client) SearchEventReceiverGroupsObj(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error) {
 	response, err := c.SearchEventReceiverGroups(params, fields)
 	if err != nil {
@@ -39,12 +40,7 @@ func (c *Client) SearchEventReceiverGroupsObj(params map[string]interface{}, fie
 		return nil, fmt.Errorf("when searching for eventReceiverGroup returned: errors: %s ", respObj.Errors)
 	}
 
-	eventReceiverGroupList := []storage.EventReceiverGroup{}
-	for _, erg := range respObj.Data.EventReceiverGroups {
-		eventReceiverGroupList = append(eventReceiverGroupList, erg)
-	}
-
-	return eventReceiverGroupList, nil
+	return respObj.Data.EventReceiverGroups, nil
 }
 
 // SearchEventReceivers searches for eventReceivers based on params
@@ -53,7 +49,8 @@ func (c *Client) SearchEventReceivers(params map[string]interface{}, fields []st
 	return c.searchQuery(params, "FindEventReceiver", "eventReceivers", endpoint, fields)
 }
 
-// SearchEventReceiversObj unmarshals the result of SearchEventReceivers into a list of EventReceivers
+// SearchEventReceiversObj function is used to search for event receivers based on the provided
+// parameters and retrieve the results as a list of `storage.EventReceiver` objects.
 func (c *Client) SearchEventReceiversObj(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error) {
 	response, err := c.SearchEventReceivers(params, fields)
 	if err != nil {
@@ -70,11 +67,7 @@ func (c *Client) SearchEventReceiversObj(params map[string]interface{}, fields [
 		return nil, fmt.Errorf("when searching for eventReceiver returned: errors: %s ", respObj.Errors)
 	}
 
-	eventReceiverList := []storage.EventReceiver{}
-	for _, er := range respObj.Data.EventReceivers {
-		eventReceiverList = append(eventReceiverList, er)
-	}
-	return eventReceiverList, nil
+	return respObj.Data.EventReceivers, nil
 }
 
 // SearchEvents searches for events based on params
@@ -83,7 +76,8 @@ func (c *Client) SearchEvents(params map[string]interface{}, fields []string) (s
 	return c.searchQuery(params, "FindEvent", "events", endpoint, fields)
 }
 
-// SearchEventsObj unmarshals the result of SearchEvents into a list of Events
+// SearchEventsObj function is used to search for events based on the provided parameters and
+// retrieve the results as a list of `storage.Event` objects.
 func (c *Client) SearchEventsObj(params map[string]interface{}, fields []string) ([]storage.Event, error) {
 	response, err := c.SearchEvents(params, fields)
 	if err != nil {
@@ -99,12 +93,7 @@ func (c *Client) SearchEventsObj(params map[string]interface{}, fields []string)
 		return nil, fmt.Errorf("when searching for event returned: errors: %s ", respObj.Errors)
 	}
 
-	eventList := []storage.Event{}
-	for _, e := range respObj.Data.Events {
-		eventList = append(eventList, e)
-	}
-
-	return eventList, nil
+	return respObj.Data.Events, nil
 }
 
 // Search searches for the given queryFor based on params
