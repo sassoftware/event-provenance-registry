@@ -157,10 +157,15 @@ its tasks have completed successfully.
 }
 ```
 
-- Explain watchers
-- What it looks like in production
+### Watchers
+
+Watchers are applications (typically microservices) that watch the EPR Redpanda topic for messages and then take some action. They use some matching logic, defined in EPR's SDK to determine which messages to process. You can match on NVRPP, `type`, and `success`. We've written about a dozen or so watchers interally that do a variety of things. One of our more popular watchers fires webhooks if matching criteria are met. It is most often used to trigger Jenkins jobs, acting as glue between Jenkins and other systems. Another popular watcher is one that creates Jira tickets when messages are matched. We use this one heavily as part of our security automation to open security issues against various teams when problems are detected.
+
+- Show messages on the bus
 
 ## Running EPR in Production
+
+Give a high level overview
 
 ## Pitfalls
 
