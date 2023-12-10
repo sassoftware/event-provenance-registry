@@ -1,8 +1,8 @@
 // For format details, see https://aka.ms/devcontainer.json.
 {
 	"name": "EPR Development",
-	"dockerComposeFile": ["../docker-compose.yaml", "docker-compose.extend.yaml"],
-	"service": "app",
+	"dockerComposeFile": ["../docker-compose.services.yaml", "docker-compose.extend.yaml"],
+	"service": "epr-development",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}

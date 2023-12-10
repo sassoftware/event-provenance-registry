@@ -1,25 +1,13 @@
 version: '3.8'
 
-networks:
-  epr-network:
-    driver: bridge
-
-volumes:
-  postgres-data: null
-  redpanda-data: null
-
 services:
-  app:
+  epr-development:
+    extends:
+      file: ./docker-compose.yaml
+      service: epr-server
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
-    environment:
-      EPR_BROKERS: redpanda:19092
-      EPR_DB: postgres://postgres:5432
     volumes:
       - ..:/workspaces:cached
     tty: true
-    ports:
-      - 8042:8042
-    networks:
-      - epr-network
