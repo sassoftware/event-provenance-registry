@@ -165,14 +165,25 @@ Watchers are applications (typically microservices) that watch the EPR Redpanda 
 
 ## Running EPR in Production
 
-Give a high level overview
+Now that you understand the basics, here's a real world example. We'll be starting with a build of the fabulous `my-app` application. At the end of the build process, the build automation will post a passing receipt to EPR. The build automation generates an NVRPP which will be used by the first and subsequent events for this artifact. Downstream watchers consume the successful build event on the Redpanda topic, triggering a security scan, integration tests, and artifact signing. Watchers for each of those tasks invoke them with the NVRPP used in the build event. These three tasks post more events their corresponding receivers that are all contained inside a release group. Once those three receivers have passing events for the NVRPP, the group triggers a release event, that a downstream watcher catches to release the software. 
+
+- Provide a diagram
 
 ## Pitfalls
 
-- No rbac for gates
-- Adoption was difficult. Developers didn't like the box of legos approach.
-  Challenge was as much political as technical.
-- Laziness with gate schemas caused problems later.
+EPR was and is a highly successful project internally. That doesn't mean we didn't have problems. These are a few issues we ran in to that you can hopefully avoid.
+
+### Lack of Access Control for Receivers and Groups
+
+The first big problem we ran into was that there were no restrictions on who could use receivers and groups. This meant that anyone could post passing events to any receiver, which in turn could trigger any associated groups. Add some lazy event matching, and suddenly you find yourself releasing thousands of artifacts without intending to (yes, this actually happened). We discussed adding serious Role Based Access Control (RBAC) to receivers and groups but ultimately decided not to in favor of development speed. The tradeoff was some unfortunate hacks that persist to this day. Now that EPR is open sourced, we intend implement a more robust solution in the near future.
+
+### Adoption was Difficult
+
+Once we did the hard work of writing EPR, getting the rest of the company to adopt our fancy new tool should have been easy, right? Wrong! People don't like change and developers are no different. We discovered that developers especially don't like being handed a box of virtual Lego bricks and told "use these tools to integrate with EPR." Many developers prefer to live in a world where they don't need to worry about the intricacies of devops in addition to their normal work. In order to get them to adopt it, we had to make it as minimally intrusive as possible. The average developer has no idea how EPR works and they prefer to keep it that way. That was the mindset we had to combat. Forcing people to learn new technology tends to make them complain, which leads to management pushback. For a smooth transition, make sure you have management backing you and make it easy for people to adopt your technology. The battle is as much political as technical.
+
+### Lazy Receiver Schemas
+
+In the interest of speed, a great many people, ourselves included, formed the habit of filling out our receivers with empty JSON schemas. While perfectly valid by EPR standards, this type of lazy schema validation set us up for some nasty problems later. There are many cases where we started running analytics on events sent to a particular receiver. A good example is processing security scan results stored in the event. The problem is that without a schema to validate the event contents, nothing prevents a user from posting complete garbage to your receiver. Empty schemas are fine for development, but not so great in production.
 
 ## Benefits
 
