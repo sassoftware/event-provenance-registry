@@ -9,14 +9,14 @@ type QueryResolver struct {
 	Connection *storage.Database
 }
 
-func (r *QueryResolver) Event(args struct{ ID graphql.ID }) (*storage.Event, error) {
+func (r *QueryResolver) Events(args struct{ ID graphql.ID }) (*[]*storage.Event, error) {
 	return storage.FindEvent(r.Connection.Client, args.ID)
 }
 
-func (r *QueryResolver) EventReceiver(args struct{ ID graphql.ID }) (*storage.EventReceiver, error) {
+func (r *QueryResolver) EventReceivers(args struct{ ID graphql.ID }) (*[]*storage.EventReceiver, error) {
 	return storage.FindEventReceiver(r.Connection.Client, args.ID)
 }
 
-func (r *QueryResolver) EventReceiverGroup(args struct{ ID graphql.ID }) (*storage.EventReceiverGroup, error) {
+func (r *QueryResolver) EventReceiverGroups(args struct{ ID graphql.ID }) (*[]*storage.EventReceiverGroup, error) {
 	return storage.FindEventReceiverGroup(r.Connection.Client, args.ID)
 }
