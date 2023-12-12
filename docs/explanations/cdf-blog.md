@@ -165,7 +165,7 @@ Watchers are applications (typically microservices) that watch the EPR Redpanda 
 
 ## Running EPR in Production
 
-Now that you understand the basics, here's a real world example. We'll be starting with a build of the fabulous `my-app` application. At the end of the build process, the build automation will post a passing receipt to EPR. The build automation generates an NVRPP which will be used by the first and subsequent events for this artifact. Downstream watchers consume the successful build event on the Redpanda topic, triggering a security scan, integration tests, and artifact signing. Watchers for each of those tasks invoke them with the NVRPP used in the build event. These three tasks post more events their corresponding receivers that are all contained inside a release group. Once those three receivers have passing events for the NVRPP, the group triggers a release event, that a downstream watcher catches to release the software. 
+Now that you understand the basics, here's a real world example. We'll be starting with a build of the fabulous `my-app` application. At the end of the build process, the build automation will post a passing receipt to EPR. The build automation generates an NVRPP which will be used by the first and subsequent events for this artifact. Downstream watchers consume the successful build event on the Redpanda topic, triggering a security scan, integration tests, and artifact signing. Watchers for each of those tasks invoke them with the NVRPP used in the build event. These three tasks post more events their corresponding receivers that are all contained inside a release group. Once those three receivers have passing events for the NVRPP, the group triggers a release event, that a downstream watcher catches to release the software.
 
 - Provide a diagram
 
@@ -187,7 +187,24 @@ In the interest of speed, a great many people, ourselves included, formed the ha
 
 ## Benefits
 
-- Greatly improved automated testing
-- Automated software promotions
-- Automated security scanning
-- Allows groups to track the movement of artifacts through the pipline
+It wasn't all doom and gloom. We saw massive improvements in several key areas.
+
+### Greatly Improved Automated Testing
+
+One of the biggest improvements EPR allowed was the mass automation of our integration test suite. SAS ships dozens of microservices that need to be tested together. Our test automation team was able to leverage EPR to control microservice deployments and test result collection. Using event receiver groups, they gate the promotion of artifacts based on test results.
+
+### Automated Software Promotions
+
+Going hand in hand with testing are automated promotions. Like many other companies, SAS divides its artifacts into different promotion levels (dev/test/prod) based on their ship readiness. Prior to EPR, these promotions were largely a manual process with no direct relationship to our test results. We wrote a watcher to handle artifact promotion based on event receiver group completion. We can ensure that artifacts are only promoted if their criteria pass, which could include: integration tests passing, security scans clean, management signoff, etc. As long as you're willing to write the automation, there's no limit to what you can do.
+
+### Automated Security Scanning and Auditing
+
+We use EPR events to trigger various types of security scans. Combined with special test containers that examine the test results, SAS has the ability to prevent artifacts from shipping if they don't pass their scans. Watchers can then create work tickets for the artifact owners. Not only that, we use EPR events to coordinate the delivery of scan results for further analysis with other tools. This has dramatically reduced SAS's remediation time and allows us to locate any CVE in our codebase within minutes.
+
+### Pipeline Auditing
+
+In the same vein as security scanning, EPR gives us an immutable record of how an artifact travelled through the pipeline. Failed pipeline tasks are tracked by NVRPP and we can see exactly what event failed. From an auditing standpoint, we can prove we did our due dilligence with security scan results and signoffs. Every pipeline action is tracked.
+
+## Conclusion
+
+By this point, you should have a good idea of how EPR works and what it can do. It will require some assembly, care, and feeding. Adopting new tools isn't always easy. If, however, you're willing to brave the change, our success can be yours as well.
