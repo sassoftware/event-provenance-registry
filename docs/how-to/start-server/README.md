@@ -10,10 +10,18 @@ database, a redpanda kafka instance, and a redpanda UI. These three dependencies
 can be started by running the following command:
 
 ```bash
-docker-compose -f docs/how-to/start-server/docker-compose.yaml up
+docker-compose -f ./docker-compose.services.yaml up
 ```
 
 ## Start server
+
+Export the environment variables for the server
+
+```bash
+export EPR_TOPIC=epr.dev.events
+export EPR_BROKERS=localhost:19092
+export EPR_DB=postgres://localhost:5432
+```
 
 The server can be started using the default settings. This will make the server
 available on localhost:8042.
