@@ -23,7 +23,7 @@ This how-to walks you through starting a server and making your first request
 using GraphQL.
 
 ```bash
-docker compose -f ./docs/tutorials/compose/docker-compose.yaml up
+docker compose -f ./docker-compose.services.yaml up
 ```
 
 The Redpanda admin console will be at `http://localhost:8080/overview`
@@ -35,7 +35,7 @@ Using the admin console to create a topic called "epr.dev.events"
 Or use the docker container
 
 ```bash
-docker exec -it redpanda-0 \
+docker exec -it redpanda \
     rpk topic create epr.dev.events --brokers=localhost:19092
 ```
 

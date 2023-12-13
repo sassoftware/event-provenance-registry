@@ -93,32 +93,8 @@ Flags:
 
 ### Running the Server
 
-Start up Redpanda. See
-[the docs](docs/how-to/redpanda/multi-node/redpanda_deploy.md) for more details.
-
-```bash
-docker compose -f docs/how-to/redpanda/multi-node/docker-compose.yaml up -d
-```
-
-[Start up Postgres.](docs/how-to/start-server/README.md)
-
-Start EPR
-
-Export the environment variables for the server
-
-```bash
-export EPR_TOPIC=epr.dev.events
-export EPR_BROKERS=localhost:19092
-export EPR_DB=postgres://localhost:5432
-```
-
-The server can be started using the default settings. This will make the server
-available on localhost:8042.
-
-```bash
-go run main.go
-```
-
+See [the docs](docs/how-to/start-server/README.md) for how to start EPR
+and its dependencies.
 
 ### Interacting with the Server
 

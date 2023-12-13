@@ -1,0 +1,15 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+	"name": "EPR Development",
+	"dockerComposeFile": ["../docker-compose.services.yaml", "docker-compose.extend.yaml"],
+	"service": "epr-development",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+	"forwardPorts": [
+		"redpanda-console:8080",
+		8042
+	],
+	"shutdownAction": "stopCompose"
+}
