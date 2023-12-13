@@ -159,31 +159,80 @@ its tasks have completed successfully.
 
 ### Watchers
 
-Watchers are applications (typically microservices) that watch the EPR Redpanda topic for messages and then take some action. They use some matching logic, defined in EPR's SDK to determine which messages to process. You can match on NVRPP, `type`, and `success`. We've written about a dozen or so watchers interally that do a variety of things. One of our more popular watchers fires webhooks if matching criteria are met. It is most often used to trigger Jenkins jobs, acting as glue between Jenkins and other systems. Another popular watcher is one that creates Jira tickets when messages are matched. We use this one heavily as part of our security automation to open security issues against various teams when problems are detected.
+Watchers are applications (typically microservices) that watch the EPR Redpanda
+topic for messages and then take some action. They use some matching logic,
+defined in EPR's SDK to determine which messages to process. You can match on
+NVRPP, `type`, and `success`. We've written about a dozen or so watchers
+interally that do a variety of things. One of our more popular watchers fires
+webhooks if matching criteria are met. It is most often used to trigger Jenkins
+jobs, acting as glue between Jenkins and other systems. Another popular watcher
+is one that creates Jira tickets when messages are matched. We use this one
+heavily as part of our security automation to open security issues against
+various teams when problems are detected.
 
 - Show messages on the bus
 
 ## Running EPR in Production
 
-Now that you understand the basics, here's a real world example. We'll be starting with a build of the fabulous `my-app` application. At the end of the build process, the build automation will post a passing receipt to EPR. The build automation generates an NVRPP which will be used by the first and subsequent events for this artifact. Downstream watchers consume the successful build event on the Redpanda topic, triggering a security scan, integration tests, and artifact signing. Watchers for each of those tasks invoke them with the NVRPP used in the build event. These three tasks post more events their corresponding receivers that are all contained inside a release group. Once those three receivers have passing events for the NVRPP, the group triggers a release event, that a downstream watcher catches to release the software.
+Now that you understand the basics, here's a real world example. We'll be
+starting with a build of the fabulous `my-app` application. At the end of the
+build process, the build automation will post a passing receipt to EPR. The
+build automation generates an NVRPP which will be used by the first and
+subsequent events for this artifact. Downstream watchers consume the successful
+build event on the Redpanda topic, triggering a security scan, integration
+tests, and artifact signing. Watchers for each of those tasks invoke them with
+the NVRPP used in the build event. These three tasks post more events their
+corresponding receivers that are all contained inside a release group. Once
+those three receivers have passing events for the NVRPP, the group triggers a
+release event, that a downstream watcher catches to release the software.
 
 - Provide a diagram
 
 ## Pitfalls
 
-EPR was and is a highly successful project internally. That doesn't mean we didn't have problems. These are a few issues we ran in to that you can hopefully avoid.
+EPR was and is a highly successful project internally. That doesn't mean we
+didn't have problems. These are a few issues we ran in to that you can hopefully
+avoid.
 
 ### Lack of Access Control for Receivers and Groups
 
-The first big problem we ran into was that there were no restrictions on who could use receivers and groups. This meant that anyone could post passing events to any receiver, which in turn could trigger any associated groups. Add some lazy event matching, and suddenly you find yourself releasing thousands of artifacts without intending to (yes, this actually happened). We discussed adding serious Role Based Access Control (RBAC) to receivers and groups but ultimately decided not to in favor of development speed. The tradeoff was some unfortunate hacks that persist to this day. Now that EPR is open sourced, we intend implement a more robust solution in the near future.
+The first big problem we ran into was that there were no restrictions on who
+could use receivers and groups. This meant that anyone could post passing events
+to any receiver, which in turn could trigger any associated groups. Add some
+lazy event matching, and suddenly you find yourself releasing thousands of
+artifacts without intending to (yes, this actually happened). We discussed
+adding serious Role Based Access Control (RBAC) to receivers and groups but
+ultimately decided not to in favor of development speed. The tradeoff was some
+unfortunate hacks that persist to this day. Now that EPR is open sourced, we
+intend implement a more robust solution in the near future.
 
 ### Adoption was Difficult
 
-Once we did the hard work of writing EPR, getting the rest of the company to adopt our fancy new tool should have been easy, right? Wrong! People don't like change and developers are no different. We discovered that developers especially don't like being handed a box of virtual Lego bricks and told "use these tools to integrate with EPR." Many developers prefer to live in a world where they don't need to worry about the intricacies of devops in addition to their normal work. In order to get them to adopt it, we had to make it as minimally intrusive as possible. The average developer has no idea how EPR works and they prefer to keep it that way. That was the mindset we had to combat. Forcing people to learn new technology tends to make them complain, which leads to management pushback. For a smooth transition, make sure you have management backing you and make it easy for people to adopt your technology. The battle is as much political as technical.
+Once we did the hard work of writing EPR, getting the rest of the company to
+adopt our fancy new tool should have been easy, right? Wrong! People don't like
+change and developers are no different. We discovered that developers especially
+don't like being handed a box of virtual Lego bricks and told "use these tools
+to integrate with EPR." Many developers prefer to live in a world where they
+don't need to worry about the intricacies of devops in addition to their normal
+work. In order to get them to adopt it, we had to make it as minimally intrusive
+as possible. The average developer has no idea how EPR works and they prefer to
+keep it that way. That was the mindset we had to combat. Forcing people to learn
+new technology tends to make them complain, which leads to management pushback.
+For a smooth transition, make sure you have management backing you and make it
+easy for people to adopt your technology. The battle is as much political as
+technical.
 
 ### Lazy Receiver Schemas
 
-In the interest of speed, a great many people, ourselves included, formed the habit of filling out our receivers with empty JSON schemas. While perfectly valid by EPR standards, this type of lazy schema validation set us up for some nasty problems later. There are many cases where we started running analytics on events sent to a particular receiver. A good example is processing security scan results stored in the event. The problem is that without a schema to validate the event contents, nothing prevents a user from posting complete garbage to your receiver. Empty schemas are fine for development, but not so great in production.
+In the interest of speed, a great many people, ourselves included, formed the
+habit of filling out our receivers with empty JSON schemas. While perfectly
+valid by EPR standards, this type of lazy schema validation set us up for some
+nasty problems later. There are many cases where we started running analytics on
+events sent to a particular receiver. A good example is processing security scan
+results stored in the event. The problem is that without a schema to validate
+the event contents, nothing prevents a user from posting complete garbage to
+your receiver. Empty schemas are fine for development, but not so great in
+production.
 
 ## Benefits
 
@@ -191,20 +240,45 @@ It wasn't all doom and gloom. We saw massive improvements in several key areas.
 
 ### Greatly Improved Automated Testing
 
-One of the biggest improvements EPR allowed was the mass automation of our integration test suite. SAS ships dozens of microservices that need to be tested together. Our test automation team was able to leverage EPR to control microservice deployments and test result collection. Using event receiver groups, they gate the promotion of artifacts based on test results.
+One of the biggest improvements EPR allowed was the mass automation of our
+integration test suite. SAS ships dozens of microservices that need to be tested
+together. Our test automation team was able to leverage EPR to control
+microservice deployments and test result collection. Using event receiver
+groups, they gate the promotion of artifacts based on test results.
 
 ### Automated Software Promotions
 
-Going hand in hand with testing are automated promotions. Like many other companies, SAS divides its artifacts into different promotion levels (dev/test/prod) based on their ship readiness. Prior to EPR, these promotions were largely a manual process with no direct relationship to our test results. We wrote a watcher to handle artifact promotion based on event receiver group completion. We can ensure that artifacts are only promoted if their criteria pass, which could include: integration tests passing, security scans clean, management signoff, etc. As long as you're willing to write the automation, there's no limit to what you can do.
+Going hand in hand with testing are automated promotions. Like many other
+companies, SAS divides its artifacts into different promotion levels (
+dev/test/prod) based on their ship readiness. Prior to EPR, these promotions
+were largely a manual process with no direct relationship to our test results.
+We wrote a watcher to handle artifact promotion based on event receiver group
+completion. We can ensure that artifacts are only promoted if their criteria
+pass, which could include: integration tests passing, security scans clean,
+management signoff, etc. As long as you're willing to write the automation,
+there's no limit to what you can do.
 
 ### Automated Security Scanning and Auditing
 
-We use EPR events to trigger various types of security scans. Combined with special test containers that examine the test results, SAS has the ability to prevent artifacts from shipping if they don't pass their scans. Watchers can then create work tickets for the artifact owners. Not only that, we use EPR events to coordinate the delivery of scan results for further analysis with other tools. This has dramatically reduced SAS's remediation time and allows us to locate any CVE in our codebase within minutes.
+We use EPR events to trigger various types of security scans. Combined with
+special test containers that examine the test results, SAS has the ability to
+prevent artifacts from shipping if they don't pass their scans. Watchers can
+then create work tickets for the artifact owners. Not only that, we use EPR
+events to coordinate the delivery of scan results for further analysis with
+other tools. This has dramatically reduced SAS's remediation time and allows us
+to locate any CVE in our codebase within minutes.
 
 ### Pipeline Auditing
 
-In the same vein as security scanning, EPR gives us an immutable record of how an artifact travelled through the pipeline. Failed pipeline tasks are tracked by NVRPP and we can see exactly what event failed. From an auditing standpoint, we can prove we did our due dilligence with security scan results and signoffs. Every pipeline action is tracked.
+In the same vein as security scanning, EPR gives us an immutable record of how
+an artifact travelled through the pipeline. Failed pipeline tasks are tracked by
+NVRPP and we can see exactly what event failed. From an auditing standpoint, we
+can prove we did our due dilligence with security scan results and signoffs.
+Every pipeline action is tracked.
 
 ## Conclusion
 
-By this point, you should have a good idea of how EPR works and what it can do. It will require some assembly, care, and feeding. Adopting new tools isn't always easy. If, however, you're willing to brave the change, our success can be yours as well.
+By this point, you should have a good idea of how EPR works and what it can do.
+It will require some assembly, care, and feeding. Adopting new tools isn't
+always easy. If, however, you're willing to brave the change, our success can be
+yours as well.
