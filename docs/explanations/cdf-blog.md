@@ -70,7 +70,7 @@ pipeline, so long as events are posted at each step.
 
 Event receivers are data structures stored within EPR that represent some kind
 of action (i.e. a build, running a test, packaging an artifact, deploying a
-binary, etc...). That have no dependencies and are classified by their name,
+binary, etc...) with no dependencies and are classified by their name,
 type, and version. You might name a receiver by the action it represents
 like `golang-build-complete`. Types might be things like `build.finished`
 or `artifact.packaged`. Receivers may have multiple [events](#events)
