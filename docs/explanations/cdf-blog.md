@@ -58,8 +58,7 @@ truly understand how EPR works. It stands for:
 
 Each of these fields is just a string, though we strongly recommend you impose
 some standards for how each is formatted, depending on your
-situation. [Events](#events) requires these five fields to be defined. NVRPP is
-based off of
+situation. NVRPP is based off of
 the [NEVRA](https://docs.fedoraproject.org/en-US/modularity/core-concepts/nsvca/)
 from Fedora. It allows us to represent most types of artifacts that might flow
 through our pipeline. Events that have matching NVRPPs are associated with the
@@ -97,24 +96,25 @@ receiver.
 }
 ```
 
-When an event has been posted to a receiver, EPR will emit an event to Redpanda.
+When an event has been posted to a receiver, EPR will emit a message to Redpanda.
 
 ### Events
 
 Events are a record of some action that took place in your pipeline and whether
-it was successful. Each event is linked to a receiver by way of an ID. Events
+it was successful. Each event contains an [NVRPP](#nvrpp), and is linked to a receiver
+by way of an ID. Events that have matching NVRPPs are associated with the
+same artifact. This allows us to trace the flow of any artifact through our
+pipeline, so long as events are posted at each step. Events
 are strictly formatted at the root level, with a free-form payload field that is
 validated against the schema of its receiver. Each event contains a
 boolean `success` field that represents whether an action was successful or not.
-It also houses the [NVRPP](#nvrpp), which allows us to trace artifacts through
-EPR.
 
-When EPR receives an event, it posts the event and some receiver and group data
+When EPR receives an event, it posts a message and some receiver and group data
 to Redpanda. Downstream watchers can then consume these messages and take their
 own actions. Watchers can match messages based on the `success` field of a
-message. This allows you to take different actions depending on if an event
-passed or failed. For example, you could open a ticket against a team if their
-event to the `artifact.scanned` type receiver had `success=false`.
+event (and by extension, the message). This allows you to take different actions
+depending on if an event passed or failed. For example, you could open a ticket
+against a team if their event to the `artifact.scanned` type receiver had `success=false`.
 
 ```json
 {
@@ -136,7 +136,7 @@ event to the `artifact.scanned` type receiver had `success=false`.
 
 Event receiver groups can be thought of as gates that control whether an
 artifact advances through the pipeline. Each group comprises multiple receivers.
-Like receivers, groups can cause the generation of Redpanda events. However,
+Like receivers, groups can cause the generation of Redpanda messages. However,
 they only do this if each receiver has an event with a matching NVRPP
 where `success=true`. Since there may be multiple events of varying successes
 per receiver, only the most recent is considered. This allows you to run many
@@ -176,15 +176,15 @@ various teams when problems are detected.
 
 Now that you understand the basics, here's a real world example. We'll be
 starting with a build of the fabulous `my-app` application. At the end of the
-build process, the build automation will post a passing receipt to EPR. The
+build process, the build automation will post a passing event to EPR. The
 build automation generates an NVRPP which will be used by the first and
 subsequent events for this artifact. Downstream watchers consume the successful
-build event on the Redpanda topic, triggering a security scan, integration
+build message on the Redpanda topic, triggering a security scan, integration
 tests, and artifact signing. Watchers for each of those tasks invoke them with
-the NVRPP used in the build event. These three tasks post more events their
+the NVRPP used in the build event. These three tasks post more events to their
 corresponding receivers that are all contained inside a release group. Once
 those three receivers have passing events for the NVRPP, the group triggers a
-release event, that a downstream watcher catches to release the software.
+release message, that a downstream watcher catches to release the software.
 
 - Provide a diagram
 
@@ -199,12 +199,12 @@ avoid.
 The first big problem we ran into was that there were no restrictions on who
 could use receivers and groups. This meant that anyone could post passing events
 to any receiver, which in turn could trigger any associated groups. Add some
-lazy event matching, and suddenly you find yourself releasing thousands of
+lazy message matching, and suddenly you find yourself releasing thousands of
 artifacts without intending to (yes, this actually happened). We discussed
 adding serious Role Based Access Control (RBAC) to receivers and groups but
 ultimately decided not to in favor of development speed. The tradeoff was some
 unfortunate hacks that persist to this day. Now that EPR is open sourced, we
-intend implement a more robust solution in the near future.
+intend to implement a more robust solution in the near future.
 
 ### Adoption was Difficult
 
@@ -260,11 +260,11 @@ there's no limit to what you can do.
 
 ### Automated Security Scanning and Auditing
 
-We use EPR events to trigger various types of security scans. Combined with
+We use EPR messages to trigger various types of security scans. Combined with
 special test containers that examine the test results, SAS has the ability to
 prevent artifacts from shipping if they don't pass their scans. Watchers can
 then create work tickets for the artifact owners. Not only that, we use EPR
-events to coordinate the delivery of scan results for further analysis with
+messages to coordinate the delivery of scan results for further analysis with
 other tools. This has dramatically reduced SAS's remediation time and allows us
 to locate any CVE in our codebase within minutes.
 
