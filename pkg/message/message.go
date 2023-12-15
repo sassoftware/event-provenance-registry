@@ -126,6 +126,25 @@ func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
 	}
 }
 
+// NewEventReceiverGroupComplete returns a message
+func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverGroup) Message {
+	return Message{
+		Success:     true,
+		ID:          string(erg.ID),
+		Specversion: CloudEventsSpec,
+		Type:        "epr.event.receiver.group.complete",
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Package:     "event.receiver.group",
+		Data: Data{
+			Events:              []*storage.Event{e},
+			EventReceiverGroups: []*storage.EventReceiverGroup{erg},
+		},
+	}
+
+}
+
 // DecodeFromJSON returns an Event from JSON
 func DecodeFromJSON(reader io.Reader) (*Message, error) {
 	message := &Message{}
