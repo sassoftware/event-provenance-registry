@@ -122,7 +122,7 @@ func run(_ *cobra.Command, _ []string) error {
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	router, err := api.Initialize(ctx, dbConn, cfg)
+	cfg.Kafka.Producer, err = setupKafka(cfg.Kafka)
 	if err != nil {
 		return err
 	}
@@ -130,6 +130,11 @@ func run(_ *cobra.Command, _ []string) error {
 		<-ctx.Done()
 		return cfg.Kafka.Producer.Close()
 	})
+
+	router, err := api.Initialize(ctx, dbConn, cfg)
+	if err != nil {
+		return err
+	}
 
 	server := &http.Server{
 		Addr:              cfg.GetSrvAddr(),
@@ -203,6 +208,20 @@ func setupDatabase(cfg *config.StorageConfig) (*storage.Database, error) {
 		return nil, err
 	}
 	return dbConn, nil
+}
+
+func setupKafka(cfg *config.KafkaConfig) (message.Producer, error) {
+	kafkaCfg, err := message.NewConfig(cfg.Version)
+	if err != nil {
+		return nil, err
+	}
+	kafkaProducer, err := message.NewProducer(cfg.Peers, kafkaCfg)
+	if err != nil {
+		return nil, err
+	}
+	kafkaProducer.ConsumeSuccesses()
+	kafkaProducer.ConsumeErrors()
+	return kafkaProducer, nil
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -16,7 +16,6 @@ import (
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
@@ -29,20 +28,6 @@ func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
 	}
-
-	// set up kafka
-	kafkaCfg, err := message.NewConfig(cfg.Kafka.Version)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfg.Kafka.Producer, err = message.NewProducer(cfg.Kafka.Peers, kafkaCfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfg.Kafka.Producer.ConsumeSuccesses()
-	cfg.Kafka.Producer.ConsumeErrors()
 
 	s, err := New(ctx, db, cfg.Kafka)
 	if err != nil {
