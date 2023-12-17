@@ -25,26 +25,9 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
-func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
+func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (*chi.Mux, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
-	}
-
-	//// Create a new connection to our pg database
-	// db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
-	// if err != nil {
-	//	log.Fatal(err)
-	// }
-
-	// Create a new connection to our pg database
-	connection, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = connection.SyncSchema()
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	// set up kafka
@@ -61,7 +44,7 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	cfg.Kafka.Producer.ConsumeSuccesses()
 	cfg.Kafka.Producer.ConsumeErrors()
 
-	s, err := New(ctx, connection, cfg.Kafka)
+	s, err := New(ctx, db, cfg.Kafka)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,7 +137,7 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
 		r.Get("/", s.GraphQL.ServerGraphQLDoc())
-		r.Post("/query", s.GraphQL.GraphQLHandler(connection, cfg.Kafka))
+		r.Post("/query", s.GraphQL.GraphQLHandler())
 	})
 
 	// Public Api Endpoints

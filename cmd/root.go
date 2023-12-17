@@ -23,6 +23,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/api"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -103,6 +104,11 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
+	dbConn, err := setupDatabase(cfg.Storage)
+	if err != nil {
+		return err
+	}
+
 	ctx, ccancel := context.WithCancel(context.Background())
 	defer ccancel()
 	interruptChan := make(chan os.Signal, 1)
@@ -116,7 +122,7 @@ func run(_ *cobra.Command, _ []string) error {
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	router, err := api.Initialize(ctx, cfg)
+	router, err := api.Initialize(ctx, dbConn, cfg)
 	if err != nil {
 		return err
 	}
@@ -186,6 +192,17 @@ func run(_ *cobra.Command, _ []string) error {
 	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
 
 	return errGroup.Wait()
+}
+
+func setupDatabase(cfg *config.StorageConfig) (*storage.Database, error) {
+	dbConn, err := storage.New(cfg.Host, cfg.User, cfg.Pass, cfg.SSLMode, cfg.Name, cfg.Port)
+	if err != nil {
+		return nil, err
+	}
+	if err := dbConn.SyncSchema(); err != nil {
+		return nil, err
+	}
+	return dbConn, nil
 }
 
 // initConfig reads in config file and ENV variables if set.

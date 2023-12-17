@@ -31,7 +31,7 @@ func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
 	}
 }
 
-func (s *Server) GraphQLHandler(connection *storage.Database, cfg *config.KafkaConfig) http.HandlerFunc {
-	handler := &relay.Handler{Schema: schema.New(connection, cfg)}
+func (s *Server) GraphQLHandler() http.HandlerFunc {
+	handler := &relay.Handler{Schema: schema.New(s.DBConnector, s.kafkaCfg)}
 	return handler.ServeHTTP
 }
