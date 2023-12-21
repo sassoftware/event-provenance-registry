@@ -135,7 +135,7 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	server := &http.Server{
-		Addr:              cfg.GetSrvAddr(),
+		Addr:              cfg.Server.GetSrvAddr(),
 		Handler:           router,
 		ReadHeaderTimeout: 3 * time.Second,
 	}
@@ -192,7 +192,7 @@ func run(_ *cobra.Command, _ []string) error {
 		return nil
 	})
 
-	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
+	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.Server.GetSrvAddr()))
 
 	return errGroup.Wait()
 }

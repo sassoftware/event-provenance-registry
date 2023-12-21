@@ -23,7 +23,7 @@ func (s *Server) CheckReadiness() http.HandlerFunc {
 	}
 }
 
-func (s *Server) CheckStatus(cfg *config.Config) http.HandlerFunc {
+func (s *Server) CheckStatus(cfg *config.ServerConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s := status.New(cfg)
 		render.JSON(w, r, s)

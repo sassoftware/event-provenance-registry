@@ -52,20 +52,8 @@ func TestTheStatus(t *testing.T) {
 	}
 
 	// Create create status config from config object
-	status := New(cfg)
+	status := New(cfg.Server)
 
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.Port, 5432, "Unexpected Port")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.Host, "postgres", "Unexpected Host")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.Name, "postgres", "Unexpected Name")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.User, "user", "Unexpected User")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.Pass, "pass", "Unexpected Pass")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.SSLMode, "ssl", "Unexpected SSLMode")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.MaxConnections, 10, "Unexpected MaxConnections")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.IdleConnections, 10, "Unexpected IdleConnections")
-	assert.Equal(t, status.MetaData.(*Metadata).Storage.ConnectionLife, 10, "Unexpected ConnectionLife")
-	assert.DeepEqual(t, status.MetaData.(*Metadata).Kafka.Peers, strings.Split(brokers, ","))
-	assert.Equal(t, status.MetaData.(*Metadata).Kafka.Topic, topic, "Unexpected Topic")
-	assert.Equal(t, status.MetaData.(*Metadata).Kafka.Version, "2.6", "Unexpected Version")
 	assert.Equal(t, status.MetaData.(*Metadata).Verbose, true, "Unexpected Verbose")
 	assert.Equal(t, status.MetaData.(*Metadata).Resources, "/resources", "Unexpected Resources")
 

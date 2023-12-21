@@ -102,8 +102,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	router.Route("/healthz", func(r chi.Router) {
 		r.Get("/liveness", s.CheckLiveness())
 		r.Get("/readiness", s.CheckReadiness())
-		// TODO go fix status module
-		// r.Get("/status", s.CheckStatus(cfg))
+		r.Get("/status", s.CheckStatus(cfg))
 	})
 
 	// turn on the profiler in debug mode
