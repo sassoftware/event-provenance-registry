@@ -67,7 +67,7 @@ func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	if len(receivers) > 1 {
 		return nil, fmt.Errorf("more than one receiver was found with ID %s", event.EventReceiverID)
 	}
-	receiver := (receivers)[0]
+	receiver := receivers[0]
 
 	if err := validateReceiverSchema(receiver.Schema.String(), event.Payload); err != nil {
 		return nil, err
