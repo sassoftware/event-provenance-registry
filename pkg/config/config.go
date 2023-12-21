@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
@@ -63,12 +62,10 @@ type AuthConfig struct {
 
 // KafkaConfig holds config information about Kafka
 type KafkaConfig struct {
-	TLS        bool                 `json:"tls"`
-	Version    string               `json:"version"`
-	Topic      string               `json:"topic"`
-	Peers      []string             `json:"peers"`
-	Producer   message.Producer     `json:"-"`
-	MsgChannel chan message.Message `json:"-"`
+	TLS     bool     `json:"tls"`
+	Version string   `json:"version"`
+	Topic   string   `json:"topic"`
+	Peers   []string `json:"peers"`
 }
 
 // LogConfigInfo Dumps most of the config info to the log.
@@ -132,14 +129,13 @@ func WithServer(host, port, resourceDir string, debug, verbose bool) Options {
 }
 
 // WithKafka returns an option that sets the kafka config
-func WithKafka(tls bool, version string, peers []string, topic string, channel chan message.Message) Options {
+func WithKafka(tls bool, version string, peers []string, topic string) Options {
 	return func(cfg *Config) error {
 		cfg.Kafka = &KafkaConfig{
-			TLS:        tls,
-			Version:    version,
-			Peers:      peers,
-			Topic:      topic,
-			MsgChannel: channel,
+			TLS:     tls,
+			Version: version,
+			Peers:   peers,
+			Topic:   topic,
 		}
 		return nil
 	}

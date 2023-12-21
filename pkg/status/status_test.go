@@ -45,7 +45,7 @@ func TestTheStatus(t *testing.T) {
 	cfg, err := config.New(
 		config.WithServer("localhost", port, "/resources", true, true),
 		config.WithStorage("postgres", "user", "pass", "ssl", "postgres", 5432, 10, 10, 10),
-		config.WithKafka(true, "2.6", strings.Split(brokers, ","), topic, nil),
+		config.WithKafka(true, "2.6", strings.Split(brokers, ","), topic),
 	)
 	if err != nil {
 		t.Fatal(err)

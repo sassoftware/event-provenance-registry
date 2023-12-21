@@ -90,13 +90,10 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	messageChannel := make(chan message.Message, 1)
-	defer close(messageChannel)
-
 	cfg, err := config.New(
 		config.WithServer(host, port, "", true, true),
 		config.WithStorage(dbhost, "postgres", "", "", "postgres", dbport, 10, 10, 10),
-		config.WithKafka(false, "3.4.0", brokers, topic, messageChannel),
+		config.WithKafka(false, "3.4.0", brokers, topic),
 		// TODO: add this once auth have been turned on
 		// config.WithAuth(),
 	)
@@ -122,16 +119,17 @@ func run(_ *cobra.Command, _ []string) error {
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	cfg.Kafka.Producer, err = setupKafka(cfg.Kafka)
+	producer, err := setupKafka(cfg.Kafka)
 	if err != nil {
 		return err
 	}
 	errGroup.Go(func() error {
 		<-ctx.Done()
-		return cfg.Kafka.Producer.Close()
+		return producer.Close()
 	})
+	topicProducer := message.NewTopicProducer(producer, cfg.Kafka.Topic)
 
-	router, err := api.Initialize(ctx, dbConn, cfg)
+	router, err := api.Initialize(dbConn, topicProducer, cfg.Server)
 	if err != nil {
 		return err
 	}

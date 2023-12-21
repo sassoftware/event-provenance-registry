@@ -4,7 +4,6 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -16,6 +15,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
@@ -24,12 +24,12 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
-func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (*chi.Mux, error) {
+func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *config.ServerConfig) (*chi.Mux, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
 	}
 
-	s, err := New(ctx, db, cfg.Kafka)
+	s, err := New(db, msgProducer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,10 +61,10 @@ func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (
 	})
 
 	router.Route("/api", func(r chi.Router) {
-		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
-			if cfg.Server.VerboseAPI {
+			if cfg.VerboseAPI {
 				httpLogger := httplog.NewLogger("server-http-logger", httplog.Options{
 					JSON: true,
 					Tags: map[string]string{
@@ -74,7 +74,7 @@ func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (
 				})
 				r.Use(httplog.RequestLogger(httpLogger))
 			}
-			r.Get("/openapi", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+			r.Get("/openapi", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 			// REST endpoints
 			r.Route("/events", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateEvent())
@@ -102,11 +102,12 @@ func Initialize(ctx context.Context, db *storage.Database, cfg *config.Config) (
 	router.Route("/healthz", func(r chi.Router) {
 		r.Get("/liveness", s.CheckLiveness())
 		r.Get("/readiness", s.CheckReadiness())
-		r.Get("/status", s.CheckStatus(cfg))
+		// TODO go fix status module
+		// r.Get("/status", s.CheckStatus(cfg))
 	})
 
 	// turn on the profiler in debug mode
-	if cfg.Server.Debug {
+	if cfg.Debug {
 		// profiler
 		router.Route("/", func(r chi.Router) {
 			r.Mount("/debug", middleware.Profiler())
