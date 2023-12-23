@@ -56,7 +56,7 @@ func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+	s.msgProducer.Async(message.NewEventReceiver(eventReceiver))
 	logger.V(1).Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
 }

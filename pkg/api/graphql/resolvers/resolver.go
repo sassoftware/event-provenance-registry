@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
@@ -9,14 +9,14 @@ import (
 var logger = utils.MustGetLogger("server", "pkg.api.graphql.resolvers")
 
 type Resolver struct {
-	Connection *storage.Database
-	kafkaCfg   *config.KafkaConfig
+	Connection  *storage.Database
+	msgProducer message.TopicProducer
 }
 
-func New(connection *storage.Database, cfg *config.KafkaConfig) *Resolver {
+func New(connection *storage.Database, msgProducer message.TopicProducer) *Resolver {
 	return &Resolver{
-		Connection: connection,
-		kafkaCfg:   cfg,
+		Connection:  connection,
+		msgProducer: msgProducer,
 	}
 }
 
@@ -28,7 +28,7 @@ func (r *Resolver) Query() *QueryResolver {
 
 func (r *Resolver) Mutation() *MutationResolver {
 	return &MutationResolver{
-		Connection: r.Connection,
-		kafkaCfg:   r.kafkaCfg,
+		Connection:  r.Connection,
+		msgProducer: r.msgProducer,
 	}
 }

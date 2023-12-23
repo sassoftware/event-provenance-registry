@@ -13,7 +13,7 @@ func TestNewConfig(t *testing.T) {
 	cfg, err := New(
 		WithServer("localhost", "8080", "/resources", true, true),
 		WithStorage("clash.london.com", "joe", "brixton", "disable", "postgres", 5432, 10, 10, 10),
-		WithKafka(true, "2.6", []string{"kafka.svc.cluster.local:9092"}, "server.events", nil),
+		WithKafka(true, "2.6", []string{"kafka.svc.cluster.local:9092"}, "server.events"),
 		WithAuth("01HGX8QDVTMSXXQHNV9AH7X8QQ", []string{"foo", "bar"}),
 	)
 

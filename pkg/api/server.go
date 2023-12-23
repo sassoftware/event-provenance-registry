@@ -4,12 +4,11 @@
 package api
 
 import (
-	"context"
 	"errors"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/rest"
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
@@ -33,7 +32,7 @@ func New(ctx context.Context, conn *storage.Database, config *config.KafkaConfig
 		return nil, errors.New("database connector cannot be nil")
 	}
 	return &Server{
-		GraphQL: graphql.New(conn, config),
-		Rest:    rest.New(ctx, conn, config),
+		GraphQL: graphql.New(conn, msgProducer),
+		Rest:    rest.New(conn, msgProducer),
 	}, nil
 }

@@ -4,7 +4,6 @@
 package api
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,43 +24,12 @@ import (
 var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
-func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
+func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *config.ServerConfig) (*chi.Mux, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("no config provided")
 	}
 
-	//// Create a new connection to our pg database
-	// db, err := storage.New(cfg.DB.Host, cfg.DB.User, cfg.DB.Pass, cfg.DB.SSLMode, cfg.DB.Name)
-	// if err != nil {
-	//	log.Fatal(err)
-	// }
-
-	// Create a new connection to our pg database
-	connection, err := storage.New(cfg.Storage.Host, cfg.Storage.User, cfg.Storage.Pass, cfg.Storage.SSLMode, cfg.Storage.Name, cfg.Storage.Port)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = connection.SyncSchema()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// set up kafka
-	kafkaCfg, err := message.NewConfig(cfg.Kafka.Version)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfg.Kafka.Producer, err = message.NewProducer(cfg.Kafka.Peers, kafkaCfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfg.Kafka.Producer.ConsumeSuccesses()
-	cfg.Kafka.Producer.ConsumeErrors()
-
-	s, err := New(ctx, connection, cfg.Kafka)
+	s, err := New(db, msgProducer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -93,10 +61,10 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	})
 
 	router.Route("/api", func(r chi.Router) {
-		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
-			if cfg.Server.VerboseAPI {
+			if cfg.VerboseAPI {
 				httpLogger := httplog.NewLogger("server-http-logger", httplog.Options{
 					JSON: true,
 					Tags: map[string]string{
@@ -106,7 +74,7 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 				})
 				r.Use(httplog.RequestLogger(httpLogger))
 			}
-			r.Get("/openapi", s.Rest.ServeOpenAPIDoc(cfg.Server.ResourceDir))
+			r.Get("/openapi", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 			// REST endpoints
 			r.Route("/events", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateEvent())
@@ -138,7 +106,7 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	})
 
 	// turn on the profiler in debug mode
-	if cfg.Server.Debug {
+	if cfg.Debug {
 		// profiler
 		router.Route("/", func(r chi.Router) {
 			r.Mount("/debug", middleware.Profiler())
@@ -154,7 +122,7 @@ func Initialize(ctx context.Context, cfg *config.Config) (*chi.Mux, error) {
 	router.Route("/api/v1/graphql", func(r chi.Router) {
 		r.Use(crs.Handler)
 		r.Get("/", s.GraphQL.ServerGraphQLDoc())
-		r.Post("/query", s.GraphQL.GraphQLHandler(connection, cfg.Kafka))
+		r.Post("/query", s.GraphQL.GraphQLHandler())
 	})
 
 	// Public Api Endpoints

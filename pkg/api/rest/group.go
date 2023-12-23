@@ -71,7 +71,7 @@ func (s *Server) createGroup(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
+	s.msgProducer.Async(message.NewEventReceiverGroup(eventReceiverGroup))
 	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
 
 	return eventReceiverGroup.ID, nil

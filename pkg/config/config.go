@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
 
@@ -22,24 +21,24 @@ var (
 
 // Config contains application data for the gatekeeper application
 type Config struct {
-	StartTime time.Time      `json:"start_time"`
-	Server    *ServerConfig  `json:"server"`
-	Storage   *StorageConfig `json:"storage"`
-	Kafka     *KafkaConfig   `json:"kafka"`
-	Auth      *AuthConfig    `json:"-"`
+	Server  *ServerConfig  `json:"server"`
+	Storage *StorageConfig `json:"storage"`
+	Kafka   *KafkaConfig   `json:"kafka"`
+	Auth    *AuthConfig    `json:"-"`
 }
 
 type ServerConfig struct {
-	Debug       bool   `json:"debug"`
-	VerboseAPI  bool   `json:"verbose"`
-	Host        string `json:"host"`
-	Port        string `json:"port"`
-	ResourceDir string `json:"resources"`
+	Debug       bool      `json:"debug"`
+	VerboseAPI  bool      `json:"verbose"`
+	Host        string    `json:"host"`
+	Port        string    `json:"port"`
+	ResourceDir string    `json:"resources"`
+	StartTime   time.Time `json:"start_time"`
 }
 
 // GetSrvAddr returns a string HOST:PORT
-func (c *Config) GetSrvAddr() string {
-	return c.Server.Host + ":" + c.Server.Port
+func (s *ServerConfig) GetSrvAddr() string {
+	return s.Host + ":" + s.Port
 }
 
 // StorageConfig holds config information about the database.
@@ -63,12 +62,10 @@ type AuthConfig struct {
 
 // KafkaConfig holds config information about Kafka
 type KafkaConfig struct {
-	TLS        bool                 `json:"tls"`
-	Version    string               `json:"version"`
-	Topic      string               `json:"topic"`
-	Peers      []string             `json:"peers"`
-	Producer   message.Producer     `json:"-"`
-	MsgChannel chan message.Message `json:"-"`
+	TLS     bool     `json:"tls"`
+	Version string   `json:"version"`
+	Topic   string   `json:"topic"`
+	Peers   []string `json:"peers"`
 }
 
 // LogConfigInfo Dumps most of the config info to the log.
@@ -90,14 +87,14 @@ type Options func(*Config) error
 
 // New returns a new config configured with the given options
 func New(opts ...Options) (*Config, error) {
-	config := &Config{}
+	cfg := &Config{}
 	for _, opt := range opts {
-		if err := opt(config); err != nil {
+		if err := opt(cfg); err != nil {
 			return nil, err
 		}
 	}
-	config.StartTime = time.Now()
-	return config, nil
+
+	return cfg, nil
 }
 
 // WithStorage returns an option that sets the storage config
@@ -127,20 +124,20 @@ func WithServer(host, port, resourceDir string, debug, verbose bool) Options {
 			ResourceDir: resourceDir,
 			Debug:       debug,
 			VerboseAPI:  verbose,
+			StartTime:   time.Now(),
 		}
 		return nil
 	}
 }
 
 // WithKafka returns an option that sets the kafka config
-func WithKafka(tls bool, version string, peers []string, topic string, channel chan message.Message) Options {
+func WithKafka(tls bool, version string, peers []string, topic string) Options {
 	return func(cfg *Config) error {
 		cfg.Kafka = &KafkaConfig{
-			TLS:        tls,
-			Version:    version,
-			Peers:      peers,
-			Topic:      topic,
-			MsgChannel: channel,
+			TLS:     tls,
+			Version: version,
+			Peers:   peers,
+			Topic:   topic,
 		}
 		return nil
 	}

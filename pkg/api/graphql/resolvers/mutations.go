@@ -3,7 +3,6 @@ package resolvers
 import (
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -14,8 +13,8 @@ import (
 // is used to establish a connection to a database and perform various database operations such as
 // querying and modifying data.
 type MutationResolver struct {
-	Connection *storage.Database
-	kafkaCfg   *config.KafkaConfig
+	Connection  *storage.Database
+	msgProducer message.TopicProducer
 }
 
 type EventInput struct {
@@ -66,7 +65,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEvent(event)
+	r.msgProducer.Async(message.NewEvent(event))
 
 	logger.V(1).Info("created", "event", event)
 	return event.ID, nil
@@ -88,7 +87,7 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+	r.msgProducer.Async(message.NewEventReceiver(eventReceiver))
 
 	logger.V(1).Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
@@ -111,7 +110,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
+	r.msgProducer.Async(message.NewEventReceiverGroup(eventReceiverGroup))
 
 	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
 	return eventReceiverGroup.ID, nil

@@ -11,17 +11,17 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/resolvers"
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
-func New(connection *storage.Database, cfg *config.KafkaConfig) *graphql.Schema {
+func New(connection *storage.Database, msgProducer message.TopicProducer) *graphql.Schema {
 	s, err := String()
 	if err != nil {
 		log.Fatalf("reading embedded schema contents: %s", err)
 	}
 	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers()}
-	return graphql.MustParseSchema(s, resolvers.New(connection, cfg), opts...)
+	return graphql.MustParseSchema(s, resolvers.New(connection, msgProducer), opts...)
 }
 
 //go:embed *.graphql types/*.graphql

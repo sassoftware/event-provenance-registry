@@ -43,7 +43,7 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.kafkaCfg.MsgChannel <- message.NewEvent(event)
+	s.msgProducer.Async(message.NewEvent(event))
 	logger.V(1).Info("created", "event", event)
 	return event.ID, nil
 }

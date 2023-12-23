@@ -23,6 +23,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/api"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
+	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -89,16 +90,18 @@ func run(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	messageChannel := make(chan message.Message, 1)
-	defer close(messageChannel)
-
 	cfg, err := config.New(
 		config.WithServer(host, port, "", true, true),
 		config.WithStorage(dbhost, "postgres", "", "", "postgres", dbport, 10, 10, 10),
-		config.WithKafka(false, "3.4.0", brokers, topic, messageChannel),
+		config.WithKafka(false, "3.4.0", brokers, topic),
 		// TODO: add this once auth have been turned on
 		// config.WithAuth(),
 	)
+	if err != nil {
+		return err
+	}
+
+	dbConn, err := setupDatabase(cfg.Storage)
 	if err != nil {
 		return err
 	}
@@ -116,17 +119,23 @@ func run(_ *cobra.Command, _ []string) error {
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	router, err := api.Initialize(ctx, cfg)
+	producer, err := setupKafka(cfg.Kafka)
 	if err != nil {
 		return err
 	}
 	errGroup.Go(func() error {
 		<-ctx.Done()
-		return cfg.Kafka.Producer.Close()
+		return producer.Close()
 	})
+	topicProducer := message.NewTopicProducer(producer, cfg.Kafka.Topic)
+
+	router, err := api.Initialize(dbConn, topicProducer, cfg.Server)
+	if err != nil {
+		return err
+	}
 
 	server := &http.Server{
-		Addr:              cfg.GetSrvAddr(),
+		Addr:              cfg.Server.GetSrvAddr(),
 		Handler:           router,
 		ReadHeaderTimeout: 3 * time.Second,
 	}
@@ -183,9 +192,34 @@ func run(_ *cobra.Command, _ []string) error {
 		return nil
 	})
 
-	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.GetSrvAddr()))
+	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.Server.GetSrvAddr()))
 
 	return errGroup.Wait()
+}
+
+func setupDatabase(cfg *config.StorageConfig) (*storage.Database, error) {
+	dbConn, err := storage.New(cfg.Host, cfg.User, cfg.Pass, cfg.SSLMode, cfg.Name, cfg.Port)
+	if err != nil {
+		return nil, err
+	}
+	if err := dbConn.SyncSchema(); err != nil {
+		return nil, err
+	}
+	return dbConn, nil
+}
+
+func setupKafka(cfg *config.KafkaConfig) (message.Producer, error) {
+	kafkaCfg, err := message.NewConfig(cfg.Version)
+	if err != nil {
+		return nil, err
+	}
+	kafkaProducer, err := message.NewProducer(cfg.Peers, kafkaCfg)
+	if err != nil {
+		return nil, err
+	}
+	kafkaProducer.ConsumeSuccesses()
+	kafkaProducer.ConsumeErrors()
+	return kafkaProducer, nil
 }
 
 // initConfig reads in config file and ENV variables if set.

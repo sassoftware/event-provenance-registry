@@ -212,3 +212,30 @@ func (p *producer) Send(topic string, value interface{}) error {
 
 	return nil
 }
+
+type TopicProducer interface {
+	Async(data any)
+	Send(data any) error
+}
+
+type topicProducer struct {
+	producer Producer
+	topic    string
+}
+
+// NewTopicProducer wraps the given producer into an interface for sending
+// messages without knowledge of message-bus details, such as topic
+func NewTopicProducer(p Producer, topic string) TopicProducer {
+	return &topicProducer{
+		producer: p,
+		topic:    topic,
+	}
+}
+
+func (t *topicProducer) Async(data any) {
+	t.producer.Async(t.topic, data)
+}
+
+func (t *topicProducer) Send(data any) error {
+	return t.producer.Send(t.topic, data)
+}
