@@ -1,12 +1,11 @@
 package rest
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
+	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
@@ -16,15 +15,14 @@ var logger = utils.MustGetLogger("server", "pkg.api.rest")
 type Server struct {
 	DBConnector *storage.Database
 
-	kafkaCfg *config.KafkaConfig
+	msgProducer message.TopicProducer
 }
 
-func New(ctx context.Context, conn *storage.Database, cfg *config.KafkaConfig) *Server {
+func New(conn *storage.Database, msgProducer message.TopicProducer) *Server {
 	svr := &Server{
 		DBConnector: conn,
-		kafkaCfg:    cfg,
+		msgProducer: msgProducer,
 	}
-	svr.startProducer(ctx)
 	return svr
 }
 
@@ -35,19 +33,6 @@ func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
 		// https://github.com/swaggest/rest/
 		panic("implement me!")
 	}
-}
-
-func (s *Server) startProducer(ctx context.Context) {
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case msg := <-s.kafkaCfg.MsgChannel:
-				s.kafkaCfg.Producer.Async(s.kafkaCfg.Topic, msg)
-			}
-		}
-	}()
 }
 
 // Response generic rest response for all object types.
