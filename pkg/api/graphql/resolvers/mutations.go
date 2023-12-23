@@ -45,7 +45,7 @@ type EventReceiverGroupInput struct {
 	EventReceiverIDs []graphql.ID
 }
 
-func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventInput := storage.Event{
 		Name:            args.Event.Name,
@@ -62,16 +62,16 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphq
 	event, err := storage.CreateEvent(r.Connection.Client, eventInput)
 	if err != nil {
 		logger.Error(err, "error creating event", "input", eventInput)
-		return nil, err
+		return "", err
 	}
 
 	r.msgProducer.Async(message.NewEvent(event))
 
 	logger.V(1).Info("created", "event", event)
-	return &event.ID, nil
+	return event.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventReceiverInput := storage.EventReceiver{
 		Name:        args.EventReceiver.Name,
@@ -84,16 +84,16 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 	eventReceiver, err := storage.CreateEventReceiver(r.Connection.Client, eventReceiverInput)
 	if err != nil {
 		logger.Error(err, "error creating event receiver", "input", eventReceiverInput)
-		return nil, err
+		return "", err
 	}
 
 	r.msgProducer.Async(message.NewEventReceiver(eventReceiver))
 
 	logger.V(1).Info("created", "eventReceiver", eventReceiver)
-	return &eventReceiver.ID, nil
+	return eventReceiver.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventReceiverGroupInput := storage.EventReceiverGroup{
 		Name:             args.EventReceiverGroup.Name,
@@ -107,31 +107,31 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 	eventReceiverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventReceiverGroupInput)
 	if err != nil {
 		logger.Error(err, "error creating event receiver group", "input", eventReceiverGroupInput)
-		return nil, err
+		return "", err
 	}
 
 	r.msgProducer.Async(message.NewEventReceiverGroup(eventReceiverGroup))
 
 	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
-	return &eventReceiverGroup.ID, nil
+	return eventReceiverGroup.ID, nil
 }
 
-func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, true)
 	if err != nil {
 		logger.Error(err, "error setting event receiver group enabled", "id", args.ID)
-		return nil, err
+		return "", err
 	}
 	logger.V(1).Info("updated", "eventReceiverGroupEnabled", args.ID)
-	return &args.ID, nil
+	return args.ID, nil
 }
 
-func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, false)
 	if err != nil {
 		logger.Error(err, "error setting event receiver group disabled", "id", args.ID)
-		return nil, err
+		return "", err
 	}
 	logger.V(1).Info("updated", "eventReceiverGroupDisabled", args.ID)
-	return &args.ID, nil
+	return args.ID, nil
 }
