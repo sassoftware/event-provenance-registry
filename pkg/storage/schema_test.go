@@ -12,7 +12,6 @@ import (
 )
 
 func TestEvent(t *testing.T) {
-
 	// Test the event
 	event := Event{
 		ID:              "01HGDYVD995K6F24SAW6GP17HZ",
@@ -100,7 +99,6 @@ func TestEventReceiver(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Assert(t, e.ID == eventReceiver.ID)
 	assert.Assert(t, e.Name == eventReceiver.Name)
-
 }
 
 func TestEventReceiverGroup(t *testing.T) {
@@ -159,5 +157,4 @@ func TestEventReceiverGroup(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Assert(t, e.ID == eventReceiverGroup.ID)
 	assert.Assert(t, e.Name == eventReceiverGroup.Name)
-
 }

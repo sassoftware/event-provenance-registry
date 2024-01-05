@@ -79,7 +79,7 @@ func TestDecodeGraphQLRespFromJSON(t *testing.T) {
 	// Negative test case - empty JSON
 	jsonData = `{}`
 	reader = strings.NewReader(jsonData)
-	resp, err = DecodeGraphQLRespFromJSON(reader)
+	_, err = DecodeGraphQLRespFromJSON(reader)
 	assert.NilError(t, err)
 	r := &RespGraphQL{}
 	if !reflect.DeepEqual(resp, r) {

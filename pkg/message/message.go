@@ -142,7 +142,6 @@ func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverG
 			EventReceiverGroups: []*storage.EventReceiverGroup{erg},
 		},
 	}
-
 }
 
 // DecodeFromJSON returns an Event from JSON
