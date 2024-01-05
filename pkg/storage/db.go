@@ -4,6 +4,9 @@
 package storage
 
 import (
+	"database/sql"
+	_ "embed"
+
 	"errors"
 	"fmt"
 	"log"
@@ -215,3 +218,46 @@ func validateReceiverSchema(schema string, eventPayload types.JSON) error {
 
 	return nil
 }
+
+//go:embed megaQuery.sql
+var megaQuery string
+
+type EventReceiverGroupOut struct {
+	EventReceiverGroup	
+	EventReceiverIDs []graphql.ID `json:"event_receiver_ids" gorm:"event_receiver_ids"`
+}
+
+func FindTriggeredEventReceiverGroups(tx *gorm.DB, event Event, eventReceiverID graphql.ID) ([]EventReceiverGroup, error) {
+	var eventReceiverGroups []EventReceiverGroupOut
+	result := tx.Exec(megaQuery, sql.Named("name", event.Name),
+		sql.Named("version", event.Version),
+		sql.Named("release", event.Release),
+		sql.Named("platform_id", event.PlatformID),
+		sql.Named("package", event.Package),
+		sql.Named("event_receiver_id", eventReceiverID)).Table("EventReceiverGroup").Find(&eventReceiverGroups)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("eventReceiverGroup %s not found", eventReceiverID)
+		}
+		return nil, pgError(result.Error)
+	}
+
+	// for _, eventReceiverGroup := range eventReceiverGroups {
+	// 	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
+	// 		Select("event_receiver_id").
+	// 		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: id})
+	// 	if result.Error != nil {
+	// 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	// 			return nil, fmt.Errorf("eventReceiverGroup %s not found in EventReceiverGroupToEventReceiver", id)
+	// 		}
+	// 		return nil, pgError(result.Error)
+	// 	}
+	// }
+	// return eventReceiverGroups, nil
+	return nil, nil
+}
+
+/**
+in comes event with multipass true
+
+**/
