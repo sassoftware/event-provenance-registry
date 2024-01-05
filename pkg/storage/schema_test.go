@@ -4,7 +4,6 @@
 package storage
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -31,7 +30,6 @@ func TestEvent(t *testing.T) {
 	}
 
 	jsonOut, err := event.ToJSON()
-	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
 	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
 	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))
@@ -93,7 +91,6 @@ func TestEventReceiver(t *testing.T) {
 	}
 
 	jsonOut, err := eventReceiver.ToJSON()
-	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
 	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
 	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))
@@ -153,7 +150,6 @@ func TestEventReceiverGroup(t *testing.T) {
 	}
 
 	jsonOut, err := eventReceiverGroup.ToJSON()
-	fmt.Printf("%s\n", jsonOut)
 	assert.NilError(t, err)
 	assert.Assert(t, strings.HasPrefix(jsonOut, "{"))
 	assert.Assert(t, strings.HasSuffix(jsonOut, "}"))

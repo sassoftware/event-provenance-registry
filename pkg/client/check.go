@@ -5,7 +5,10 @@ package client
 
 // CheckReadiness checks EPR readiness
 func (c *Client) CheckReadiness() (bool, error) {
-	endpoint := c.getHealthEndpoint("/readiness")
+	endpoint, err := c.getHealthEndpoint("/readiness")
+	if err != nil {
+		return false, err
+	}
 	content, err := c.DoGet(endpoint)
 	logger.V(1).Info("Check Readiness : %s\n", content)
 	if err != nil {
@@ -16,7 +19,10 @@ func (c *Client) CheckReadiness() (bool, error) {
 
 // CheckLiveness checks the EPRs liveness
 func (c *Client) CheckLiveness() (bool, error) {
-	endpoint := c.getHealthEndpoint("/liveness")
+	endpoint, err := c.getHealthEndpoint("/liveness")
+	if err != nil {
+		return false, err
+	}
 	content, err := c.DoGet(endpoint)
 	logger.V(1).Info("Check Liveness : %s\n", content)
 	if err != nil {
@@ -27,7 +33,10 @@ func (c *Client) CheckLiveness() (bool, error) {
 
 // CheckStatus checks the EPRs Status
 func (c *Client) CheckStatus() (string, error) {
-	endpoint := c.getHealthEndpoint("/status")
+	endpoint, err := c.getHealthEndpoint("/status")
+	if err != nil {
+		return "", err
+	}
 	content, err := c.DoGet(endpoint)
 	logger.V(1).Info("Check Status : %s\n", content)
 	if err != nil {

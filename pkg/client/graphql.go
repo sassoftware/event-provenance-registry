@@ -16,7 +16,7 @@ type GraphQLRequest struct {
 }
 
 // NewGraphQLRequest returns a new instance of GraphQLRequest
-func NewGraphQLRequest(operation string, lookFor string, fields []string, params map[string]interface{}) *GraphQLRequest {
+func NewGraphQLRequest(operation string, lookFor string, params map[string]interface{}, fields []string) *GraphQLRequest {
 	template := `query %s(%s){%s(%s) {%s}}`
 	varDefs := ""
 	selSets := ""
@@ -43,6 +43,8 @@ func formatValues(k string, v interface{}) (string, string) {
 		return fmt.Sprintf(`$%s: [String],`, k), fmt.Sprintf(`%s: $%s,`, k, k)
 	case int:
 		return fmt.Sprintf(`$%s: Int,`, k), fmt.Sprintf(`%s: $%s,`, k, k)
+	case bool:
+		return fmt.Sprintf(`$%s: Bool,`, k), fmt.Sprintf(`%s: $%s,`, k, k)
 	}
 	return "", ""
 }

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
@@ -27,21 +28,14 @@ type Contract interface {
 	CreateEventReceiver(er *storage.EventReceiver) (string, error)
 	CreateEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error)
 	ModifyEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error)
-	QueryEventByID(id string, fields []string) (*storage.Event, error)
-	QueryEventReceiverByID(id string, fields []string) (*storage.EventReceiver, error)
-	QueryEventReceiverGroupByID(id string, fields []string) (*storage.EventReceiverGroup, error)
-	IDSearch(params map[string]interface{}) (string, error)
 	Search(queryName string, queryFor string, params map[string]interface{}, fields []string) (string, error)
-	SearchEvents(params map[string]interface{}, fields []string) (string, error)
-	SearchEventsObj(params map[string]interface{}, fields []string) ([]storage.Event, error)
-	SearchEventReceivers(params map[string]interface{}, fields []string) (string, error)
-	SearchEventReceiversObj(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error)
-	SearchEventReceiverGroups(params map[string]interface{}, fields []string) (string, error)
-	SearchEventReceiverGroupsObj(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error)
+	SearchEvents(params map[string]interface{}, fields []string) ([]storage.Event, error)
+	SearchEventReceivers(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error)
+	SearchEventReceiverGroups(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error)
 	CheckReadiness() (bool, error)
 	CheckLiveness() (bool, error)
 	CheckStatus() (string, error)
-	GetEndpoint(end string) string
+	GetEndpoint(end string) (string, error)
 }
 
 // Client is a struct for EPR Client configuration
@@ -140,11 +134,28 @@ func (c *Client) doReq(reqType string, endpoint string, payload []byte) (string,
 }
 
 // GetEndpoint formats endoint url
-func (c *Client) GetEndpoint(end string) string {
-	return fmt.Sprintf(`%s%s%s`, c.url, c.apiVersion, end)
+func (c *Client) GetEndpoint(end string) (string, error) {
+	s, err := url.JoinPath(c.url, c.apiVersion, end)
+	if err != nil {
+		return "", err
+	}
+	return s, nil
 }
 
 // getHealthEndpoint formats health endpoints
-func (c *Client) getHealthEndpoint(end string) string {
-	return fmt.Sprintf(`%s%s%s`, c.url, c.health, end)
+func (c *Client) getHealthEndpoint(end string) (string, error) {
+	s, err := url.JoinPath(c.url, c.health, end)
+	if err != nil {
+		return "", err
+	}
+	return s, nil
+}
+
+// getHealthGraphQLEndpoint formats graphql endpoints
+func (c *Client) getGraphQLEndpoint() (string, error) {
+	s, err := url.JoinPath(c.url, c.health, `/graphql`)
+	if err != nil {
+		return "", err
+	}
+	return s, nil
 }

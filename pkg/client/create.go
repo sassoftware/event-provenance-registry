@@ -11,8 +11,10 @@ import (
 
 // CreateEvent used to create and Event
 func (c *Client) CreateEvent(e *storage.Event) (string, error) {
-	endpoint := c.GetEndpoint("/events")
-
+	endpoint, err := c.GetEndpoint("/events")
+	if err != nil {
+		return "", err
+	}
 	enc, err := json.Marshal(e)
 	if err != nil {
 		return "", err
@@ -28,8 +30,10 @@ func (c *Client) CreateEvent(e *storage.Event) (string, error) {
 
 // CreateEventReceiver used to create an EventReceiver
 func (c *Client) CreateEventReceiver(er *storage.EventReceiver) (string, error) {
-	endpoint := c.GetEndpoint("/receivers")
-
+	endpoint, err := c.GetEndpoint("/receivers")
+	if err != nil {
+		return "", err
+	}
 	enc, err := json.Marshal(er)
 	if err != nil {
 		return "", err
@@ -45,8 +49,10 @@ func (c *Client) CreateEventReceiver(er *storage.EventReceiver) (string, error) 
 
 // CreateEventReceiverGroup used to create an EventReceiverGroup
 func (c *Client) CreateEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error) {
-	endpoint := c.GetEndpoint("/groups")
-
+	endpoint, err := c.GetEndpoint("/groups")
+	if err != nil {
+		return "", err
+	}
 	enc, err := json.Marshal(erg)
 	if err != nil {
 		return "", nil
@@ -63,8 +69,10 @@ func (c *Client) CreateEventReceiverGroup(erg *storage.EventReceiverGroup) (stri
 // ModifyEventReceiverGroup takes a EventReceiverGroup object and updates the "Disabled" field in the EPR based on the EventReceiverGroup ID. This
 // function returns a JSON blob with the ID of the EventReceiverGroup it modified.
 func (c *Client) ModifyEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error) {
-	endpoint := c.GetEndpoint("/groups/" + string(erg.ID))
-
+	endpoint, err := c.GetEndpoint("/groups/" + string(erg.ID))
+	if err != nil {
+		return "", err
+	}
 	enc, err := json.Marshal(erg)
 	if err != nil {
 		return "", err

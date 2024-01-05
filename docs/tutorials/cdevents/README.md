@@ -252,36 +252,36 @@ Add the following code:
 package main
 
 import (
-	"log"
+ "log"
 
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
-	"github.com/sassoftware/event-provenance-registry/pkg/watcher"
+ "github.com/sassoftware/event-provenance-registry/pkg/message"
+ "github.com/sassoftware/event-provenance-registry/pkg/watcher"
 )
 
 func main() {
-	seeds := []string{"localhost:19092"}
-	topics := []string{"epr.dev.events"}
-	consumerGroup := "watcher-workshop"
+ seeds := []string{"localhost:19092"}
+ topics := []string{"epr.dev.events"}
+ consumerGroup := "watcher-workshop"
 
-	watcher, err := watcher.New(seeds, topics, consumerGroup)
-	if err != nil {
-		panic(err)
-	}
-	defer watcher.Client.Close()
+ watcher, err := watcher.New(seeds, topics, consumerGroup)
+ if err != nil {
+  panic(err)
+ }
+ defer watcher.Client.Close()
 
-	go watcher.StartTaskHandler(customTaskHandler)
+ go watcher.StartTaskHandler(customTaskHandler)
 
-	watcher.ConsumeRecords(customMatcher)
+ watcher.ConsumeRecords(customMatcher)
 }
 
 // customMatcher matches a cdevent type
 func customMatcher(msg *message.Message) bool {
-	return msg.Type == "dev.cdevents.artifact.packaged.0.1.1"
+ return msg.Type == "dev.cdevents.artifact.packaged.0.1.1"
 }
 
 func customTaskHandler(msg *message.Message) error {
-	log.Default().Printf("I received a task with value '%v'", msg)
-	return nil
+ log.Default().Printf("I received a task with value '%v'", msg)
+ return nil
 }
 
 ```
