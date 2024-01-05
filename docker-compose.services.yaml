@@ -1,5 +1,4 @@
 version: '3.8'
-name: server-dependencies
 
 volumes:
   postgres-data: null

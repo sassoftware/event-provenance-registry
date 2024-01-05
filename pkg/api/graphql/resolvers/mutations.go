@@ -67,6 +67,16 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 
 	r.msgProducer.Async(message.NewEvent(event))
 
+	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event, event.EventReceiverID)
+	if err != nil {
+		logger.Error(err, "error finding triggered event receiver groups", "input", eventInput)
+		return "", err
+	}
+
+	for _, eventReceiverGroup := range eventReceiverGroups {
+		r.msgProducer.Async(message.NewEventReceiverGroup(&eventReceiverGroup))
+	}
+
 	logger.V(1).Info("created", "event", event)
 	return event.ID, nil
 }
