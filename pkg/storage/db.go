@@ -6,6 +6,7 @@ package storage
 import (
 	"database/sql"
 	_ "embed"
+	"encoding/json"
 
 	"errors"
 	"fmt"
@@ -222,42 +223,54 @@ func validateReceiverSchema(schema string, eventPayload types.JSON) error {
 //go:embed megaQuery.sql
 var megaQuery string
 
-type EventReceiverGroupOut struct {
-	EventReceiverGroup	
-	EventReceiverIDs []graphql.ID `json:"event_receiver_ids" gorm:"event_receiver_ids"`
+// to make this work I had to have the DB return a json array
+// instead of a plain array. if array_to_json is PG specific
+//  we should pivot
+type Data struct {
+	EventReceiverGroup
+
+	// Database returns json array instead of a string
+	EventReceiverIDs types.JSON `json:"event_receiver_ids"`
 }
 
 func FindTriggeredEventReceiverGroups(tx *gorm.DB, event Event, eventReceiverID graphql.ID) ([]EventReceiverGroup, error) {
-	var eventReceiverGroups []EventReceiverGroupOut
-	result := tx.Exec(megaQuery, sql.Named("name", event.Name),
+	var data []Data
+	result := tx.Model("EventReceiverGroup").Raw(megaQuery,
+		sql.Named("name", event.Name),
 		sql.Named("version", event.Version),
 		sql.Named("release", event.Release),
 		sql.Named("platform_id", event.PlatformID),
 		sql.Named("package", event.Package),
-		sql.Named("event_receiver_id", eventReceiverID)).Table("EventReceiverGroup").Find(&eventReceiverGroups)
+		sql.Named("event_receiver_id", eventReceiverID)).
+		Scan(&data)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("eventReceiverGroup %s not found", eventReceiverID)
 		}
 		return nil, pgError(result.Error)
 	}
+	if result.RowsAffected < 1 {
+		return nil, nil
+	}
 
-	// for _, eventReceiverGroup := range eventReceiverGroups {
-	// 	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
-	// 		Select("event_receiver_id").
-	// 		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: id})
-	// 	if result.Error != nil {
-	// 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-	// 			return nil, fmt.Errorf("eventReceiverGroup %s not found in EventReceiverGroupToEventReceiver", id)
-	// 		}
-	// 		return nil, pgError(result.Error)
-	// 	}
-	// }
-	// return eventReceiverGroups, nil
-	return nil, nil
+	eventReceiverGroups := []EventReceiverGroup{}
+	for _, d := range data {
+		var eventReceiverIDs []graphql.ID
+		err := json.Unmarshal([]byte(d.EventReceiverIDs.JSON), &eventReceiverIDs)
+		if err != nil {
+			return nil, err
+		}
+		eventReceiverGroup := EventReceiverGroup{
+			ID:               d.ID,
+			Name:             d.Name,
+			Version:          d.Version,
+			Description:      d.Description,
+			Enabled:          d.Enabled,
+			EventReceiverIDs: eventReceiverIDs,
+			CreatedAt:        d.CreatedAt,
+			UpdatedAt:        d.UpdatedAt,
+		}
+		eventReceiverGroups = append(eventReceiverGroups, eventReceiverGroup)
+	}
+	return eventReceiverGroups, nil
 }
-
-/**
-in comes event with multipass true
-
-**/
