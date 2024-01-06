@@ -1,4 +1,4 @@
-select erg.*, array(select event_receiver_id from event_receiver_group_to_event_receivers where event_receiver_group_id=erg.id) as event_receiver_ids
+select erg.*, array_to_json(array(select event_receiver_id from event_receiver_group_to_event_receivers where event_receiver_group_id=erg.id)) as event_receiver_ids
 from event_receiver_groups as erg
 where id in
 (
