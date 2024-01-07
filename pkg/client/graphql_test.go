@@ -42,7 +42,7 @@ func testNewGraphQLRequestWithList() func(t *testing.T) {
 		params := map[string]interface{}{
 			"version": "1.0.0",
 		}
-		expected := `query FindEventReceiverGroup($version: [String]){groups(version: $version) {name,id}}`
+		expected := `query FindEventReceiverGroup($version: String){groups(version: $version) {name,id}}`
 		req := NewGraphQLRequest(queryName, lookFor, params, fields)
 		assert.Equal(t, req.Query, expected, "The generated Query did not match expected")
 	}
@@ -68,15 +68,15 @@ func testComplexNewGraphQLRequest() func(t *testing.T) {
 	return func(t *testing.T) {
 		queryName := "foo"
 		lookFor := "bar"
-		fields := []string{"tags"}
+		fields := []string{"name", "id", "success"}
 		params := map[string]interface{}{
 			"id":      "abc123",
 			"name":    "wally",
 			"success": true,
 		}
 
-		expected := []string{`query foo($name: String,$id: String){bar(name: $name,id: $id) {name,id,success}}`,
-			`query foo($id: String,$name: String, $success: Bool){bar(id: $id,name: $name, success: $success) {name,id,success}}`}
+		expected := []string{`query foo($success: Bool,$id: String,$name: String){bar(success: $success,id: $id,name: $name) {name,id,success}}`,
+			`query foo($id: String,$name: String,$success: Bool){bar(id: $id,name: $name,success: $success) {name,id,success}}`}
 		req := NewGraphQLRequest(queryName, lookFor, params, fields)
 		assert.Check(t, customStringCompare(req.Query, expected))
 	}
