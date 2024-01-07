@@ -50,7 +50,7 @@ $(BINARY)-arm64: $(SOURCES); $(info $(M) building arm64 executable...) @ ## Buil
 $(BINARY)-darwin: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin
 	$Q GOOS=darwin GOARCH=amd64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
-$(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin aarch64 
+$(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin aarch64
 	$Q GOOS=darwin GOARCH=arm64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
 .PHONY: docker-image
@@ -83,6 +83,13 @@ megalint: ; $(info $(M) running golangci-lint...) @ ## Runs golangci-lint with a
 .PHONY: test
 test: ; $(info $(M) running tests...) @ ## Runs go test ./...
 	$Q go test -v ./...
+
+.PHONY: functional_test
+functional_test: ; $(info $(M) running functional tests...) @ ## Runs functional test suite
+	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml up -d --wait --build
+	$Q psql -h localhost -U postgres -a -f tests/functional/seed-data.sql
+	$Q go test -tags=functional -v ./...
+	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml down --volumes
 
 .PHONY: tidy
 tidy: ; $(info $(M) running go mod tidy...) @ ## Run go mod tidy
