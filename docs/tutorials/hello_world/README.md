@@ -39,7 +39,6 @@ docker exec -it redpanda \
     rpk topic create epr.dev.events --brokers=localhost:19092
 ```
 
-
 ## Start Event Provenance Registry server
 
 Export the environment variables for the server

@@ -29,7 +29,7 @@ curl -ssLO https://raw.githubusercontent.com/CycloneDX/specification/1.5/schema/
 
 ## Create a source SBOM event
 
-First we will create the event receiver and apply the CycloneDX v1.4 schema for
+First we will create the event receiver and apply the CycloneDX v1.5 schema for
 artifact sbom created.
 
 To make this easier we will create the JSON data we need to post first.
