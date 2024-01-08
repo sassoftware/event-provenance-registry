@@ -12,7 +12,7 @@ import (
 // Time is a custom GraphQL type to represent an instant in time. It has to be added to a schema
 // via "scalar Time" since it is not a predeclared GraphQL type like "ID".
 type Time struct {
-	datatypes.Time
+	datatypes.Date
 }
 
 // ImplementsGraphQLType maps this custom Go type
@@ -27,8 +27,8 @@ func (Time) ImplementsGraphQLType(name string) bool {
 // time scalar as an input
 func (t *Time) UnmarshalGraphQL(input interface{}) error {
 	switch input := input.(type) {
-	case datatypes.Time:
-		t.Time = input
+	case datatypes.Date:
+		t.Date = input
 		return nil
 	default:
 		return fmt.Errorf("wrong type for Time: %T", input)
@@ -40,5 +40,5 @@ func (t *Time) UnmarshalGraphQL(input interface{}) error {
 // This function will be called whenever you
 // query for fields that use the Time type
 func (t Time) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.Time)
+	return json.Marshal(t.Date)
 }

@@ -74,7 +74,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 	}
 
 	for _, eventReceiverGroup := range eventReceiverGroups {
-		r.msgProducer.Async(message.NewEventReceiverGroup(&eventReceiverGroup))
+		r.msgProducer.Async(message.NewTriggeredGroup(&eventReceiverGroup, event))
 	}
 
 	logger.V(1).Info("created", "event", event)

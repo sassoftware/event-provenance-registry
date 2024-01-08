@@ -225,7 +225,8 @@ var megaQuery string
 
 // to make this work I had to have the DB return a json array
 // instead of a plain array. if array_to_json is PG specific
-//  we should pivot
+//
+//	we should pivot
 type Data struct {
 	EventReceiverGroup
 
@@ -263,6 +264,7 @@ func FindTriggeredEventReceiverGroups(tx *gorm.DB, event Event, eventReceiverID 
 		eventReceiverGroup := EventReceiverGroup{
 			ID:               d.ID,
 			Name:             d.Name,
+			Type:             d.Type,
 			Version:          d.Version,
 			Description:      d.Description,
 			Enabled:          d.Enabled,
