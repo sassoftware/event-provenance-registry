@@ -44,7 +44,7 @@ func TestDecodeGraphQLRespFromJSON(t *testing.T) {
           "name": "value"
         },
         "success": true,
-        "created_at": "13:32:25.000758276",
+        "created_at": "2024-01-08T09:28:57.096398-05:00",
         "event_receiver_id": "01HGDZ1D3KPZHYADNSJC4K4BQF"
       }
     ]
