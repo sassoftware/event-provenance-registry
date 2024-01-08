@@ -115,7 +115,7 @@ func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
 		Success:     true,
 		ID:          string(e.ID),
 		Specversion: CloudEventsSpec,
-		Type:        "epr.event.receiver.group.modified",
+		Type:        "epr.event.receiver.group.created",
 		APIVersion:  APIv1,
 		Name:        e.Name,
 		Version:     e.Version,
@@ -124,6 +124,20 @@ func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
 			EventReceiverGroups: []*storage.EventReceiverGroup{e},
 		},
 	}
+}
+
+// NewFulfilledGroup returns a Message with completed Event and Group data. Intended to be used
+// when an EventReceiverGroup has been triggered.
+func NewTriggeredGroup(group *storage.EventReceiverGroup, event *storage.Event) Message {
+	msg := NewEventReceiverGroup(group)
+	// TODO: You could argue either way for this message type to be either "epr.event.receiver.group.triggered",
+	// or a copy of what's in the group.
+	// If we use the triggered one, it's really easy to tell which messages are from a group trigger. The problem
+	// is that it breaks how matching works. We'd need to be able to match off the group data. Need to make a decision.
+	msg.Type = group.Type
+	msg.Data.Events = []*storage.Event{event}
+
+	return msg
 }
 
 // DecodeFromJSON returns an Event from JSON
