@@ -76,7 +76,8 @@ func testComplexNewGraphQLRequest() func(t *testing.T) {
 		}
 
 		expected := []string{`query foo($success: Bool,$id: String,$name: String){bar(success: $success,id: $id,name: $name) {name,id,success}}`,
-			`query foo($id: String,$name: String,$success: Bool){bar(id: $id,name: $name,success: $success) {name,id,success}}`}
+			`query foo($id: String,$name: String,$success: Bool){bar(id: $id,name: $name,success: $success) {name,id,success}}`,
+			`query foo($name: String,$success: Bool,$id: String){bar(name: $name,success: $success,id: $id) {name,id,success}}`}
 		req := NewGraphQLRequest(queryName, lookFor, params, fields)
 		assert.Check(t, customStringCompare(req.Query, expected))
 	}
