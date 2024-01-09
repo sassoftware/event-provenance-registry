@@ -4,7 +4,7 @@ VALUES
 ('receiver-b', 'SAST scan', 'scan.sast', '1.3.0', 'SAST scan of source code', '{}', 'n0kxa5g', current_timestamp),
 ('receiver-c', 'SCA scan', 'scan.sca', '1.2.4', 'SCA scan of source code', '{}', 'f3ksl2h', current_timestamp),
 ('receiver-d', 'publish artifact', 'artifact.publish', '2.0.0', 'publish to artifactory', '{}', 'vci6fk9', current_timestamp),
-('receiver-e', 'manager sign-off', 'signoff.complete', '1.0.0', 'manual sign-off of artifact', '{}', 're5u2al', current_timestamp);
+('receiver-e', 'manager sign-off', 'signoff.complete', '1.0.0', 'manual sign-off of artifact', '{"type": "object","properties": {"employee_id": {"type": "string"}}}', 're5u2al', current_timestamp);
 
 INSERT INTO event_receiver_groups
 VALUES
