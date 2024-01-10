@@ -165,7 +165,7 @@ query {
     release
     platform_id
     package
-		description
+    description
     payload
     success
     event_receiver_id
