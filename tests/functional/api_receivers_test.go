@@ -17,12 +17,12 @@ import (
 
 const receiverURI = "http://localhost:8042/api/v1/receivers/"
 
-type getResponse struct {
+type getReceiverResponse struct {
 	Data   []storage.EventReceiver
 	Errors []string
 }
 
-type postResponse struct {
+type postReceiverResponse struct {
 	Data   string
 	Errors []string
 }
@@ -68,7 +68,7 @@ func TestGetReceiverValid(t *testing.T) {
 			assert.NilError(t, err)
 			assert.Equal(t, resp.StatusCode, http.StatusOK)
 
-			var body getResponse
+			var body getReceiverResponse
 			err = json.NewDecoder(resp.Body).Decode(&body)
 			assert.NilError(t, err)
 
@@ -83,7 +83,7 @@ func TestGetReceiverValid(t *testing.T) {
 		assert.NilError(t, err)
 		assert.Assert(t, isClientErrStatus(resp.StatusCode), "got status %d", resp.StatusCode)
 
-		var body getResponse
+		var body getReceiverResponse
 		err = json.NewDecoder(resp.Body).Decode(&body)
 		assert.NilError(t, err)
 
@@ -111,7 +111,7 @@ func TestGetReceiverInvalid(t *testing.T) {
 			assert.NilError(t, err)
 			assert.Assert(t, isClientErrStatus(resp.StatusCode), "got status %d", resp.StatusCode)
 
-			var body getResponse
+			var body getReceiverResponse
 			err = json.NewDecoder(resp.Body).Decode(&body)
 			assert.NilError(t, err)
 
@@ -162,7 +162,7 @@ func TestCreateReceiverValid(t *testing.T) {
 			assert.NilError(t, err)
 			assert.Equal(t, resp.StatusCode, http.StatusOK)
 
-			var body postResponse
+			var body postReceiverResponse
 			err = json.NewDecoder(resp.Body).Decode(&body)
 			assert.NilError(t, err)
 			assert.Check(t, len(body.Data) > 0, "expect a non-empty id")
@@ -203,7 +203,7 @@ func TestCreateReceiverInvalid(t *testing.T) {
 			assert.NilError(t, err)
 			assert.Assert(t, resp.StatusCode >= 400 && resp.StatusCode <= 499, "got status %d", resp.StatusCode)
 
-			var body postResponse
+			var body postReceiverResponse
 			err = json.NewDecoder(resp.Body).Decode(&body)
 			assert.NilError(t, err)
 			assert.Equal(t, len(body.Data), 0, "expect an empty id, got %s", body.Data)
