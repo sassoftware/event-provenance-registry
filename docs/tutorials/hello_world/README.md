@@ -186,7 +186,7 @@ query {
     payload
     success
     event_receiver_id
-		created_at
+    created_at
   }
 }
 ```
