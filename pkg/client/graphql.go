@@ -21,7 +21,7 @@ func NewGraphQLRequest(operation string, lookFor string, params map[string]inter
 	varDefs := ""
 	selSets := ""
 	for k, v := range params {
-		varDef, selSet := formatValues(k, v)
+		varDef, selSet := schemaValues(k, v)
 		varDefs += varDef
 		selSets += selSet
 	}
@@ -49,11 +49,11 @@ func formatValues(k string, v interface{}) (string, string) {
 	return "", ""
 }
 
-// NewGraphQLRequestIds returns a new instance of GraphQLRequest given params
-func NewGraphQLRequestIds(params map[string]interface{}) *GraphQLRequest {
-	query := `query FindAny($ulids: [String]){any (ulids: $ulids) { events receivers groups }}`
-	return &GraphQLRequest{
-		Query:     query,
-		Variables: params,
+func schemaValues(k string, v interface{}) (string, string) {
+	switch k {
+	case `id`:
+		return fmt.Sprintf(`$%s: ID!,`, k), fmt.Sprintf(`%s: $%s,`, k, k)
+	default:
+		return formatValues(k, v)
 	}
 }

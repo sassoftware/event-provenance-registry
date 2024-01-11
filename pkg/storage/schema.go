@@ -146,7 +146,7 @@ func (e *EventReceiverGroup) ToYAML() (string, error) {
 	return string(content), nil
 }
 
-// EventReceiverGroupFromJSON reads JSON data from a reader and returns an EventReceiver object.
+// EventReceiverGroupFromJSON reads JSON data from a reader and returns an EventReceiverGroup object.
 func EventReceiverGroupFromJSON(reader io.Reader) (*EventReceiverGroup, error) {
 	e := &EventReceiverGroup{}
 	err := json.NewDecoder(reader).Decode(e)

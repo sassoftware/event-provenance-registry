@@ -13,7 +13,7 @@ import (
 
 // Search searches for the given queryFor based on params
 func (c *Client) Search(queryName string, queryFor string, params map[string]interface{}, fields []string) (string, error) {
-	endpoint, err := c.getGraphQLEndpoint()
+	endpoint, err := c.getGraphQLEndpointQuery()
 	if err != nil {
 		return "", err
 	}
@@ -24,6 +24,11 @@ func (c *Client) Search(queryName string, queryFor string, params map[string]int
 		return "", err
 	}
 
+	fmt.Printf("Endpoint: %s\n", endpoint)
+	fmt.Printf("Query: %s\n", enc)
+	fmt.Printf(`curl -X POST -H "content-type:application/json" -d '%s' %s`, enc, endpoint)
+	fmt.Println("")
+
 	content, err := c.DoPost(endpoint, enc)
 	if err != nil {
 		return "", err
@@ -33,56 +38,68 @@ func (c *Client) Search(queryName string, queryFor string, params map[string]int
 }
 
 func (c *Client) SearchEvents(params map[string]interface{}, fields []string) ([]storage.Event, error) {
-	response, err := c.Search("FindEvents", "", params, fields)
+	response, err := c.Search("FindEvents", "events", params, fields)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("Response: %s\n", response)
 
 	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Printf("ResponseObj: +%v\n", respObj)
+
 	// Check for presence of errors in respObj from searching eventReceiverGroups
-	if respObj.Errors != "" {
-		return nil, fmt.Errorf("when searching for eventReceiverGroup returned: errors: %s ", respObj.Errors)
+	if respObj.Errors != nil {
+		return nil, fmt.Errorf("when searching for Event returned: errors: %s ", respObj.Errors)
 	}
 
 	return respObj.Data.Events, nil
 }
 
 func (c *Client) SearchEventReceivers(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error) {
-	response, err := c.Search("FindEventReceivers", "", params, fields)
+	response, err := c.Search("FindEventReceivers", "event_receivers", params, fields)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("Response: %s\n", response)
 
 	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
-	// Check for presence of errors in respObj from searching eventReceiverGroups
-	if respObj.Errors != "" {
-		return nil, fmt.Errorf("when searching for eventReceiverGroup returned: errors: %s ", respObj.Errors)
+	fmt.Printf("ResponseObj: +%v\n", respObj)
+
+	// Check for presence of errors in respObj from searching eventReceiver
+	if respObj.Errors != nil {
+		return nil, fmt.Errorf("when searching for eventReceiver returned: errors: %s ", respObj.Errors)
 	}
 
 	return respObj.Data.EventReceivers, nil
 }
 
 func (c *Client) SearchEventReceiverGroups(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error) {
-	response, err := c.Search("FindEventReceiverGroups", "", params, fields)
+	response, err := c.Search("FindEventReceiverGroups", "event_receiver_groups", params, fields)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("Response: %s\n", response)
 
 	respObj, err := DecodeGraphQLRespFromJSON(strings.NewReader(response))
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Printf("ResponseObj: +%v\n", respObj)
+
 	// Check for presence of errors in respObj from searching eventReceiverGroups
-	if respObj.Errors != "" {
+	if respObj.Errors != nil {
 		return nil, fmt.Errorf("when searching for eventReceiverGroup returned: errors: %s ", respObj.Errors)
 	}
 

@@ -151,9 +151,18 @@ func (c *Client) getHealthEndpoint(end string) (string, error) {
 	return s, nil
 }
 
-// getHealthGraphQLEndpoint formats graphql endpoints
+// getGraphQLEndpoint formats graphql endpoints
 func (c *Client) getGraphQLEndpoint() (string, error) {
-	s, err := url.JoinPath(c.url, c.health, `/graphql`)
+	s, err := url.JoinPath(c.url, c.apiVersion, `graphql`)
+	if err != nil {
+		return "", err
+	}
+	return s, nil
+}
+
+// getGraphQLEndpointQuery formats graphql endpoints
+func (c *Client) getGraphQLEndpointQuery() (string, error) {
+	s, err := url.JoinPath(c.url, c.apiVersion, `graphql`, `query`)
 	if err != nil {
 		return "", err
 	}

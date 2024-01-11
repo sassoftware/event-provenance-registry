@@ -15,7 +15,7 @@ import (
 // errors field.
 type Response struct {
 	Data   interface{} `json:"data"`
-	Errors string      `json:"errors,omitempty"`
+	Errors interface{} `json:"errors,omitempty"`
 }
 
 // DecodeRespFromJSON decodes a JSON input from a reader into a Response struct
@@ -39,7 +39,7 @@ type RespGraphQL struct {
 		CreateEventReceiver      graphql.ID                   `json:"create_event_receiver,omitempty"`
 		CreateEventReceiverGroup graphql.ID                   `json:"create_event_receiver_group,omitempty"`
 	} `json:"data"`
-	Errors string `json:"errors,omitempty"`
+	Errors interface{} `json:"errors,omitempty"`
 }
 
 // The function `DecodeGraphQLRespFromJSON` decodes a JSON response into a `RespGraphQL` struct.
