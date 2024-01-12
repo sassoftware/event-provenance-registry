@@ -24,7 +24,7 @@ docker compose up -d
 
 A single Redpanda broker is run, configured without authentication and
 accessible from `localhost:19092`. A web console is also hosted and can be
-accessed in your browser at http://localhost:8080/overview.
+accessed in your browser at <http://localhost:8080/overview>.
 
 To later tear down the Redpanda deployment, run the following command from the
 same directory as before with access to your copy of

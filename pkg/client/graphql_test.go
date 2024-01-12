@@ -48,7 +48,7 @@ func TestNewGraphQLRequestWithInt(t *testing.T) {
 		"start": 1,
 	}
 	expected := []string{`query FindEvents($name: String,$start: Int){events(name: $name,start: $start) {name,id}}`,
-		`query FindEvent($start: Int,$name: String){events(start: $start,name: $name) {name,id}}`}
+		`query FindEvents($start: Int,$name: String){events(start: $start,name: $name) {name,id}}`}
 	req := NewGraphQLRequest(queryName, lookFor, params, fields)
 	assert.Check(t, customStringCompare(req.Query, expected))
 }
