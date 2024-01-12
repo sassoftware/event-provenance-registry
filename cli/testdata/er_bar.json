@@ -1,0 +1,10 @@
+{
+    "id": "",
+    "name": "bar-cli",
+    "type": "epr.bar.cli",
+    "version": "1.0.0",
+    "description": "bar cli created bar",
+    "schema": {},
+    "fingerprint": "",
+    "created_at": "0001-01-01T00:00:00Z"
+}

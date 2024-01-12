@@ -1,0 +1,10 @@
+{
+    "id": "",
+    "name": "foo-cli",
+    "type": "epr.foo.cli",
+    "version": "1.0.0",
+    "description": "foo cli created foo",
+    "schema": {},
+    "fingerprint": "",
+    "created_at": "0001-01-01T00:00:00Z"
+}

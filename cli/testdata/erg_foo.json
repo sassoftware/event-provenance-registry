@@ -1,0 +1,25 @@
+{
+    "id": "",
+    "name": "bar",
+    "version": "1.0.0",
+    "release": "2024.01",
+    "platform_id": "x86-64-gnu-linux-9",
+    "package": "rpm",
+    "description": "the bar event for bar",
+    "payload": {
+        "name": "bar"
+    },
+    "success": true,
+    "created_at": "0001-01-01T00:00:00Z",
+    "event_receiver_id": "01HKX0KY3B31MR3XKJWTDZ4EQ0",
+    "EventReceiver": {
+        "id": "",
+        "name": "",
+        "type": "",
+        "version": "",
+        "description": "",
+        "schema": null,
+        "fingerprint": "",
+        "created_at": "0001-01-01T00:00:00Z"
+    }
+}
