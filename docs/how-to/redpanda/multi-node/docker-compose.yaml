@@ -5,9 +5,9 @@ networks:
   redpanda_network:
     driver: bridge
 volumes:
-  redpanda-0: nullq
+  redpanda: null
 services:
-  redpanda-0:
+  redpanda:
     command:
       - redpanda
       - start
@@ -34,9 +34,9 @@ services:
       # Set logging level
       - "--default-log-level=warn"
     image: "docker.redpanda.com/redpandadata/redpanda:v23.2.8"
-    container_name: redpanda-0
+    container_name: redpanda
     volumes:
-      - "redpanda-0:/var/lib/redpanda/data"
+      - "redpanda:/var/lib/redpanda/data"
     networks:
       - redpanda_network
     ports:
@@ -67,4 +67,4 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - redpanda-0
+      - redpanda
