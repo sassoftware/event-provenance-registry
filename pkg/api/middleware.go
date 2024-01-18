@@ -4,7 +4,7 @@
 package api
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,7 +28,6 @@ func requestCounter() func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			wrapper := responseWrapper{w, 200}
 			next.ServeHTTP(&wrapper, r)
-			logger.V(1).Info(fmt.Sprintf("returned status %v", wrapper.status))
 			metrics.Requests.WithLabelValues(strconv.Itoa(wrapper.status), r.Method).Inc()
 		}
 		return http.HandlerFunc(fn)
@@ -103,7 +102,7 @@ func securityHeaders() func(next http.Handler) http.Handler {
 	}
 }
 
-// logOrigin log the origin of our httprequest
+// LogOrigin log the origin of our httprequest
 func LogOrigin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		hdr := "X-Real-Ip"
@@ -117,7 +116,7 @@ func LogOrigin(next http.Handler) http.Handler {
 			hdr = "RemoteAddr"
 			origin = r.RemoteAddr
 		}
-		logger.Info(fmt.Sprintf("request origin %s : %s", hdr, origin))
+		slog.Debug("request origin", "header", hdr, "origin", origin)
 		next.ServeHTTP(w, r)
 	})
 }

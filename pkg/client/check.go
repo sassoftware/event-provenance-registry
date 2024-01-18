@@ -10,7 +10,7 @@ func (c *Client) CheckReadiness() (bool, error) {
 		return false, err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(1).Info("Check Readiness : %s\n", content)
+	logger.V(zerolog.InfoLevel).Info("Check Readiness : %s\n", content)
 	if err != nil {
 		return false, err
 	}
@@ -24,7 +24,7 @@ func (c *Client) CheckLiveness() (bool, error) {
 		return false, err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(1).Info("Check Liveness : %s\n", content)
+	logger.V(zerolog.InfoLevel).Info("Check Liveness : %s\n", content)
 	if err != nil {
 		return false, err
 	}
@@ -38,7 +38,7 @@ func (c *Client) CheckStatus() (string, error) {
 		return "", err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(1).Info("Check Status : %s\n", content)
+	logger.V(zerolog.InfoLevel).Info("Check Status : %s\n", content)
 	if err != nil {
 		return content, err
 	}

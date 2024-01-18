@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -19,8 +20,6 @@ import (
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
 )
-
-var logger = utils.MustGetLogger("db", "pkg.storage")
 
 type Database struct {
 	Client *gorm.DB
@@ -209,7 +208,7 @@ func validateReceiverSchema(schema string, eventPayload types.JSON) error {
 		for _, e := range jsResult.Errors() {
 			err = errors.Join(err, errors.New(e.String()))
 		}
-		logger.Error(err, "invalid schema")
+		slog.Error("invalid schema", "error", err)
 		return err
 	}
 

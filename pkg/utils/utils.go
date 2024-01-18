@@ -8,14 +8,10 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
-	"github.com/go-logr/logr"
-	"github.com/go-logr/zerologr"
 	"github.com/google/uuid"
 	"github.com/oklog/ulid"
-	"github.com/rs/zerolog"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -138,28 +134,28 @@ func (g *Seed) Fingerprint() string {
 	return fmt.Sprintf("%x", sum)
 }
 
-// MustGetLogger for logging
-func MustGetLogger(name, module string) *logr.Logger {
-	return getLogger(name, module)
-}
-
-func getLogger(name, module string) *logr.Logger {
-	if name == "" {
-		name = "logger"
-	}
-	if module == "" {
-		module = "utils.logger"
-	}
-
-	logLevel, err := strconv.Atoi(GetEnv("LOG_LEVEL", "1"))
-	if err != nil {
-		logLevel = int(zerolog.InfoLevel) // default to INFO
-	}
-	zerologr.SetMaxV(1)
-
-	zl := zerolog.New(os.Stderr).Level(zerolog.Level(logLevel)).With().Timestamp().Logger()
-
-	logger := zerologr.New(&zl).WithName(name).WithValues("module", module)
-
-	return &logger
-}
+//// MustGetLogger for logging
+//func MustGetLogger(name, module string) *logr.Logger {
+//	return getLogger(name, module)
+//}
+//
+//func getLogger(name, module string) *logr.Logger {
+//	if name == "" {
+//		name = "logger"
+//	}
+//	if module == "" {
+//		module = "utils.logger"
+//	}
+//
+//	logLevel, err := strconv.Atoi(GetEnv("LOG_LEVEL", "1"))
+//	if err != nil {
+//		logLevel = int(zerolog.InfoLevel) // default to INFO
+//	}
+//	zerologr.SetMaxV(int(zerolog.InfoLevel))
+//
+//	zl := zerolog.New(os.Stderr).Level(zerolog.Level(logLevel)).With().Timestamp().Logger()
+//
+//	logger := zerologr.New(&zl).WithName(name).WithValues("module", module)
+//
+//	return &logger
+//}

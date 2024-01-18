@@ -2,15 +2,13 @@ package rest
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/render"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("server", "pkg.api.rest")
 
 type Server struct {
 	DBConnector *storage.Database
@@ -76,6 +74,6 @@ func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error)
 	default:
 		render.Status(r, http.StatusInternalServerError)
 	}
-	logger.Error(err, "error during request", "url", r.URL)
+	slog.Error("error during request", "error", err, "url", r.URL)
 	render.JSON(w, r, resp)
 }

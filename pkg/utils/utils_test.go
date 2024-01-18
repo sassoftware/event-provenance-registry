@@ -96,7 +96,7 @@ func TestMustGetLogger(t *testing.T) {
 	var logger = MustGetLogger("utils", "test.test")
 
 	logger.Info("testing the info logger")
-	logger.V(1).Info("testing the debug logger")
+	logger.V(zerolog.InfoLevel).Info("testing the debug logger")
 	logger.Error(fmt.Errorf("this is an error %s", "foobar"), "testing the error logger", "user", "foo")
 	assert.Assert(t, logger != nil, "Error Logger is nil")
 }

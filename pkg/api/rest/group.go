@@ -5,6 +5,7 @@ package rest
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,7 +30,7 @@ func (s *Server) CreateGroup() http.HandlerFunc {
 func (s *Server) GetGroupByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "groupID")
-		logger.V(1).Info("GetGroupByID", "groupID", id)
+		slog.Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
 		if err != nil {
 			err = missingObjectError{msg: err.Error()}
@@ -41,7 +42,7 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "groupID")
-		logger.V(1).Info("set group enabled", "groupID", id, "enabled", enabled)
+		slog.Info("set group enabled", "groupID", id, "enabled", enabled)
 		err := storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), enabled)
 		if err != nil {
 			err = missingObjectError{msg: err.Error()}
@@ -72,7 +73,7 @@ func (s *Server) createGroup(r *http.Request) (graphql.ID, error) {
 	}
 
 	s.msgProducer.Async(message.NewEventReceiverGroup(eventReceiverGroup))
-	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
+	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
 
 	return eventReceiverGroup.ID, nil
 }
