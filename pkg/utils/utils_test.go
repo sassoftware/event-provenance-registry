@@ -11,17 +11,6 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestGetTimestampRFC3339(t *testing.T) {
-	input := "01F8TNE3GVBKDMZW9YWKYXX2N1"
-	expected := "2021-06-22T16:08:55-04:00"
-	res, err := GetTimestampRFC3339(input)
-	assert.NilError(t, err)
-	assert.Equal(t, expected, res)
-	invalid := "ASKJDLKASD"
-	_, errr := GetTimestampRFC3339(invalid)
-	assert.Error(t, errr, "ulid: bad data size when unmarshaling")
-}
-
 func TestGetEnv(t *testing.T) {
 	os.Setenv("FOO", "1")
 	foo := GetEnv("FOO", "2")

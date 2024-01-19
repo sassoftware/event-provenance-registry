@@ -115,7 +115,7 @@ func NewEventReceiver(e *storage.EventReceiver) Message {
 }
 
 // NewEventReceiverGroup returns a Message
-func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
+func NewEventReceiverGroupCreated(e *storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
@@ -140,11 +140,15 @@ func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverG
 		Success:     true,
 		ID:          string(erg.ID),
 		Specversion: CloudEventsSpec,
-		Type:        "epr.event.receiver.group.complete",
+		Source:      "epr",
+		Type:        erg.Type,
 		APIVersion:  APIv1,
 		Name:        e.Name,
 		Version:     e.Version,
-		Package:     "event.receiver.group",
+		Release:     e.Release,
+		Package:     e.Package,
+		PlatformID:  e.PlatformID,
+
 		Data: Data{
 			Events:              []*storage.Event{e},
 			EventReceiverGroups: []*storage.EventReceiverGroup{erg},

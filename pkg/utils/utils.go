@@ -19,17 +19,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// GetTimestampRFC3339 takes a ULID and returns an RFC3339 format string
-func GetTimestampRFC3339(s string) (string, error) {
-	formatFunc := func(t time.Time) string { return t.Format(time.RFC3339) }
-	id, err := ulid.Parse(s)
-	if err != nil {
-		return "", err
-	}
-	t := ulid.Time(id.Time())
-	return formatFunc(t), nil
-}
-
 // NowRFC3339 returns an RFC3339 format string
 func NowRFC3339() string {
 	return time.Now().Format(time.RFC3339)

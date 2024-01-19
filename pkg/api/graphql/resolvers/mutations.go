@@ -110,7 +110,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEventReceiverGroup(eventReceiverGroup))
+	r.msgProducer.Async(message.NewEventReceiverGroupCreated(eventReceiverGroup))
 
 	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
 	return eventReceiverGroup.ID, nil
