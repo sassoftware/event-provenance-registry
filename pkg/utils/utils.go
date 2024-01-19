@@ -19,6 +19,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// NowRFC3339 returns an RFC3339 format string
+func NowRFC3339() string {
+	return time.Now().Format(time.RFC3339)
+}
+
 // GetEnv returns an env variable value or a default
 func GetEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
