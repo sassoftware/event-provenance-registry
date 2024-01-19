@@ -8,15 +8,12 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httplog v0.3.0
 	github.com/go-chi/render v1.0.2
-	github.com/go-logr/logr v1.2.4
-	github.com/go-logr/zerologr v1.2.3
 	github.com/google/uuid v1.3.0
 	github.com/graph-gophers/graphql-go v1.5.1-0.20230420075959-f0f4e10d6a70
 	github.com/jackc/pgconn v1.14.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/oklog/ulid v1.3.1
 	github.com/prometheus/client_golang v1.15.1
-	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/twmb/franz-go v1.14.4
@@ -33,6 +30,7 @@ require (
 
 require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.6.1 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
