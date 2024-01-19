@@ -1,11 +1,11 @@
-version: '3.8'
-
+---
+version: "3.8"
 services:
   epr-server:
-    build: ./
+    build: "./"
     environment:
-      EPR_BROKERS: redpanda:9092
-      EPR_DB: postgres://postgres:5432
+      EPR_BROKERS: "redpanda:9092"
+      EPR_DB: "postgres://postgres:5432"
       EPR_HOST: 0.0.0.0
     ports:
       - "8042:8042"
