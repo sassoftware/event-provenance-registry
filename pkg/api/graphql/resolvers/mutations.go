@@ -7,7 +7,6 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"log/slog"
 )
 
 // The MutationResolver type is used to handle mutations in a GraphQL schema and has a connection to a
