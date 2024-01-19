@@ -1,11 +1,12 @@
 package resolvers
 
 import (
+	"log/slog"
+
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"log/slog"
 )
 
 // The MutationResolver type is used to handle mutations in a GraphQL schema and has a connection to a
@@ -107,7 +108,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 
 	eventReceiverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventReceiverGroupInput)
 	if err != nil {
-		logger.Error(err, "error creating event receiver group", "input", eventReceiverGroupInput)
+		slog.Error("error creating event receiver group", "error", err, "input", eventReceiverGroupInput)
 		return "", err
 	}
 
@@ -120,7 +121,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, true)
 	if err != nil {
-		logger.Error(err, "error setting event receiver group enabled", "id", args.ID)
+		slog.Error("error setting event receiver group enabled", "error", err, "id", args.ID)
 		return "", err
 	}
 	slog.Info("updated", "eventReceiverGroupEnabled", args.ID)
@@ -130,7 +131,7 @@ func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.
 func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, false)
 	if err != nil {
-		logger.Error(err, "error setting event receiver group disabled", "id", args.ID)
+		slog.Error("error setting event receiver group disabled", "error", err, "id", args.ID)
 		return "", err
 	}
 	slog.Info("updated", "eventReceiverGroupDisabled", args.ID)

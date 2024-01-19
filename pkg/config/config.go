@@ -74,7 +74,7 @@ func (c *Config) LogInfo() {
 	slog.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
 	slog.Info("Kafka Version: " + c.Kafka.Version)
 	slog.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))
-	slog.Info("Kafka Topic: ", c.Kafka.Topic)
+	slog.Info("Kafka Topic: " + c.Kafka.Topic)
 	slog.Info(fmt.Sprintf("Debug: %v", c.Server.Debug))
 	slog.Info(fmt.Sprintf("Verbose API: %v", c.Server.VerboseAPI))
 }

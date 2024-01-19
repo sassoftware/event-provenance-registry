@@ -3,6 +3,10 @@
 
 package client
 
+import (
+	"log/slog"
+)
+
 // CheckReadiness checks EPR readiness
 func (c *Client) CheckReadiness() (bool, error) {
 	endpoint, err := c.getHealthEndpoint("/readiness")
@@ -10,7 +14,7 @@ func (c *Client) CheckReadiness() (bool, error) {
 		return false, err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(zerolog.InfoLevel).Info("Check Readiness : %s\n", content)
+	slog.Debug("Check Readiness", "content", content)
 	if err != nil {
 		return false, err
 	}
@@ -24,7 +28,7 @@ func (c *Client) CheckLiveness() (bool, error) {
 		return false, err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(zerolog.InfoLevel).Info("Check Liveness : %s\n", content)
+	slog.Debug("Check Liveness", "content", content)
 	if err != nil {
 		return false, err
 	}
@@ -38,7 +42,7 @@ func (c *Client) CheckStatus() (string, error) {
 		return "", err
 	}
 	content, err := c.DoGet(endpoint)
-	logger.V(zerolog.InfoLevel).Info("Check Status : %s\n", content)
+	slog.Debug("Check Status", "content", content)
 	if err != nil {
 		return content, err
 	}

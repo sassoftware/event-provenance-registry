@@ -64,13 +64,8 @@ func preRun(cmd *cobra.Command, _ []string) error {
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	if viper.GetBool("debug") {
-		slog.Debug("debug enabled")
-		logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelDebug,
-		}))
-		slog.SetDefault(logger)
-	}
+	setupLogger()
+	slog.Debug("debug enabled")
 	// TODO probably need some better input validation
 	brokers := strings.Split(viper.GetString("brokers"), ",")
 	topic := viper.GetString("topic")
@@ -226,6 +221,21 @@ func setupKafka(cfg *config.KafkaConfig) (message.Producer, error) {
 	return kafkaProducer, nil
 }
 
+func setupLogger() {
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}
+	if viper.GetBool("debug") {
+		opts.Level = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
+	if viper.GetBool("json-logging") {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, opts))
+	}
+
+	slog.SetDefault(logger)
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
@@ -256,5 +266,6 @@ func init() {
 	rootCmd.Flags().String("tls-cert", "", "Path to the cert for the server")
 	rootCmd.Flags().String("tls-key", "", "Path to the server key")
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
+	rootCmd.Flags().Bool("json-logging", false, "Format log messages as JSON.")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }
