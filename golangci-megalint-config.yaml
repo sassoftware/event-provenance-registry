@@ -1,7 +1,6 @@
+---
 linters:
-  # Disable all linters.
   disable-all: true
-  # Enable specific linter
   enable:
     - bodyclose
     - dogsled
@@ -32,7 +31,6 @@ linters:
     - unconvert
     - unparam
     - whitespace
-
 run:
   timeout: 30m
   concurrency: 4

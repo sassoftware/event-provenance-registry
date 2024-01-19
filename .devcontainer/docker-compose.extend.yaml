@@ -1,13 +1,13 @@
-version: '3.8'
-
+---
+version: "3.8"
 services:
   epr-development:
     extends:
-      file: ./docker-compose.yaml
+      file: "./docker-compose.yaml"
       service: epr-server
     build:
-      context: .
-      dockerfile: .devcontainer/Dockerfile
+      context: "."
+      dockerfile: ".devcontainer/Dockerfile"
     volumes:
-      - ..:/workspaces:cached
+      - "..:/workspaces:cached"
     tty: true

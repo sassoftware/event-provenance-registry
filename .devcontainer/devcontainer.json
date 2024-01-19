@@ -1,4 +1,3 @@
-// For format details, see https://aka.ms/devcontainer.json.
 {
 	"name": "EPR Development",
 	"dockerComposeFile": ["../docker-compose.services.yaml", "docker-compose.extend.yaml"],
