@@ -114,8 +114,28 @@ func NewEventReceiver(e *storage.EventReceiver) Message {
 	}
 }
 
-// NewEventReceiverGroup returns a Message
+// NewEventReceiverGroupCreated returns a Message
 func NewEventReceiverGroupCreated(e *storage.EventReceiverGroup) Message {
+	return Message{
+		Success:     true,
+		ID:          string(e.ID),
+		Specversion: CloudEventsSpec,
+		Source:      "epr",
+		Type:        "epr.event.receiver.group.created",
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Release:     utils.NowRFC3339(),
+		PlatformID:  "event-provenance-registry",
+		Package:     "event.receiver.group",
+		Data: Data{
+			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+		},
+	}
+}
+
+// NewEventReceiverGroupModified returns a Message
+func NewEventReceiverGroupModified(e *storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
@@ -148,7 +168,6 @@ func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverG
 		Release:     e.Release,
 		Package:     e.Package,
 		PlatformID:  e.PlatformID,
-
 		Data: Data{
 			Events:              []*storage.Event{e},
 			EventReceiverGroups: []*storage.EventReceiverGroup{erg},
