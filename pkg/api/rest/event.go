@@ -44,8 +44,8 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.msgProducer.Async(message.NewEvent(event))
 	slog.Info("created", "event", event)
+	s.msgProducer.Async(message.NewEvent(*event))
 
 	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(s.DBConnector.Client, *event, event.EventReceiverID)
 	if err != nil {
@@ -54,10 +54,7 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 	}
 
 	for _, eventReceiverGroup := range eventReceiverGroups {
-		// creating a new pointer so iterating over our list does not break us.
-		// this should be removed if we decide to remove pointers from the message.New functions
-		e := &eventReceiverGroup
-		s.msgProducer.Async(message.NewEventReceiverGroup(e))
+		s.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
 	}
 
 	logger.V(1).Info("created", "event", event)

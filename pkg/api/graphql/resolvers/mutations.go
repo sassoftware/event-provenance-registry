@@ -67,7 +67,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEvent(event))
+	r.msgProducer.Async(message.NewEvent(*event))
 
 	slog.Info("created", "event", event)
 	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event, event.EventReceiverID)
@@ -77,10 +77,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 	}
 
 	for _, eventReceiverGroup := range eventReceiverGroups {
-		// creating a new pointer so iterating over our list does not break us.
-		// this should be removed if we decide to remove pointers from the message.New functions
-		e := &eventReceiverGroup
-		r.msgProducer.Async(message.NewEventReceiverGroup(e))
+		r.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
 	}
 
 	return event.ID, nil
@@ -102,7 +99,7 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEventReceiver(eventReceiver))
+	r.msgProducer.Async(message.NewEventReceiver(*eventReceiver))
 
 	slog.Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
@@ -125,7 +122,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEventReceiverGroupCreated(eventReceiverGroup))
+	r.msgProducer.Async(message.NewEventReceiverGroupCreated(*eventReceiverGroup))
 
 	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
 	return eventReceiverGroup.ID, nil

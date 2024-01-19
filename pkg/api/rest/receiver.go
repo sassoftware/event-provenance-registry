@@ -57,7 +57,7 @@ func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.msgProducer.Async(message.NewEventReceiver(eventReceiver))
 	slog.Info("created", "eventReceiver", eventReceiver)
+	s.msgProducer.Async(message.NewEventReceiver(*eventReceiver))
 	return eventReceiver.ID, nil
 }

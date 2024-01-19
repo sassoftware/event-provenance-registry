@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	_ "embed"
 	"encoding/json"
-
 	"errors"
 	"fmt"
 	"log"
@@ -222,9 +221,9 @@ func validateReceiverSchema(schema string, eventPayload types.JSON) error {
 //go:embed megaQuery.sql
 var megaQuery string
 
-// to make this work I had to have the DB return a json array
-// instead of a plain array. if array_to_json is PG specific
-//  we should pivot
+// Data represents the EventReceiverGroup data that comes back from
+// the mega query. It is necessary to allow us to automatically
+// insert event_receiver_ids by overriding the json tag
 type Data struct {
 	EventReceiverGroup
 
