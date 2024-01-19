@@ -70,6 +70,19 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 	r.msgProducer.Async(message.NewEvent(event))
 
 	slog.Info("created", "event", event)
+	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event, event.EventReceiverID)
+	if err != nil {
+		logger.Error(err, "error finding triggered event receiver groups", "input", eventInput)
+		return "", err
+	}
+
+	for _, eventReceiverGroup := range eventReceiverGroups {
+		// creating a new pointer so iterating over our list does not break us.
+		// this should be removed if we decide to remove pointers from the message.New functions
+		e := &eventReceiverGroup
+		r.msgProducer.Async(message.NewEventReceiverGroup(e))
+	}
+
 	return event.ID, nil
 }
 
