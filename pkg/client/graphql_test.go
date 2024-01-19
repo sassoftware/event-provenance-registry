@@ -34,9 +34,12 @@ func TestNewGraphQLRequestWithList(t *testing.T) {
 		"id":      "01HKMQM136XW7JYP2293N4EBR4",
 		"version": "1.0.0",
 	}
-	expected := `query FindEventReceiverGroups($id: ID!,$version: String){groups(id: $id,version: $version) {id,name,version,type}}`
+	expected := []string{
+		`query FindEventReceiverGroups($id: ID!,$version: String){groups(id: $id,version: $version) {id,name,version,type}}`,
+		`query FindEventReceiverGroups($version: String,$id: ID!){groups(version: $version,id: $id) {id,name,version,type}}`,
+	}
 	req := NewGraphQLRequest(queryName, lookFor, params, fields)
-	assert.Equal(t, req.Query, expected, "The generated Query did not match expected")
+	assert.Check(t, customStringCompare(req.Query, expected))
 }
 
 func TestNewGraphQLRequestWithInt(t *testing.T) {
@@ -63,9 +66,14 @@ func TestComplexNewGraphQLRequest(t *testing.T) {
 		"success": true,
 	}
 
-	expected := []string{`query foo($success: Bool,$id: ID!,$name: String){bar(success: $success,id: $id,name: $name) {name,id,success}}`,
+	expected := []string{
+		`query foo($success: Bool,$id: ID!,$name: String){bar(success: $success,id: $id,name: $name) {name,id,success}}`,
+		`query foo($success: Bool,$name: String,$id: ID!){bar(success: $success,name: $name,id: $id) {name,id,success}}`,
 		`query foo($id: ID!,$name: String,$success: Bool){bar(id: $id,name: $name,success: $success) {name,id,success}}`,
-		`query foo($name: String,$success: Bool,$id: ID!){bar(name: $name,success: $success,id: $id) {name,id,success}}`}
+		`query foo($id: ID!,$success: Bool,$name: String){bar(id: $id,success: $success,name: $name) {name,id,success}}`,
+		`query foo($name: String,$success: Bool,$id: ID!){bar(name: $name,success: $success,id: $id) {name,id,success}}`,
+		`query foo($name: String,$id: ID!,$success: Bool){bar(name: $name,id: $id,success: $success) {name,id,success}}`,
+	}
 	req := NewGraphQLRequest(queryName, lookFor, params, fields)
 	assert.Check(t, customStringCompare(req.Query, expected))
 }
