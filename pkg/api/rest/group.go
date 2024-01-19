@@ -73,7 +73,7 @@ func (s *Server) createGroup(r *http.Request) (graphql.ID, error) {
 	}
 
 	s.msgProducer.Async(message.NewEventReceiverGroupCreated(eventReceiverGroup))
-	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
+	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
 
 	return eventReceiverGroup.ID, nil
 }
