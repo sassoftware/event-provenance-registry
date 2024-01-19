@@ -13,7 +13,7 @@ import (
 
 func (s *Server) CheckLiveness() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, `{"alive"":true}`)
+		render.JSON(w, r, `{"alive":true}`)
 	}
 }
 

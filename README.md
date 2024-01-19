@@ -162,6 +162,22 @@ curl --location --request POST 'http://localhost:8042/api/v1/groups' \
 }'
 ```
 
+## GraphQL
+
+Curl commands for GraphQL Search
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query FindEvents($id: ID!){events(id: $id) {id,name,version,release,platform_id,package,description,payload,success,created_at,event_receiver_id}}","variables":{"id":"01HKX1TMQZQDS6NC5DG7WNXXCJ"}}' http://localhost:8042/api/v1/graphql/query
+```
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventReceivers($id: ID!){event_receivers(id: $id) {id,name,version,description,type,schema,created_at}}","variables":{"id":"01HKX0KY3B31MR3XKJWTDZ4EQ0"}}' http://localhost:8042/api/v1/graphql/query
+```
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventReceiverGroups($id: ID!){event_receiver_groups(id: $id) {id,name,type,version,description,enabled,event_receiver_ids,created_at,updated_at}}","variables":{"id":"01HKX90FKWQZ49F6H5V5NQT95Z"}}' http://localhost:8042/api/v1/graphql/query
+```
+
 ## Contributing
 
 We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)

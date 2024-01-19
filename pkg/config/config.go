@@ -41,7 +41,7 @@ func (s *ServerConfig) GetSrvAddr() string {
 	return s.Host + ":" + s.Port
 }
 
-// DBConfig holds config information about the database.
+// StorageConfig holds config information about the database.
 type StorageConfig struct {
 	Name            string `json:"name"`
 	Host            string `json:"-"`
@@ -73,6 +73,7 @@ func (c *Config) LogInfo() {
 	logger.Info("Host: " + c.Server.Host)
 	logger.Info("Port: " + c.Server.Port)
 	logger.Info("Storage Host: " + c.Storage.Host)
+	logger.Info("Storage Name: " + c.Storage.Name)
 	logger.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
 	logger.Info("Kafka Version: " + c.Kafka.Version)
 	logger.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))

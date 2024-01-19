@@ -146,11 +146,10 @@ type Seed struct {
 
 // Fingerprint creates a fingerprint for an Event Receiver and a Receiver Group
 // Order matters
-// ["action", "description", "name", "tags", "version"]
+// ["type", "description", "name", "version"]
 func (g *Seed) Fingerprint() string {
 	sep := " "
-	seed := "v1" + sep + g.Type + sep + g.Description + sep + g.Name
-	seed = seed + sep + g.Version
+	seed := "v1" + sep + g.Type + sep + g.Description + sep + g.Name + sep + g.Version
 	sum := sha256.Sum256([]byte(seed))
 	return fmt.Sprintf("%x", sum)
 }
