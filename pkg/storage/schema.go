@@ -9,7 +9,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 )
 
 // Event type represents an event with various properties and a relationship to an event receiver.

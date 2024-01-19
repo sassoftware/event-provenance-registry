@@ -5,12 +5,9 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
-
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("server", "config.config")
 
 var (
 	// Version of the server
@@ -68,18 +65,18 @@ type KafkaConfig struct {
 	Peers   []string `json:"peers"`
 }
 
-// LogConfigInfo Dumps most of the config info to the log.
+// LogInfo Dumps most of the config info to the log.
 func (c *Config) LogInfo() {
-	logger.Info("Host: " + c.Server.Host)
-	logger.Info("Port: " + c.Server.Port)
-	logger.Info("Storage Host: " + c.Storage.Host)
-	logger.Info("Storage Name: " + c.Storage.Name)
-	logger.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
-	logger.Info("Kafka Version: " + c.Kafka.Version)
-	logger.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))
-	logger.Info("Kafka Topic: ", c.Kafka.Topic)
-	logger.Info(fmt.Sprintf("Debug: %v", c.Server.Debug))
-	logger.Info(fmt.Sprintf("Verbose API: %v", c.Server.VerboseAPI))
+	slog.Info("Host: " + c.Server.Host)
+	slog.Info("Port: " + c.Server.Port)
+	slog.Info("Storage Host: " + c.Storage.Host)
+	slog.Info("Storage Name: " + c.Storage.Name)
+	slog.Info(fmt.Sprintf("Kafka Peers: %v", c.Kafka.Peers))
+	slog.Info("Kafka Version: " + c.Kafka.Version)
+	slog.Info(fmt.Sprintf("Kafka TLS: %v", c.Kafka.TLS))
+	slog.Info("Kafka Topic: " + c.Kafka.Topic)
+	slog.Info(fmt.Sprintf("Debug: %v", c.Server.Debug))
+	slog.Info(fmt.Sprintf("Verbose API: %v", c.Server.VerboseAPI))
 }
 
 // Options is a function that takes a config and returns an error

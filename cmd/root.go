@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
@@ -24,13 +25,10 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/errgroup"
 )
-
-var logger = utils.MustGetLogger("server", "cmd.root")
 
 var cfgFile string
 
@@ -66,7 +64,8 @@ func preRun(cmd *cobra.Command, _ []string) error {
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	logger.V(1).Info("debug enabled")
+	setupLogger()
+	slog.Debug("debug enabled")
 	// TODO probably need some better input validation
 	brokers := strings.Split(viper.GetString("brokers"), ",")
 	topic := viper.GetString("topic")
@@ -113,7 +112,7 @@ func run(_ *cobra.Command, _ []string) error {
 	go func() {
 		sig := <-interruptChan
 		signal.Stop(interruptChan)
-		logger.Info("received signal", "signal", sig)
+		slog.Info("received signal", "signal", sig)
 		ccancel()
 	}()
 
@@ -148,7 +147,7 @@ func run(_ *cobra.Command, _ []string) error {
 	if cert != "" && key != "" {
 		servTLSCert, err := tls.LoadX509KeyPair(cert, key)
 		if err != nil {
-			logger.Error(err, "invalid key pair", "certFile", cert, "keyFile", key)
+			slog.Error("invalid key pair", "error", err, "certFile", cert, "keyFile", key)
 			return err
 		}
 
@@ -163,10 +162,10 @@ func run(_ *cobra.Command, _ []string) error {
 
 		listener = tls.NewListener(listener, tlsConfig)
 
-		logger.Info("TLS Enabled")
+		slog.Info("TLS Enabled")
 	} else {
 		// Run insecure if certs are not provided.
-		logger.Info("TLS Not Enabled")
+		slog.Info("TLS Not Enabled")
 	}
 
 	errGroup.Go(func() error {
@@ -175,24 +174,24 @@ func run(_ *cobra.Command, _ []string) error {
 			if !errors.Is(err, http.ErrServerClosed) {
 				return err
 			}
-			logger.Info("listener closed")
+			slog.Info("listener closed")
 		}
 		return nil
 	})
 
 	errGroup.Go(func() error {
 		<-ctx.Done()
-		logger.Info("shutting down server")
+		slog.Info("shutting down server")
 		ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
 			return err
 		}
-		logger.Info("server shut down")
+		slog.Info("server shut down")
 		return nil
 	})
 
-	logger.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.Server.GetSrvAddr()))
+	slog.Info(fmt.Sprintf("connect to http://%s/api/v1/graphql for GraphQL playground", cfg.Server.GetSrvAddr()))
 
 	return errGroup.Wait()
 }
@@ -220,6 +219,21 @@ func setupKafka(cfg *config.KafkaConfig) (message.Producer, error) {
 	kafkaProducer.ConsumeSuccesses()
 	kafkaProducer.ConsumeErrors()
 	return kafkaProducer, nil
+}
+
+func setupLogger() {
+	opts := &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}
+	if viper.GetBool("debug") {
+		opts.Level = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
+	if viper.GetBool("json-logging") {
+		logger = slog.New(slog.NewJSONHandler(os.Stderr, opts))
+	}
+
+	slog.SetDefault(logger)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -252,5 +266,6 @@ func init() {
 	rootCmd.Flags().String("tls-cert", "", "Path to the cert for the server")
 	rootCmd.Flags().String("tls-key", "", "Path to the server key")
 	rootCmd.Flags().StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
+	rootCmd.Flags().Bool("json-logging", false, "Format log messages as JSON.")
 	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
 }

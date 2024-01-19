@@ -6,13 +6,12 @@ package message
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"github.com/Shopify/sarama"
 	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("server", "message.consume")
 
 // ConsumerController is an abstraction around consumer groups to make them easier to use. The methods used to build this
 // object are exported in the event that this object is insufficient for the task.
@@ -74,9 +73,9 @@ func NewConsumerControllerEnv(kafkaVersion, groupID string, tls bool, kafkaPeers
 // BeginConsuming starts consuming messages off of the kafka bus inside of a goroutine.
 func (c *ConsumerController) BeginConsuming(ctx context.Context, wg *sync.WaitGroup) {
 	ConsumeMessages(ctx, c.topics, c.consumerGroup, c.consumer, wg)
-	logger.V(1).Info("waiting for consumer to be ready")
+	slog.Info("waiting for consumer to be ready")
 	<-c.consumer.Ready
-	logger.V(1).Info("consumer ready")
+	slog.Info("consumer ready")
 }
 
 // Close closes the ConsumerGroup
@@ -124,7 +123,7 @@ func (c *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, claim saram
 		err := c.Worker(message)
 		session.MarkMessage(message, "")
 		if err != nil {
-			logger.Error(err, fmt.Sprintf("message error : %v", err))
+			slog.Error("message error", "error", err)
 			return err
 		}
 	}
@@ -145,7 +144,7 @@ func ConsumeMessages(ctx context.Context, topics []string, group sarama.Consumer
 			default:
 				err := group.Consume(ctx, topics, &cons)
 				if err != nil {
-					logger.Error(err, fmt.Sprintf("error from consumer: %v, will try again", err))
+					slog.Error("error from consumer, will try again", "error", err)
 				}
 				// check if context was cancelled, signaling that the consumer should stop
 				if ctx.Err() != nil {
@@ -173,7 +172,7 @@ func CreateSecureConsumerGroup(kafkaVersion, groupID, saslUser, saslPass string,
 	}
 
 	if tls {
-		logger.Info("Enabled Kafka TLS")
+		slog.Info("Enabled Kafka TLS")
 		saramaCfg.Net.TLS.Enable = true
 	}
 
@@ -183,7 +182,7 @@ func CreateSecureConsumerGroup(kafkaVersion, groupID, saslUser, saslPass string,
 	saramaCfg.ClientID = groupID + "." + utils.NewULIDAsString()
 
 	if saslUser != "" && saslPass != "" {
-		logger.Info("Enabled Kafka SASL")
+		slog.Info("Enabled Kafka SASL")
 		saramaCfg, err = NewSCRAMConfig(saslUser, saslPass, kafkaVersion)
 		if err != nil {
 			return nil, err
@@ -210,7 +209,7 @@ func CreateConsumerGroupEnv(kafkaVersion, groupID string, tls bool, kafkaPeers [
 	}
 
 	if tls {
-		logger.Info("Enabled Kafka TLS")
+		slog.Info("Enabled Kafka TLS")
 		saramaCfg.Net.TLS.Enable = true
 	}
 

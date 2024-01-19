@@ -4,7 +4,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -90,13 +89,4 @@ func TestDeepEqualStringArray(t *testing.T) {
 	assert.Assert(t, DeepEqualStringArray(a, b), "Error DeepEqualArray")
 	assert.Assert(t, !DeepEqualStringArray(b, c), "Error DeepEqualArray")
 	assert.Assert(t, !DeepEqualStringArray(b, d), "Error DeepEqualArray")
-}
-
-func TestMustGetLogger(t *testing.T) {
-	var logger = MustGetLogger("utils", "test.test")
-
-	logger.Info("testing the info logger")
-	logger.V(1).Info("testing the debug logger")
-	logger.Error(fmt.Errorf("this is an error %s", "foobar"), "testing the error logger", "user", "foo")
-	assert.Assert(t, logger != nil, "Error Logger is nil")
 }
