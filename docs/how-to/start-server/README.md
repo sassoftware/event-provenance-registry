@@ -94,7 +94,7 @@ mutation {
       package: "package"
       description: "a fake event"
       payload: "{\"name\": \"value\"}"
-      event_receiver_id: "01HKNDR10NVBA8V7G0V3C15JA6"
+      event_receiver_id: "01H6HSJGDJ9CH67D3BK30XD2Q5"
       success: true
     }
   )

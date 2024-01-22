@@ -6,6 +6,7 @@ package api
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,10 +19,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
 func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *config.ServerConfig) (*chi.Mux, error) {
@@ -107,6 +105,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	// turn on the profiler in debug mode
 	if cfg.Debug {
 		// profiler
+		slog.Debug("profiler enabled")
 		router.Route("/", func(r chi.Router) {
 			r.Mount("/debug", middleware.Profiler())
 		})
