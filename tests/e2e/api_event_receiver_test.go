@@ -1,9 +1,10 @@
 package e2e
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -26,11 +27,11 @@ type postReceiverResponse struct {
 }
 
 type eventReceiverInput struct {
-	Name        string          `json:"name"`
-	Type        string          `json:"type"`
-	Version     string          `json:"version"`
-	Description string          `json:"description"`
-	Schema      json.RawMessage `json:"schema"`
+	Name        string
+	Type        string
+	Version     string
+	Description string
+	Schema      string
 }
 
 func TestCreateAndGetReceiver(t *testing.T) {
@@ -45,7 +46,7 @@ func TestCreateAndGetReceiver(t *testing.T) {
 				Type:        "artifact.deploy.eks",
 				Version:     "0.0.5",
 				Description: "deploy to eks",
-				Schema:      []byte(`{}`),
+				Schema:      `{}`,
 			},
 		},
 		"basic schema": {
@@ -54,7 +55,7 @@ func TestCreateAndGetReceiver(t *testing.T) {
 				Type:        "artifact.deploy.gcp",
 				Version:     "0.3.2",
 				Description: "deploy to gcp",
-				Schema:      []byte(`{"type":"object","properties":{"region":{"type":"string"}}}`),
+				Schema:      `{"type":"object","properties":{"region":{"type":"string"}}}`,
 			},
 		},
 	}
@@ -62,9 +63,7 @@ func TestCreateAndGetReceiver(t *testing.T) {
 	for testName, tt := range tests {
 		t.Run(testName, func(t *testing.T) {
 			// TODO create fixture for resetting db after tests
-			input, err := json.Marshal(tt.input)
-			assert.NilError(t, err, "failed to marshal body for request")
-			resp, err := client.Post(receiverURI, "application/json", bytes.NewBuffer(input))
+			resp, err := client.Post(receiverURI, "application/json", strings.NewReader(tt.input.toPayload()))
 			assert.NilError(t, err)
 			assert.Equal(t, resp.StatusCode, http.StatusOK)
 
@@ -90,9 +89,19 @@ func TestCreateAndGetReceiver(t *testing.T) {
 			assert.Equal(t, receiver.Type, tt.input.Type)
 			assert.Equal(t, receiver.Version, tt.input.Version)
 			assert.Equal(t, receiver.Description, tt.input.Description)
-			assert.Equal(t, receiver.Schema.String(), string(tt.input.Schema))
+			assert.Equal(t, receiver.Schema.String(), tt.input.Schema)
 			assert.Check(t, len(receiver.Fingerprint) > 0, "expect non-empty fingerprint")
 			assert.Check(t, !time.Time(receiver.CreatedAt.Date).IsZero(), "expect time to be set")
 		})
 	}
+}
+
+func (r *eventReceiverInput) toPayload() string {
+	return fmt.Sprintf(`{
+	"name": "%s",
+	"type": "%s",
+	"version": "%s",
+	"description": "%s",
+	"schema": %s
+}`, r.Name, r.Type, r.Version, r.Description, r.Schema)
 }
