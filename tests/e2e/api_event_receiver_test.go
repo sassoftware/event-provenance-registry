@@ -62,7 +62,6 @@ func TestCreateAndGetReceiver(t *testing.T) {
 
 	for testName, tt := range tests {
 		t.Run(testName, func(t *testing.T) {
-			// TODO create fixture for resetting db after tests
 			resp, err := client.Post(receiverURI, "application/json", strings.NewReader(tt.input.toPayload()))
 			assert.NilError(t, err)
 			assert.Equal(t, resp.StatusCode, http.StatusOK)
@@ -94,6 +93,42 @@ func TestCreateAndGetReceiver(t *testing.T) {
 			assert.Check(t, !time.Time(receiver.CreatedAt.Date).IsZero(), "expect time to be set")
 		})
 	}
+}
+
+func TestCreateInvalidReceiver(t *testing.T) {
+	client := common.NewHTTPClient()
+
+	receiver := eventReceiverInput{
+		Name:        "upload artifact",
+		Type:        "artifact.publish",
+		Version:     "1.0.9",
+		Description: "upload an artifact somewhere",
+		Schema:      `{abcd}`,
+	}
+
+	resp, err := client.Post(receiverURI, "application/json", strings.NewReader(receiver.toPayload()))
+	assert.NilError(t, err)
+	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+
+	var body postReceiverResponse
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	assert.NilError(t, err)
+	assert.Check(t, len(body.Errors) > 0)
+	assert.Equal(t, len(body.Data), 0, "shouldn't get id if creating receiver fails")
+}
+
+func TestGetNonExistentReceiver(t *testing.T) {
+	client := common.NewHTTPClient()
+
+	resp, err := client.Get(receiverURI + "non-existent-receiver-id")
+	assert.NilError(t, err)
+	assert.Equal(t, resp.StatusCode, http.StatusNotFound)
+
+	var body getReceiverResponse
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	assert.NilError(t, err)
+	assert.Check(t, len(body.Errors) > 0)
+	assert.Equal(t, len(body.Data), 0)
 }
 
 func (r *eventReceiverInput) toPayload() string {
