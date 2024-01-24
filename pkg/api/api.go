@@ -88,10 +88,9 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 			})
 			r.Route("/groups", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateGroup())
-				r.Put("/enable", s.Rest.SetGroupEnabled(true))
-				r.Put("/disable", s.Rest.SetGroupEnabled(false))
 				r.Route("/{groupID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetGroupByID())
+					r.Patch("/", s.Rest.UpdateGroup())
 				})
 			})
 		})

@@ -39,13 +39,27 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 	}
 }
 
-func (s *Server) SetGroupEnabled(enabled bool) http.HandlerFunc {
+func (s *Server) UpdateGroup() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "groupID")
-		slog.Info("set group enabled", "groupID", id, "enabled", enabled)
-		err := storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), enabled)
-		if err != nil {
-			err = missingObjectError{msg: err.Error()}
+		slog.Info("update group", "groupID", id)
+
+		var patch struct {
+			Enabled *bool `json:"enabled,omitempty"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
+			err = invalidInputError{msg: err.Error()}
+			handleResponse(w, r, id, err)
+			return
+		}
+
+		var err error
+		if patch.Enabled != nil {
+			slog.Info("set group enabled", "groupID", id, "enabled", patch.Enabled)
+			err = storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), *patch.Enabled)
+			if err != nil {
+				err = missingObjectError{msg: err.Error()}
+			}
 		}
 		handleResponse(w, r, id, err)
 	}
