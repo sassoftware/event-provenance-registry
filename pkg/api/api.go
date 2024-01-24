@@ -6,10 +6,11 @@ package api
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 
-	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
@@ -18,10 +19,7 @@ import (
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("server", "server.api")
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
 func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *config.ServerConfig) (*chi.Mux, error) {
@@ -90,10 +88,9 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 			})
 			r.Route("/groups", func(r chi.Router) {
 				r.Post("/", s.Rest.CreateGroup())
-				r.Put("/enable", s.Rest.SetGroupEnabled(true))
-				r.Put("/disable", s.Rest.SetGroupEnabled(false))
 				r.Route("/{groupID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetGroupByID())
+					r.Patch("/", s.Rest.UpdateGroup())
 				})
 			})
 		})
@@ -108,6 +105,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	// turn on the profiler in debug mode
 	if cfg.Debug {
 		// profiler
+		slog.Debug("profiler enabled")
 		router.Route("/", func(r chi.Router) {
 			r.Mount("/debug", middleware.Profiler())
 		})

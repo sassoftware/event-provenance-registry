@@ -14,10 +14,7 @@ import (
 	"time"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 )
-
-var logger = utils.MustGetLogger("client", "client")
 
 // ensure it implements the interface
 var _ Contract = &Client{}
