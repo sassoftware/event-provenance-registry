@@ -39,7 +39,6 @@ docker exec -it redpanda \
     rpk topic create epr.dev.events --brokers=localhost:19092
 ```
 
-
 ## Start Event Provenance Registry server
 
 Export the environment variables for the server
@@ -175,12 +174,18 @@ the previously created event
 
 ```graphql
 query {
-  event(id: "01HFF6VY24WVGS0P8FZY93JP22") {
+  events(id: "01HFF6VY24WVGS0P8FZY93JP22") {
+    id
     name
     version
+    release
+    platform_id
+    package
     description
     payload
     success
+    event_receiver_id
+    created_at
   }
 }
 ```
@@ -190,10 +195,14 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receiver(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
+  event_receivers(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
     name
     version
     description
+    type
+    schema
+    fingerprint
+    created_at
   }
 }
 ```
@@ -203,10 +212,15 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_group(id: "01HFF701QYB7S81C139HCYCXWM") {
+  event_receiver_groups(id: "01HFF701QYB7S81C139HCYCXWM") {
     name
     version
     description
+    type
+    enabled
+    event_receiver_ids
+    created_at
+    updated_at
   }
 }
 ```

@@ -13,7 +13,7 @@ import (
 
 func (s *Server) CheckLiveness() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, `{"alive"":true}`)
+		render.JSON(w, r, `{"alive":true}`)
 	}
 }
 
@@ -23,7 +23,7 @@ func (s *Server) CheckReadiness() http.HandlerFunc {
 	}
 }
 
-func (s *Server) CheckStatus(cfg *config.Config) http.HandlerFunc {
+func (s *Server) CheckStatus(cfg *config.ServerConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		s := status.New(cfg)
 		render.JSON(w, r, s)

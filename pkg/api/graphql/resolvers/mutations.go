@@ -1,9 +1,10 @@
 package resolvers
 
 import (
+	"log/slog"
+
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
-	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -14,8 +15,8 @@ import (
 // is used to establish a connection to a database and perform various database operations such as
 // querying and modifying data.
 type MutationResolver struct {
-	Connection *storage.Database
-	kafkaCfg   *config.KafkaConfig
+	Connection  *storage.Database
+	msgProducer message.TopicProducer
 }
 
 type EventInput struct {
@@ -46,7 +47,7 @@ type EventReceiverGroupInput struct {
 	EventReceiverIDs []graphql.ID
 }
 
-func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventInput := storage.Event{
 		Name:            args.Event.Name,
@@ -62,17 +63,17 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (*graphq
 
 	event, err := storage.CreateEvent(r.Connection.Client, eventInput)
 	if err != nil {
-		logger.Error(err, "error creating event", "input", eventInput)
-		return nil, err
+		slog.Error("error creating event", "error", err, "input", eventInput)
+		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEvent(event)
+	r.msgProducer.Async(message.NewEvent(event))
 
-	logger.V(1).Info("created", "event", event)
-	return &event.ID, nil
+	slog.Info("created", "event", event)
+	return event.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventReceiverInput := storage.EventReceiver{
 		Name:        args.EventReceiver.Name,
@@ -84,17 +85,17 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 
 	eventReceiver, err := storage.CreateEventReceiver(r.Connection.Client, eventReceiverInput)
 	if err != nil {
-		logger.Error(err, "error creating event receiver", "input", eventReceiverInput)
-		return nil, err
+		slog.Error("error creating event receiver", "error", err, "input", eventReceiverInput)
+		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
+	r.msgProducer.Async(message.NewEventReceiver(eventReceiver))
 
-	logger.V(1).Info("created", "eventReceiver", eventReceiver)
-	return &eventReceiver.ID, nil
+	slog.Info("created", "eventReceiver", eventReceiver)
+	return eventReceiver.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (*graphql.ID, error) {
+func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (graphql.ID, error) {
 	// TODO: centralize this and make it look better
 	eventReceiverGroupInput := storage.EventReceiverGroup{
 		Name:             args.EventReceiverGroup.Name,
@@ -107,32 +108,32 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 
 	eventReceiverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventReceiverGroupInput)
 	if err != nil {
-		logger.Error(err, "error creating event receiver group", "input", eventReceiverGroupInput)
-		return nil, err
+		slog.Error("error creating event receiver group", "error", err, "input", eventReceiverGroupInput)
+		return "", err
 	}
 
-	r.kafkaCfg.MsgChannel <- message.NewEventReceiverGroup(eventReceiverGroup)
+	r.msgProducer.Async(message.NewEventReceiverGroupCreated(eventReceiverGroup))
 
-	logger.V(1).Info("created", "eventReceiverGroup", eventReceiverGroup)
-	return &eventReceiverGroup.ID, nil
+	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
+	return eventReceiverGroup.ID, nil
 }
 
-func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, true)
 	if err != nil {
-		logger.Error(err, "error setting event receiver group enabled", "id", args.ID)
-		return nil, err
+		slog.Error("error setting event receiver group enabled", "error", err, "id", args.ID)
+		return "", err
 	}
-	logger.V(1).Info("updated", "eventReceiverGroupEnabled", args.ID)
-	return &args.ID, nil
+	slog.Info("updated", "eventReceiverGroupEnabled", args.ID)
+	return args.ID, nil
 }
 
-func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (*graphql.ID, error) {
+func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql.ID }) (graphql.ID, error) {
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, false)
 	if err != nil {
-		logger.Error(err, "error setting event receiver group disabled", "id", args.ID)
-		return nil, err
+		slog.Error("error setting event receiver group disabled", "error", err, "id", args.ID)
+		return "", err
 	}
-	logger.V(1).Info("updated", "eventReceiverGroupDisabled", args.ID)
-	return &args.ID, nil
+	slog.Info("updated", "eventReceiverGroupDisabled", args.ID)
+	return args.ID, nil
 }

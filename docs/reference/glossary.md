@@ -95,9 +95,15 @@ recreate the event_receiver_group and to trace the DU version and
 
 ### Event Receiver Group
 
-A list of event_receivers. When all event_receivers in a event_receiver_group
+A list of event_receivers. When all event_receivers in an event_receiver_group
 have successful events (with "success": true status), the event_receiver_group
 publishes a message that specifies an event_type for the event_receiver_group.
+
+An event_receiver_group can be enabled or disabled (with "enabled": true|false).
+When enabled, the event_receiver_group acts as previously described. When
+disabled, messages for the event_receiver_group will not be published. Messages
+will still be published for the underlying event_receivers should they receive
+successful events.
 
 ### Topics
 

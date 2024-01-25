@@ -61,7 +61,7 @@ Create an event receiver
 mutation {
   create_event_receiver(
     event_receiver: {
-      name: "grant"
+      name: "foo-receiver"
       version: "1.0.0"
       type: "some-action"
       description: "a fake event receiver"
@@ -76,7 +76,7 @@ This will return the id of the newly created event receiver.
 ```json
 {
   "data": {
-    "create_event_receiver": "01H6HSPWNMR8HJ9WKA5AJWG430"
+    "create_event_receiver": "01HKNDR10NVBA8V7G0V3C15JA6"
   }
 }
 ```
@@ -87,12 +87,12 @@ This can then be used to create a new event
 mutation {
   create_event(
     event: {
-      name: "grant"
+      name: "foo-event"
       version: "1.0.0"
       release: "some-action"
-      platform_id: "platformID"
+      platform_id: "platform-x64"
       package: "package"
-      description: "a fake event receiver"
+      description: "a fake event"
       payload: "{\"name\": \"value\"}"
       event_receiver_id: "01H6HSJGDJ9CH67D3BK30XD2Q5"
       success: true
@@ -101,16 +101,26 @@ mutation {
 }
 ```
 
-This can then be used to create a new event receiver group
+This will return the id of the newly created event.
+
+```json
+{
+  "data": {
+    "create_event": "01HKNDTSFT6ZZ8Q8YNK736TT43"
+  }
+}
+```
+
+We can use the event receiver to create a new event receiver group
 
 ```graphql
 mutation {
   create_event_receiver_group(
     event_receiver_group: {
-      name: "grant"
+      name: "foo-group"
       version: "1.0.0"
-      description: "a fake event receiver"
-      event_receiver_ids: ["ID_RETURNED_FROM_PREVIOUS_MUTATION"]
+      description: "a fake event receiver group"
+      event_receiver_ids: ["01HKNDR10NVBA8V7G0V3C15JA6"]
       type: "test"
     }
   )
@@ -122,7 +132,7 @@ This will return the id of the newly created event receiver group.
 ```json
 {
   "data": {
-    "create_event_receiver_group": "01H713QGDGCW546NV7QYEK3QJ7"
+    "create_event_receiver_group": "01HKNE0TJG7GA35GP703D75XTH"
   }
 }
 ```
@@ -131,13 +141,13 @@ Event receiver Groups can be updated using the following mutation
 
 ```graphql
 mutation {
-  set_event_receiver_group_enabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+  set_event_receiver_group_enabled(id: "01HKNE0TJG7GA35GP703D75XTH")
 }
 ```
 
 ```graphql
 mutation {
-  set_event_receiver_group_disabled(id: "01H713QGDGCW546NV7QYEK3QJ7")
+  set_event_receiver_group_disabled(id: "01HKNE0TJG7GA35GP703D75XTH")
 }
 ```
 
@@ -148,10 +158,18 @@ the previously created event
 
 ```graphql
 query {
-  event(id: "01HEK4REW0S93V8Y10E8A8M8HC") {
+  events(id: "01HKNDTSFT6ZZ8Q8YNK736TT43") {
+    id
     name
     version
+    release
+    platform_id
+    package
     description
+    payload
+    success
+    event_receiver_id
+    created_at
   }
 }
 ```
@@ -161,10 +179,14 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receiver(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event_receivers(id: "01HKNDR10NVBA8V7G0V3C15JA6") {
     name
     version
     description
+    type
+    schema
+    fingerprint
+    created_at
   }
 }
 ```
@@ -174,10 +196,15 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_group(id: "01H6HSJGDJ9CH67D3BK30XD2Q5") {
+  event_receiver_groups(id: "01HKNE0TJG7GA35GP703D75XTH") {
     name
     version
     description
+    type
+    enabled
+    event_receiver_ids
+    created_at
+    updated_at
   }
 }
 ```

@@ -5,6 +5,7 @@ package message
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -90,20 +91,20 @@ func NewConfigEnv(version string) (*sarama.Config, error) {
 	saslAuth := GetSASLAuthentication()
 
 	if !saslAuth.SASLEnabled() {
-		logger.Info("no Kafka Authentication Enabled")
+		slog.Info("no Kafka Authentication Enabled")
 		return NewConfig(version)
 	}
 
 	// NONE case covered by the above .SASLEnabled() function
 	switch saslAuth.Mechanism { //nolint:exhaustive
 	case SCRAM:
-		logger.Info("Kafka Authentication Mechanism: SASL SCRAM")
+		slog.Info("Kafka Authentication Mechanism: SASL SCRAM")
 		return NewSCRAMConfig(saslAuth.Username, saslAuth.Password, version)
 	case PLAIN:
-		logger.Info("Kafka Authentication Mechanism: SASL PLAIN")
+		slog.Info("Kafka Authentication Mechanism: SASL PLAIN")
 		return NewPlainConfig(saslAuth.Username, saslAuth.Password, version)
 	case OAUTH2: // TODO: add support for OAUTH2
-		logger.Info("Kafka Authentication Mechanism: SASL OAUTH2")
+		slog.Info("Kafka Authentication Mechanism: SASL OAUTH2")
 		return nil, fmt.Errorf("SASL_MECHANISM 'OAUTH2' not currently supported")
 	default:
 		return nil, fmt.Errorf("SASL_MECHANISM not supported")
@@ -137,7 +138,7 @@ func NewProducer(brokers []string, config *sarama.Config) (Producer, error) {
 
 // Close closes down the Kafka producer
 func (p *producer) Close() error {
-	logger.Info("shutting down kafka producer")
+	slog.Info("shutting down kafka producer")
 	if p.sync == nil && p.async == nil {
 		return nil
 	}
@@ -150,13 +151,13 @@ func (p *producer) Close() error {
 // ConsumeSuccesses consumes and logs successful message sends.
 func (p *producer) ConsumeSuccesses() {
 	if p.async == nil {
-		logger.V(1).Info("kafka messaging disabled")
+		slog.Debug("kafka messaging disabled")
 		return
 	}
 	go func() {
 		for suc := range p.async.Successes() {
 			e, _ := suc.Value.Encode()
-			logger.V(1).Info(fmt.Sprintf("message sent successfully: '%s'\n", string(e)))
+			slog.Debug(fmt.Sprintf("message sent successfully: '%s'", string(e)))
 		}
 	}()
 }
@@ -164,12 +165,12 @@ func (p *producer) ConsumeSuccesses() {
 // ConsumeErrors consumes and logs messaging errors
 func (p *producer) ConsumeErrors() {
 	if p.async == nil {
-		logger.V(1).Info("kafka messaging disabled")
+		slog.Debug("kafka messaging disabled")
 		return
 	}
 	go func() {
 		for err := range p.async.Errors() {
-			logger.V(1).Info(fmt.Sprintf("error sending message '%s'\n", err))
+			slog.Debug(fmt.Sprintf("error sending message '%s'", err))
 		}
 	}()
 }
@@ -177,7 +178,7 @@ func (p *producer) ConsumeErrors() {
 // Async encodes an arbitrary struct and sends it on the given topic asynchronously.
 func (p *producer) Async(topic string, value interface{}) {
 	if p.async == nil {
-		logger.V(1).Info("kafka messaging disabled")
+		slog.Debug("kafka messaging disabled")
 		return
 	}
 	encodedMsg := &messageInfo{
@@ -194,7 +195,7 @@ func (p *producer) Async(topic string, value interface{}) {
 // Send encodes an arbitrary struct and sends it on the given topic synchronously.
 func (p *producer) Send(topic string, value interface{}) error {
 	if p.async == nil {
-		logger.V(1).Info("kafka messaging disabled")
+		slog.Debug("kafka messaging disabled")
 		return nil
 	}
 	encodedMsg := &messageInfo{
@@ -211,4 +212,31 @@ func (p *producer) Send(topic string, value interface{}) error {
 	}
 
 	return nil
+}
+
+type TopicProducer interface {
+	Async(data any)
+	Send(data any) error
+}
+
+type topicProducer struct {
+	producer Producer
+	topic    string
+}
+
+// NewTopicProducer wraps the given producer into an interface for sending
+// messages without knowledge of message-bus details, such as topic
+func NewTopicProducer(p Producer, topic string) TopicProducer {
+	return &topicProducer{
+		producer: p,
+		topic:    topic,
+	}
+}
+
+func (t *topicProducer) Async(data any) {
+	t.producer.Async(t.topic, data)
+}
+
+func (t *topicProducer) Send(data any) error {
+	return t.producer.Send(t.topic, data)
 }

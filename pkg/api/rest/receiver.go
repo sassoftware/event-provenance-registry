@@ -5,6 +5,7 @@ package rest
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -24,7 +25,7 @@ func (s *Server) CreateReceiver() http.HandlerFunc {
 func (s *Server) GetReceiverByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "receiverID")
-		logger.V(1).Info("GetReceiverByID", "receiverID", id)
+		slog.Info("getting receiver", "id", id)
 		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
 		if err != nil {
 			err = missingObjectError{msg: err.Error()}
@@ -56,7 +57,7 @@ func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
 		return "", err
 	}
 
-	s.kafkaCfg.MsgChannel <- message.NewEventReceiver(eventReceiver)
-	logger.V(1).Info("created", "eventReceiver", eventReceiver)
+	s.msgProducer.Async(message.NewEventReceiver(eventReceiver))
+	slog.Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
 }

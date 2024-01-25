@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
+	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -78,6 +79,7 @@ func NewEvent(e *storage.Event) Message {
 		Success:     e.Success,
 		ID:          string(e.ID),
 		Specversion: CloudEventsSpec,
+		Source:      "epr",
 		Type:        e.EventReceiver.Type,
 		APIVersion:  APIv1,
 		Name:        e.Name,
@@ -98,10 +100,13 @@ func NewEventReceiver(e *storage.EventReceiver) Message {
 		Success:     true,
 		ID:          string(e.ID),
 		Specversion: CloudEventsSpec,
+		Source:      "epr",
 		Type:        "epr.event.receiver.created",
 		APIVersion:  APIv1,
 		Name:        e.Name,
 		Version:     e.Version,
+		Release:     utils.NowRFC3339(),
+		PlatformID:  "event-provenance-registry",
 		Package:     "event.receiver",
 		Data: Data{
 			EventReceivers: []*storage.EventReceiver{e},
@@ -109,19 +114,63 @@ func NewEventReceiver(e *storage.EventReceiver) Message {
 	}
 }
 
-// NewEventReceiverGroup returns a Message
-func NewEventReceiverGroup(e *storage.EventReceiverGroup) Message {
+// NewEventReceiverGroupCreated returns a Message
+func NewEventReceiverGroupCreated(e *storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
 		Specversion: CloudEventsSpec,
+		Source:      "epr",
+		Type:        "epr.event.receiver.group.created",
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Release:     utils.NowRFC3339(),
+		PlatformID:  "event-provenance-registry",
+		Package:     "event.receiver.group",
+		Data: Data{
+			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+		},
+	}
+}
+
+// NewEventReceiverGroupModified returns a Message
+func NewEventReceiverGroupModified(e *storage.EventReceiverGroup) Message {
+	return Message{
+		Success:     true,
+		ID:          string(e.ID),
+		Specversion: CloudEventsSpec,
+		Source:      "epr",
 		Type:        "epr.event.receiver.group.modified",
 		APIVersion:  APIv1,
 		Name:        e.Name,
 		Version:     e.Version,
+		Release:     utils.NowRFC3339(),
+		PlatformID:  "event-provenance-registry",
 		Package:     "event.receiver.group",
 		Data: Data{
 			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+		},
+	}
+}
+
+// NewEventReceiverGroupComplete returns a message
+func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverGroup) Message {
+	return Message{
+		Success:     true,
+		ID:          string(erg.ID),
+		Specversion: CloudEventsSpec,
+		Source:      "epr",
+		Type:        erg.Type,
+		APIVersion:  APIv1,
+		Name:        e.Name,
+		Version:     e.Version,
+		Release:     e.Release,
+		Package:     e.Package,
+		PlatformID:  e.PlatformID,
+		Data: Data{
+			Events:              []*storage.Event{e},
+			EventReceiverGroups: []*storage.EventReceiverGroup{erg},
 		},
 	}
 }
