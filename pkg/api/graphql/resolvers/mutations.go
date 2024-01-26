@@ -72,7 +72,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 	slog.Info("created", "event", event)
 	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event, event.EventReceiverID)
 	if err != nil {
-		logger.Error(err, "error finding triggered event receiver groups", "input", eventInput)
+		slog.Error("error finding triggered event receiver groups", "err", err, "input", eventInput)
 		return "", err
 	}
 

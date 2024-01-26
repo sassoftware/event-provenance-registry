@@ -49,7 +49,7 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 
 	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(s.DBConnector.Client, *event, event.EventReceiverID)
 	if err != nil {
-		logger.Error(err, "error finding triggered event receiver groups", "input", e)
+		slog.Error("error finding triggered event receiver groups", "error", err, "input", e)
 		return "", err
 	}
 
@@ -57,6 +57,6 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 		s.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
 	}
 
-	logger.V(1).Info("created", "event", event)
+	slog.Info("created", "event", event)
 	return event.ID, nil
 }

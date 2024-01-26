@@ -15,7 +15,6 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/oklog/ulid v1.3.1
 	github.com/prometheus/client_golang v1.15.1
-	github.com/rs/zerolog v1.29.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/twmb/franz-go v1.14.4
@@ -47,7 +46,6 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230111030713-bf00bc1b83b6 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
