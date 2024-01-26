@@ -42,7 +42,7 @@ func New(host, user, pass, sslMode, database string, port int) (*Database, error
 		sslMode = fmt.Sprintf("sslmode=%s", sslMode)
 	}
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d %v TimeZone=EST", host, user, pass, database, port, sslMode)
-	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: glog})
+	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: glog, PrepareStmt: true})
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database. err %s", err)
 	}
