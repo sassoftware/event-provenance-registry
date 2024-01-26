@@ -2,37 +2,14 @@ package e2e
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/sassoftware/event-provenance-registry/tests/common"
 	"gotest.tools/v3/assert"
 )
-
-const receiverURI = "http://localhost:8042/api/v1/receivers/"
-
-type getReceiverResponse struct {
-	Data   []storage.EventReceiver
-	Errors []string
-}
-
-type postReceiverResponse struct {
-	// ID of the created receiver
-	Data   string
-	Errors []string
-}
-
-type eventReceiverInput struct {
-	Name        string
-	Type        string
-	Version     string
-	Description string
-	Schema      string
-}
 
 func TestCreateAndGetReceiver(t *testing.T) {
 	client := common.NewHTTPClient()
@@ -129,14 +106,4 @@ func TestGetNonExistentReceiver(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Check(t, len(body.Errors) > 0)
 	assert.Equal(t, len(body.Data), 0)
-}
-
-func (r *eventReceiverInput) toPayload() string {
-	return fmt.Sprintf(`{
-	"name": "%s",
-	"type": "%s",
-	"version": "%s",
-	"description": "%s",
-	"schema": %s
-}`, r.Name, r.Type, r.Version, r.Description, r.Schema)
 }
