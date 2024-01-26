@@ -90,6 +90,10 @@ test-e2e: ; $(info $(M) running e2e tests...) @ ## Runs e2e test suite
 	$Q cd ./tests && go test -v ./e2e -count=1
 	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml down --volumes
 
+.PHONY: test-e2e-cleanup
+test-e2e-cleanup: ; $(info $(M) cleaning up after e2e tests...) @ ## Tears down e2e test env, should tests fail
+	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml down --volumes
+
 .PHONY: tidy
 tidy: ; $(info $(M) running go mod tidy...) @ ## Run go mod tidy
 	$Q go mod tidy
