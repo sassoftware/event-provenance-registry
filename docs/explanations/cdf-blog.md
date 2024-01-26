@@ -13,9 +13,8 @@ events per year. Updates were slow and often painful. To reverse that trend, we
 needed to find a way to shorten the development cycle and deliver artifacts more
 quickly. The challenge was twofold:
 
-    First, create a system that could allow disparate pieces of our pipeline to communicate and chain together. 
-
-    Second, help R&D shift gears from the old software development model to CI/CD. 
+- First, create a system that could allow disparate pieces of our pipeline to communicate and chain together.
+- Second, help R&D shift gears from the old software development model to CI/CD. 
 
 In a happy, imaginary world somewhere, we could have chained together GitHub
 actions, or equivalent, into a working pipeline. No need to write EPR at all.
@@ -50,15 +49,11 @@ as "receivers" and "groups" respectively for brevity.
 NVRPP is an unpronounceable acronym that you'll need to be familiar with to
 understand how EPR works. It stands for:
 
-    Name 
-
-    Version 
-
-    Release 
-
-    Package 
-
-    Platform ID 
+- Name
+- Version
+- Release
+- Package
+- Platform ID 
 
 Each of these fields is just a string, though we strongly recommend you impose
 some standards for how each is formatted, depending on your situation. NVRPP is
@@ -75,7 +70,7 @@ binary, etc...) with no dependencies and are classified by their name, type, and
 version. You might name a receiver by the action it represents like
 golang-build-complete. Types might be things like build.finished or
 artifact.packaged. Receivers may have multiple [events](#events) that correspond with them.
-Any events associated with a receiver must have a payload that complies with the
+Any events associated with a receiver must have a `payload` that complies with the
 schema defined on the receiver. This allows some guarantees about what kind of
 data you can expect of events going to any given receiver.
 
@@ -106,17 +101,17 @@ it was successful. Each event contains an [NVRPP](#nvrpp) and is linked to a rec
 way of an ID. Events that have matching NVRPPs are associated with the same
 artifact. This allows us to trace the flow of any artifact through our pipeline,
 so long as events are posted at each step. Events are strictly formatted at the
-root level, with a free-form JSON payload field that is validated against the
-schema of its receiver. Each event contains a Boolean success field that
+root level, with a free-form JSON `payload` field that is validated against the
+schema of its receiver. Each event contains a Boolean `success` field that
 represents whether an action was successful or not.
 
 When EPR receives an event, it posts a message and some receiver and group data
 to Redpanda. Downstream watchers can then consume these messages and take their
 own actions. A common use case is watchers matching messages based on the
-success field of an event (and by extension, the message). This allows you to
+`success` field of an event (and by extension, the message). This allows you to
 take different actions depending on if an event passed or failed. For example,
-you could open a ticket against a team if their event to the artifact.scanned
-type receiver had success=false.
+you could open a ticket against a team if their event to the `artifact.scanned`
+type receiver had `success=false`.
 
 ```json
 {
@@ -140,7 +135,7 @@ Event receiver groups can be thought of as gates that control whether an
 artifact advances through the pipeline. Each group comprises multiple receivers.
 Like receivers, groups can cause the generation of Redpanda messages. However,
 they only do this if each receiver has an event with a matching NVRPP where
-success=true. Since there may be multiple events of varying successes per
+`success=true`. Since there may be multiple events of varying successes per
 receiver, only the most recent is considered. This allows you to run many tasks
 in parallel, but only advance your artifact through the pipeline once all its
 tasks have completed successfully.
@@ -164,7 +159,7 @@ tasks have completed successfully.
 Watchers are applications (typically microservices) that watch the EPR Redpanda
 topic for messages and then take some action. They use some matching logic,
 defined in EPR's SDK (Software Development Kit) to determine which messages to
-process. You can match on NVRPP, type, and success. We've written about a dozen
+process. You can match on NVRPP, `type`, and `success`. We've written about a dozen
 or so watchers internally that do a variety of things. One of our more popular
 watchers’ fires webhooks if matching criteria are met. It is most often used to
 trigger Jenkins jobs, acting as glue between Jenkins and other systems. Another
@@ -177,7 +172,7 @@ against various teams when problems are detected.
 ## Running EPR in Production
 
 Now that you understand the basics, here's a real-world example. We'll be
-starting with a build of the fabulous my-app application. At the end of the
+starting with a build of the fabulous `my-app` application. At the end of the
 build process, the build automation will post a passing event to EPR. The build
 automation generates an NVRPP which will be used by the first and subsequent
 events for this artifact. Downstream watchers consume the successful build
@@ -283,6 +278,6 @@ yours as well.
 
 ## Links
 
-    https://github.com/sassoftware/event-provenance-registry 
+- https://github.com/sassoftware/event-provenance-registry 
 
  
