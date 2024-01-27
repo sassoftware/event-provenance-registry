@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -33,7 +34,7 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 		slog.Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
 		if err != nil {
-			err = missingObjectError{msg: err.Error()}
+			err = eprErrors.MissingObjectError{Msg: err.Error()}
 		}
 		handleResponse(w, r, rec, err)
 	}
@@ -48,7 +49,7 @@ func (s *Server) UpdateGroup() http.HandlerFunc {
 			Enabled *bool `json:"enabled,omitempty"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
-			err = invalidInputError{msg: err.Error()}
+			err = eprErrors.InvalidInputError{Msg: err.Error()}
 			handleResponse(w, r, id, err)
 			return
 		}
@@ -58,7 +59,7 @@ func (s *Server) UpdateGroup() http.HandlerFunc {
 			slog.Info("set group enabled", "groupID", id, "enabled", patch.Enabled)
 			err = storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), *patch.Enabled)
 			if err != nil {
-				err = missingObjectError{msg: err.Error()}
+				err = eprErrors.MissingObjectError{Msg: err.Error()}
 			}
 		}
 		handleResponse(w, r, id, err)
@@ -69,7 +70,7 @@ func (s *Server) createGroup(r *http.Request) (graphql.ID, error) {
 	input := &GroupInput{}
 	err := json.NewDecoder(r.Body).Decode(input)
 	if err != nil {
-		return "", invalidInputError{msg: err.Error()}
+		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	eventReceiverGroupInput := storage.EventReceiverGroup{

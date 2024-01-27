@@ -1,11 +1,11 @@
 package rest
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/render"
+	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -39,22 +39,6 @@ type Response struct {
 	Errors []string `json:"errors,omitempty"`
 }
 
-type missingObjectError struct {
-	msg string
-}
-
-func (m missingObjectError) Error() string {
-	return fmt.Sprintf("object not found: %s", m.msg)
-}
-
-type invalidInputError struct {
-	msg string
-}
-
-func (n invalidInputError) Error() string {
-	return fmt.Sprintf("request parameters invalid: %s", n.msg)
-}
-
 func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error) {
 	resp := Response{
 		Data: data,
@@ -67,9 +51,9 @@ func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error)
 
 	resp.Errors = []string{err.Error()}
 	switch err.(type) {
-	case missingObjectError:
+	case eprErrors.MissingObjectError:
 		render.Status(r, http.StatusNotFound)
-	case invalidInputError:
+	case eprErrors.InvalidInputError:
 		render.Status(r, http.StatusBadRequest)
 	default:
 		render.Status(r, http.StatusInternalServerError)
