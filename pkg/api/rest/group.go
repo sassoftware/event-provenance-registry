@@ -33,9 +33,6 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 		id := chi.URLParam(r, "groupID")
 		slog.Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroup(s.DBConnector.Client, graphql.ID(id))
-		if err != nil {
-			err = eprErrors.MissingObjectError{Msg: err.Error()}
-		}
 		handleResponse(w, r, rec, err)
 	}
 }
@@ -58,9 +55,6 @@ func (s *Server) UpdateGroup() http.HandlerFunc {
 		if patch.Enabled != nil {
 			slog.Info("set group enabled", "groupID", id, "enabled", patch.Enabled)
 			err = storage.SetEventReceiverGroupEnabled(s.DBConnector.Client, graphql.ID(id), *patch.Enabled)
-			if err != nil {
-				err = eprErrors.MissingObjectError{Msg: err.Error()}
-			}
 		}
 		handleResponse(w, r, id, err)
 	}
