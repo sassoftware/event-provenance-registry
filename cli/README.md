@@ -139,9 +139,9 @@ Flags:
 Create Event Receivers
 
 ```bash
-./bin/epr-cli-darwin-arm64 receiver create --name "foo-cli" --version "1.0.0" --description "foo cli created foo" --type "epr.foo.cli" --schema "{}" --dry-run
+epr-cli receiver create --name "foo-cli" --version "1.0.0" --description "foo cli created foo" --type "epr.foo.cli" --schema "{}" --dry-run
 
-./bin/epr-cli-darwin-arm64 receiver create --name "foo-cli" --version "1.0.0" --description "foo cli created foo" --type "epr.foo.cli" --schema "{}"
+epr-cli receiver create --name "foo-cli" --version "1.0.0" --description "foo cli created foo" --type "epr.foo.cli" --schema "{}"
 ```
 
 ```json
@@ -151,13 +151,13 @@ Create Event Receivers
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 receiver search --id 01HKX0J9KS8AASMRYX61458N41 --fields all
+epr-cli receiver search --id 01HKX0J9KS8AASMRYX61458N41 --fields all
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 receiver create --name "bar-cli" --version "1.0.0" --description "bar cli created bar" --type "epr.bar.cli" --schema "{}"  --dry-run
+epr-cli receiver create --name "bar-cli" --version "1.0.0" --description "bar cli created bar" --type "epr.bar.cli" --schema "{}"  --dry-run
 
-./bin/epr-cli-darwin-arm64 receiver create --name "bar-cli" --version "1.0.0" --description "bar cli created bar" --type "epr.bar.cli" --schema "{}"
+epr-cli receiver create --name "bar-cli" --version "1.0.0" --description "bar cli created bar" --type "epr.bar.cli" --schema "{}"
 ```
 
 ```json
@@ -167,25 +167,25 @@ Create Event Receivers
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 receiver search --id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --fields all
+epr-cli receiver search --id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --fields all
 ```
 
 Create Events
 
 ```bash
-./bin/epr-cli-darwin-arm64 event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
 
-./bin/epr-cli-darwin-arm64 event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 event search --id 01HKX1TMQZQDS6NC5DG7WNXXCJ --fields all
+epr-cli event search --id 01HKX1TMQZQDS6NC5DG7WNXXCJ --fields all
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
 
-./bin/epr-cli-darwin-arm64 event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
 ```
 
 ```json
@@ -195,15 +195,15 @@ Create Events
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 event search --id 1HKX7HKVDVH0HRQN0P2VDJ7Y6 --fields all
+epr-cli event search --id 1HKX7HKVDVH0HRQN0P2VDJ7Y6 --fields all
 ```
 
 Create Event Receiver Groups
 
 ```bash
-./bin/epr-cli-darwin-arm64 group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
 
-./bin/epr-cli-darwin-arm64 group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
 ```
 
 ```json
@@ -213,5 +213,5 @@ Create Event Receiver Groups
 ```
 
 ```bash
-./bin/epr-cli-darwin-arm64 group search --id 01HKX90FKWQZ49F6H5V5NQT95Z --fields all
+epr-cli group search --id 01HKX90FKWQZ49F6H5V5NQT95Z --fields all
 ```
