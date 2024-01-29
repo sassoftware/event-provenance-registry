@@ -215,4 +215,3 @@ Create Event Receiver Groups
 ```bash
 ./bin/epr-cli-darwin-arm64 group search --id 01HKX90FKWQZ49F6H5V5NQT95Z --fields all
 ```
-

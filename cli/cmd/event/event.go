@@ -4,11 +4,8 @@
 package event
 
 import (
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 )
-
-var logger = utils.MustGetLogger("client", "cli.cmd.event")
 
 // eventCmd represents the event command
 var eventCmd = &cobra.Command{

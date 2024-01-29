@@ -15,12 +15,9 @@ import (
 	"github.com/sassoftware/event-provenance-registry/cli/cmd/receiver"
 	"github.com/sassoftware/event-provenance-registry/cli/cmd/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/client"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var logger = utils.MustGetLogger("client", "cmd.cli.root")
 
 var cfgFile string
 
@@ -28,8 +25,8 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "epr-cli",
 	Short: "Event Provenance Registry (EPR) CLI",
-	Long: `The Event Provenance Registry (EPR) CLI is a command 
-	line for querying, creating, and modifying events, event-receivers, 
+	Long: `The Event Provenance Registry (EPR) CLI is a command
+	line for querying, creating, and modifying events, event-receivers,
 	and event-receiver-groups.`,
 	PreRunE: preRun,
 	RunE:    run,
@@ -56,10 +53,8 @@ func preRun(cmd *cobra.Command, _ []string) error {
 }
 
 func run(_ *cobra.Command, _ []string) error {
-	logger.V(1).Info("debug enabled")
 	// TODO probably need some better input validation
 	url := viper.GetString("url")
-	logger.Info(fmt.Sprintf("URL: %s", url))
 	_, err := client.New(url)
 	return err
 }

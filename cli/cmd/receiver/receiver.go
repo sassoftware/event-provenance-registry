@@ -4,11 +4,8 @@
 package receiver
 
 import (
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 )
-
-var logger = utils.MustGetLogger("client", "cli.cmd.receiver")
 
 // gateCmd represents the gate command
 var receiverCmd = &cobra.Command{

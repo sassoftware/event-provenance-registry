@@ -50,7 +50,7 @@ $(BINARY)-arm64: $(SOURCES); $(info $(M) building arm64 executable...) @ ## Buil
 $(BINARY)-darwin: $(SOURCES); $(info $(M) building darwin executable...) @ ## Build program binary for darwin
 	$Q GOOS=darwin GOARCH=amd64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
-$(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin arm64 executable...) @ ## Build program binary for darwin aarch64 
+$(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin arm64 executable...) @ ## Build program binary for darwin aarch64
 	$Q GOOS=darwin GOARCH=arm64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
 .PHONY: docker-image

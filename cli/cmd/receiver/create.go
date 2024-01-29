@@ -48,7 +48,6 @@ func runCreateEventReceiver(_ *cobra.Command, _ []string) error {
 	}
 
 	if dryrun {
-		logger.Info("dry-run : enabled")
 		content, err := er.ToJSON()
 		if err != nil {
 			return err

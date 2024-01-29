@@ -8,12 +8,9 @@ import (
 	"net/url"
 
 	"github.com/sassoftware/event-provenance-registry/cli/cmd/common"
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var logger = utils.MustGetLogger("client", "cli.cmd.status")
 
 // gateCmd represents the gate command
 var statusCmd = &cobra.Command{
@@ -37,7 +34,6 @@ func run(_ *cobra.Command, _ []string) error {
 	}
 
 	if dryrun {
-		logger.Info("dry-run : enabled")
 		endpoint, err := url.JoinPath(u, "healthz", "status")
 		if err != nil {
 			return err

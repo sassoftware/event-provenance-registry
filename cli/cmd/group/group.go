@@ -4,11 +4,8 @@
 package group
 
 import (
-	"github.com/sassoftware/event-provenance-registry/pkg/utils"
 	"github.com/spf13/cobra"
 )
-
-var logger = utils.MustGetLogger("client", "cli.cmd.group")
 
 // groupCmd represents the group command
 var groupCmd = &cobra.Command{
