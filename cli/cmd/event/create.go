@@ -73,11 +73,6 @@ func runCreateEvent(_ *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	if noindent {
-		fmt.Printf("%s\n", content)
-		return nil
-	}
-
 	content, err = common.IndentJSON(content)
 	if err != nil {
 		return err
