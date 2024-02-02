@@ -18,19 +18,7 @@ description of the machinery.
 | Name                                              | Description                                 |
 | ------------------------------------------------- | ------------------------------------------- |
 | [FAQ](./FAQ.md)                                   | Frequently Asked Questions                  |
-| [Standards](./standards.md)                       | Pipeline Development Standards              |
-| [Commits](./commits.md)                           | Pipeline Commits Standards                  |
+| [Standards](./standards.md)                       | EPR Development Standards                   |
+| [Commits](./commits.md)                           | EPR Commits Standards                       |
 | [Documentation Layout](./documentation_layout.md) | Documentation Layout Reference Documentaion |
 | [Glossary](./glossary.md)                         | Terms Glossary                              |
-
-### Continuous Integration Testing Delivery and Deployment
-
-| Name                               | Description                                            |
-| ---------------------------------- | ------------------------------------------------------ |
-| [CI](./ci)                         | Continuous Integration Reference Documentation         |
-| [CT](./ct)                         | Continuous Testing Reference Documentation             |
-| [CD](./cd)                         | Contiunous Delivery/Deployment Reference Documentation |
-| [GitHub](./github)                 | GitHub and GitHub Actions Reference Documentation      |
-| [Api](./api)                       | API Reference Documentation                            |
-| [Infrastructure](./infrastructure) | Pipeline Infrastructure Reference Documentation        |
-| [Diagrams](./diagrams)             | Pipeline Diagrams                                      |
