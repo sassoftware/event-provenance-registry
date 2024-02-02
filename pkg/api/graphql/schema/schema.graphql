@@ -4,9 +4,13 @@ schema {
 }
 
 type Query {
-  events(id: ID!): [Event!]!
-  event_receivers(id: ID!): [EventReceiver!]!
-  event_receiver_groups(id: ID!): [EventReceiverGroup!]!
+  events_by_id(id: ID!): [Event!]!
+  event_receivers_by_id(id: ID!): [EventReceiver!]!
+  event_receiver_groups_by_id(id: ID!): [EventReceiverGroup!]!
+
+  events(event: Event!): [Event!]!
+  event_receivers(event_receiver: EventReceiver!): [EventReceiver!]!
+  event_receiver_groups(event_receiver_group: EventReceiverGroup!): [EventReceiverGroup!]!
 }
 
 type Mutation {

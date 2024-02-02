@@ -62,7 +62,7 @@ func (db *Database) SyncSchema() error {
 // CreateEvent creates and event record in the database. Throws an error if the event receiver does not exist or if the
 // event payload does not match the receiver schema.
 func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
-	receivers, err := FindEventReceiver(tx, event.EventReceiverID)
+	receivers, err := FindEventReceiverByID(tx, event.EventReceiverID)
 	if err != nil {
 		switch err.(type) {
 		case eprErrors.MissingObjectError:
@@ -90,9 +90,13 @@ func CreateEvent(tx *gorm.DB, event Event) (*Event, error) {
 	return &event, nil
 }
 
-func FindEvent(tx *gorm.DB, id graphql.ID) ([]Event, error) {
+func FindEventByID(tx *gorm.DB, id graphql.ID) ([]Event, error) {
+	return FindEvent(tx, Event{ID: id})
+}
+
+func FindEvent(tx *gorm.DB, e Event) ([]Event, error) {
 	var events []Event
-	result := tx.Model(&Event{}).Preload("EventReceiver").First(&events, &Event{ID: id})
+	result := tx.Model(&Event{}).Preload("EventReceiver").First(&events, &e)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("event %s not found", id)}
@@ -121,9 +125,15 @@ func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiv
 }
 
 // FindEventReceiver tries to find an event receiver by ID.
-func FindEventReceiver(tx *gorm.DB, id graphql.ID) ([]EventReceiver, error) {
+func FindEventReceiverByID(tx *gorm.DB, id graphql.ID) ([]EventReceiver, error) {
+	return FindEventReceiver(tx, EventReceiver{ID: id})
+
+}
+
+// FindEventReceiver tries to find an event receiver by ID.
+func FindEventReceiver(tx *gorm.DB, er EventReceiver) ([]EventReceiver, error) {
 	var eventReceivers []EventReceiver
-	result := tx.Model(&EventReceiver{}).First(&eventReceivers, &EventReceiver{ID: id})
+	result := tx.Model(&EventReceiver{}).First(&eventReceivers, &er)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiver %s not found", id)}
@@ -164,9 +174,14 @@ func CreateEventReceiverGroup(tx *gorm.DB, eventReceiverGroup EventReceiverGroup
 	}
 	return &eventReceiverGroup, nil
 }
-func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) ([]EventReceiverGroup, error) {
+
+func FindEventReceiverGroupByID(tx *gorm.DB, id graphql.ID) ([]EventReceiverGroup, error) {
+	return FindEventReceiverGroup(tx, EventReceiverGroup{ID: id})
+}
+
+func FindEventReceiverGroup(tx *gorm.DB, erg EventReceiverGroup) ([]EventReceiverGroup, error) {
 	var eventReceiverGroup EventReceiverGroup
-	result := tx.Model(&EventReceiverGroup{}).First(&eventReceiverGroup, &EventReceiverGroup{ID: id})
+	result := tx.Model(&EventReceiverGroup{}).First(&eventReceiverGroup, &erg)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiverGroup %s not found", id)}
@@ -176,10 +191,10 @@ func FindEventReceiverGroup(tx *gorm.DB, id graphql.ID) ([]EventReceiverGroup, e
 
 	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
 		Select("event_receiver_id").
-		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: id})
+		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: eventReceiverGroup.ID})
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("eventReceiverGroup %s not found in EventReceiverGroupToEventReceiver", id)
+			return nil, fmt.Errorf("eventReceiverGroup %s not found in EventReceiverGroupToEventReceiver", eventReceiverGroup.ID)
 		}
 		return nil, pgError(result.Error)
 	}

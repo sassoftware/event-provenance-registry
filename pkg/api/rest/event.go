@@ -25,7 +25,10 @@ func (s *Server) CreateEvent() http.HandlerFunc {
 func (s *Server) GetEventByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "eventID")
-		event, err := storage.FindEvent(s.DBConnector.Client, graphql.ID(id))
+		event, err := storage.FindEventByID(s.DBConnector.Client, graphql.ID(id))
+		if err != nil {
+			err = missingObjectError{msg: err.Error()}
+		}
 		handleResponse(w, r, event, err)
 	}
 }

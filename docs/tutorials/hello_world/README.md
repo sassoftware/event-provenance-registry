@@ -174,7 +174,7 @@ the previously created event
 
 ```graphql
 query {
-  events(id: "01HFF6VY24WVGS0P8FZY93JP22") {
+  events_by_id(id: "01HFF6VY24WVGS0P8FZY93JP22") {
     id
     name
     version
@@ -195,7 +195,7 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receivers(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
+  event_receivers_by_id(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
     name
     version
     description
@@ -212,7 +212,7 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_groups(id: "01HFF701QYB7S81C139HCYCXWM") {
+  event_receiver_groups_by_id(id: "01HFF701QYB7S81C139HCYCXWM") {
     name
     version
     description
@@ -236,19 +236,19 @@ Create an event receiver:
 curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "name": "foobar",
-  "type": "foo.bar",
-  "version": "1.1.2",
-  "description": "The event receiver of Brixton",
-  "enabled": true,
-  "schema": {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
+    "name": "foobar",
+    "type": "foo.bar",
+    "version": "1.1.2",
+    "description": "The event receiver of Brixton",
+    "enabled": true,
+    "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      }
     }
   }
-}
 }'
 ```
 
