@@ -1,0 +1,16 @@
+[
+    {
+        "name": "foo-cli",
+        "type": "epr.foo.cli",
+        "version": "1.0.0",
+        "description": "foo cli created foo",
+        "schema": {}
+    },
+    {
+        "name": "bar-cli",
+        "type": "epr.bar.cli",
+        "version": "1.0.0",
+        "description": "bar cli created bar",
+        "schema": {}
+    }
+]

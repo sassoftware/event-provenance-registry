@@ -14,7 +14,7 @@ needed to find a way to shorten the development cycle and deliver artifacts more
 quickly. The challenge was twofold:
 
 - First, create a system that could allow disparate pieces of our pipeline to communicate and chain together.
-- Second, help R&D shift gears from the old software development model to CI/CD. 
+- Second, help R&D shift gears from the old software development model to CI/CD.
 
 In a happy, imaginary world somewhere, we could have chained together GitHub
 actions, or equivalent, into a working pipeline. No need to write EPR at all.
@@ -53,7 +53,7 @@ understand how EPR works. It stands for:
 - Version
 - Release
 - Package
-- Platform ID 
+- Platform ID
 
 Each of these fields is just a string, though we strongly recommend you impose
 some standards for how each is formatted, depending on your situation. NVRPP is
@@ -167,7 +167,7 @@ popular watcher is one that creates Jira tickets when messages are matched. We
 use this one heavily as part of our security automation to open security issues
 against various teams when problems are detected.
 
-    Image: Show messages on the bus 
+    Image: Show messages on the bus
 
 ## Running EPR in Production
 
@@ -183,7 +183,7 @@ corresponding receivers that are all contained inside a release group. Once
 those three receivers have passing events for the NVRPP, the group triggers a
 release message, that a downstream watcher catches to release the software.
 
-    Image: Provide a diagram 
+    Image: Provide a diagram
 
 ## Pitfalls
 
@@ -278,6 +278,4 @@ yours as well.
 
 ## Links
 
-- https://github.com/sassoftware/event-provenance-registry 
-
- 
+- <https://github.com/sassoftware/event-provenance-registry>

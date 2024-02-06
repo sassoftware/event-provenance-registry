@@ -1,0 +1,37 @@
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+.DS_Store
+.dccache
+
+# Golang project vendor packages which should be ignored
+vendor/
+
+*.manifest
+*.syso
+
+/bin
+/build
+/tools
+/tests/coverage.*
+/versioninfo.json
+/VERSION
+temp/
+/certs
+
+.vscode/
+.idea/
+debug
+.history/
+commit-message.txt
+*.iml
