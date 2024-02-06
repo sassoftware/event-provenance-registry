@@ -20,14 +20,6 @@ func TestCreateAndGetGroup(t *testing.T) {
 		input          eventReceiverGroupInput
 		receiverInputs []eventReceiverInput
 	}{
-		"group with no receivers": {
-			input: eventReceiverGroupInput{
-				Name:        "no-receivers",
-				Type:        "no.receivers",
-				Version:     "1.2.3",
-				Description: "doesn't have any receivers",
-			},
-		},
 		"group with one receiver": {
 			input: eventReceiverGroupInput{
 				Name:        "one-receiver",
@@ -157,6 +149,15 @@ func TestCreateInvalidGroup(t *testing.T) {
 				Version:     "5.3.2",
 				Description: "your group",
 				Receivers:   []string{receiverID, "should-not-exist"},
+			},
+		},
+		"group with no receivers": {
+			input: eventReceiverGroupInput{
+				Name:        "no-receivers",
+				Type:        "no.receivers",
+				Version:     "1.2.3",
+				Description: "doesn't have any receivers",
+				Receivers:   []string{},
 			},
 		},
 	}
