@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -194,36 +193,21 @@ func TestToggleGroup(t *testing.T) {
 	originalUpdatedAt := time.Time(originalGroup.UpdatedAt.Date)
 	assert.Equal(t, originalGroup.Enabled, true, "group should be enabled by default")
 
-	toggleGroup(t, client, groupID, false)
+	err = toggleGroup(client, groupID, false)
+	assert.NilError(t, err)
 	group, err := getGroup(client, groupID)
 	assert.NilError(t, err)
 	assert.Equal(t, group.Enabled, false, "group should be disabled")
 	afterDisableUpdatedAt := time.Time(group.UpdatedAt.Date)
 	assert.Check(t, !afterDisableUpdatedAt.Equal(originalUpdatedAt), "updated time should be updated after disable")
 
-	toggleGroup(t, client, groupID, true)
+	err = toggleGroup(client, groupID, true)
+	assert.NilError(t, err)
 	group, err = getGroup(client, groupID)
 	assert.NilError(t, err)
 	assert.Equal(t, group.Enabled, true, "group should be enabled")
 	afterEnableUpdatedAt := time.Time(group.UpdatedAt.Date)
 	assert.Check(t, !afterEnableUpdatedAt.Equal(afterDisableUpdatedAt), "updated time should be updated after enable")
-}
-
-func toggleGroup(t testing.TB, client *http.Client, id string, enabled bool) {
-	t.Helper()
-
-	patchBody := fmt.Sprintf(`{"enabled": %t}`, enabled)
-	patch, err := http.NewRequest(http.MethodPatch, groupURI+id, strings.NewReader(patchBody))
-	assert.NilError(t, err)
-	resp, err := client.Do(patch)
-	assert.NilError(t, err)
-	assert.Equal(t, resp.StatusCode, http.StatusOK)
-
-	var respBody patchGroupResponse
-	err = json.NewDecoder(resp.Body).Decode(&respBody)
-	assert.NilError(t, err)
-	assert.Equal(t, len(respBody.Errors), 0, "got resp body error(s): %v", respBody.Errors)
-	assert.Equal(t, respBody.Data, id, "should get back group id that was patched")
 }
 
 func graphIDsToStrings(ids []graphql.ID) []string {

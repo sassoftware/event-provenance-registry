@@ -90,3 +90,33 @@ func getGroup(client *http.Client, id string) (storage.EventReceiverGroup, error
 
 	return body.Data[0], nil
 }
+
+// toggleGroup sets a group as enabled or disabled, returning
+// its ID or any errors that occurred
+func toggleGroup(client *http.Client, id string, enabled bool) error {
+	patchBody := fmt.Sprintf(`{"enabled": %t}`, enabled)
+	patch, err := http.NewRequest(http.MethodPatch, groupURI+id, strings.NewReader(patchBody))
+	if err != nil {
+		return fmt.Errorf("failed to create req for toggling group: %w", err)
+	}
+	resp, err := client.Do(patch)
+	if err != nil {
+		return fmt.Errorf("failed to toggle group to enabled %t: %w", enabled, err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("got unexpected status code %d toggling group", resp.StatusCode)
+	}
+
+	var respBody patchGroupResponse
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		return fmt.Errorf("failed to decode resp from toggling group: %w", err)
+	}
+	if len(respBody.Errors) > 0 {
+		return fmt.Errorf("got resp body error(s): %v", respBody.Errors)
+	}
+	if respBody.Data != id {
+		return fmt.Errorf("resp id doesn't match input, got %s but wanted %s", respBody.Data, id)
+	}
+	return nil
+}
