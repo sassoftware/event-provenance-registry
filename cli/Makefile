@@ -1,5 +1,5 @@
-PACKAGE  = github.com/sassoftware/event-provenance-registry
-BINARY   = bin/epr-server
+PACKAGE  = github.com/sassoftware/event-provenance-registry/cli
+BINARY   = bin/epr-cli
 COMMIT  ?= $(shell git rev-parse --short=16 HEAD)
 gitversion := $(shell git describe --tags --always --dirty --match=v* 2> /dev/null || \
 			cat $(CURDIR)/.version 2> /dev/null || echo 0.1.0-0)
@@ -25,7 +25,7 @@ TIMEOUT = 15
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
-M = $(shell printf "\033[34;1mEvent Provenance Registry ▶\033[0m")
+M = $(shell printf "\033[34;1mEvent Provenance Registry CLI ▶\033[0m")
 
 .PHONY: all
 all: megalint test $(BINARY) $(BINARY)-arm64 $(BINARY)-darwin $(BINARY)-darwin-arm64  ## Build all the binary types
@@ -54,23 +54,23 @@ $(BINARY)-darwin-arm64: $(SOURCES); $(info $(M) building darwin arm64 executable
 	$Q GOOS=darwin GOARCH=arm64 $(GOBUILD) $(TAGS) -ldflags $(GOLDFLAGS) -o $@ .
 
 .PHONY: docker-image
-docker-image:;$(info $(M) running docker build...) @ ## Builds a local docker image tagged "epr-server:local"
-	$Q docker build -t epr-server:local -f Dockerfile .
+docker-image:;$(info $(M) running docker build...) @ ## Builds a local docker image tagged "epr-cli:local"
+	$Q docker build -t epr-cli:local -f Dockerfile .
 
 .PHONY: install
-install: linux ;$(info $(M) installing epr-server...) @ ## Installs epr-server binary into DESTDIR
+install: linux ;$(info $(M) installing epr-cli...) @ ## Installs epr-cli binary into DESTDIR
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 ./bin/epr-server $(DESTDIR)$(PREFIX)/bin/epr-server
+	install -m 755 ./bin/epr-cli $(DESTDIR)$(PREFIX)/bin/epr-cli
 
 .PHONY: install-darwin
-install-darwin: darwin ;$(info $(M) installing epr-server...) @ ## Installs epr-server-darwin binary into DESTDIR epr-server
+install-darwin: darwin ;$(info $(M) installing epr-cli...) @ ## Installs epr-cli-darwin binary into DESTDIR epr-cli
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 ./bin/epr-server-darwin $(DESTDIR)$(PREFIX)/bin/epr-server
+	install -m 755 ./bin/epr-cli-darwin $(DESTDIR)$(PREFIX)/bin/epr-cli
 
 .PHONY: install-darwin-arm64
-install-darwin-arm64: darwin-arm64 ;$(info $(M) installing epr-server arm64...) @ ## Installs epr-server-darwin-arm64 binary into DESTDIR epr-server
+install-darwin-arm64: darwin-arm64 ;$(info $(M) installing epr-cli arm64...) @ ## Installs epr-cli-darwin-arm64 binary into DESTDIR epr-cli
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 ./bin/epr-server-darwin-arm64 $(DESTDIR)$(PREFIX)/bin/epr-server
+	install -m 755 ./bin/epr-cli-darwin-arm64 $(DESTDIR)$(PREFIX)/bin/epr-cli
 
 .PHONY: list-updates
 list-updates: ;$(info $(M) listing available go library updates...) @ ## List available go library updates
@@ -78,21 +78,11 @@ list-updates: ;$(info $(M) listing available go library updates...) @ ## List av
 
 .PHONY: megalint
 megalint: ; $(info $(M) running golangci-lint...) @ ## Runs golangci-lint with a lot of switches
-	$Q golangci-lint run --config ./golangci-megalint-config.yaml
+	$Q golangci-lint run --config ../golangci-megalint-config.yaml
 
 .PHONY: test
 test: ; $(info $(M) running tests...) @ ## Runs go test ./...
 	$Q go test -v ./...
-
-.PHONY: test-e2e
-test-e2e: ; $(info $(M) running e2e tests...) @ ## Runs e2e test suite
-	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml up -d --wait --build
-	$Q cd ./tests && go test -v ./e2e -count=1
-	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml down --volumes
-
-.PHONY: test-e2e-cleanup
-test-e2e-cleanup: ; $(info $(M) cleaning up after e2e tests...) @ ## Tears down e2e test env, should tests fail
-	$Q docker-compose -f docker-compose.services.yaml -f docker-compose.yaml down --volumes
 
 .PHONY: tidy
 tidy: ; $(info $(M) running go mod tidy...) @ ## Run go mod tidy
@@ -105,8 +95,8 @@ clean: ; $(info $(M) cleaning...)	@ ## Cleanup everything
 
 .PHONY: help
 help:
-	@grep -E '^[ a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[ a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: version
 version:

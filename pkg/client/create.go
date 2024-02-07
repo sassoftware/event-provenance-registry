@@ -78,7 +78,7 @@ func (c *Client) ModifyEventReceiverGroup(erg *storage.EventReceiverGroup) (stri
 		return "", err
 	}
 
-	content, err := c.DoPut(endpoint, enc)
+	content, err := c.DoPatch(endpoint, enc)
 	if err != nil {
 		return content, err
 	}
