@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -25,9 +26,6 @@ func (s *Server) GetEventByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "eventID")
 		event, err := storage.FindEvent(s.DBConnector.Client, graphql.ID(id))
-		if err != nil {
-			err = missingObjectError{msg: err.Error()}
-		}
 		handleResponse(w, r, event, err)
 	}
 }
@@ -36,7 +34,7 @@ func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
 	e := &storage.Event{}
 	err := json.NewDecoder(r.Body).Decode(e)
 	if err != nil {
-		return "", invalidInputError{msg: err.Error()}
+		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	event, err := storage.CreateEvent(s.DBConnector.Client, *e)
