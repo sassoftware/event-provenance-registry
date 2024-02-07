@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 	"github.com/xeipuuv/gojsonschema"
@@ -27,9 +28,6 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 		id := chi.URLParam(r, "receiverID")
 		slog.Info("getting receiver", "id", id)
 		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
-		if err != nil {
-			err = missingObjectError{msg: err.Error()}
-		}
 		handleResponse(w, r, eventReceiver, err)
 	}
 }
@@ -38,18 +36,18 @@ func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
 	rec := &storage.EventReceiver{}
 	err := json.NewDecoder(r.Body).Decode(rec)
 	if err != nil {
-		return "", invalidInputError{msg: err.Error()}
+		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	// Check that the schema is valid.
 	if rec.Schema.String() == "" {
-		return "", invalidInputError{msg: "schema is required"}
+		return "", eprErrors.InvalidInputError{Msg: "schema is required"}
 	}
 
 	loader := gojsonschema.NewStringLoader(rec.Schema.String())
 	_, err = gojsonschema.NewSchema(loader)
 	if err != nil {
-		return "", invalidInputError{msg: err.Error()}
+		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
