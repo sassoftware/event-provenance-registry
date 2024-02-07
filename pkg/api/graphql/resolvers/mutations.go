@@ -67,9 +67,19 @@ func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEvent(event))
+	r.msgProducer.Async(message.NewEvent(*event))
 
 	slog.Info("created", "event", event)
+	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event)
+	if err != nil {
+		slog.Error("error finding triggered event receiver groups", "err", err, "input", eventInput)
+		return "", err
+	}
+
+	for _, eventReceiverGroup := range eventReceiverGroups {
+		r.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
+	}
+
 	return event.ID, nil
 }
 
@@ -89,7 +99,7 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventR
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEventReceiver(eventReceiver))
+	r.msgProducer.Async(message.NewEventReceiver(*eventReceiver))
 
 	slog.Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
@@ -112,7 +122,7 @@ func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGr
 		return "", err
 	}
 
-	r.msgProducer.Async(message.NewEventReceiverGroupCreated(eventReceiverGroup))
+	r.msgProducer.Async(message.NewEventReceiverGroupCreated(*eventReceiverGroup))
 
 	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
 	return eventReceiverGroup.ID, nil

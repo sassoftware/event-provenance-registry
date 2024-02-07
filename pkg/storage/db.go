@@ -4,6 +4,9 @@
 package storage
 
 import (
+	"database/sql"
+	_ "embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -40,7 +43,7 @@ func New(host, user, pass, sslMode, database string, port int) (*Database, error
 		sslMode = fmt.Sprintf("sslmode=%s", sslMode)
 	}
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d %v TimeZone=EST", host, user, pass, database, port, sslMode)
-	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: glog})
+	client, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: glog, PrepareStmt: true})
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database. err %s", err)
 	}
@@ -219,4 +222,59 @@ func validateReceiverSchema(schema string, eventPayload types.JSON) error {
 	}
 
 	return nil
+}
+
+//go:embed megaQuery.sql
+var megaQuery string
+
+// Data represents the EventReceiverGroup data that comes back from
+// the mega query. It is necessary to allow us to automatically
+// insert event_receiver_ids by overriding the json tag
+type TriggeredEventReceiverGroups struct {
+	EventReceiverGroup
+
+	// Database returns json array instead of a string
+	EventReceiverIDs types.JSON `json:"event_receiver_ids"`
+}
+
+func FindTriggeredEventReceiverGroups(tx *gorm.DB, event Event) ([]EventReceiverGroup, error) {
+	var triggeredEventReceiverGroups []TriggeredEventReceiverGroups
+	result := tx.Model("EventReceiverGroup").Raw(megaQuery,
+		sql.Named("name", event.Name),
+		sql.Named("version", event.Version),
+		sql.Named("release", event.Release),
+		sql.Named("platform_id", event.PlatformID),
+		sql.Named("package", event.Package),
+		sql.Named("event_receiver_id", event.EventReceiverID)).
+		Scan(&triggeredEventReceiverGroups)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("eventReceiverGroup %s not found", event.EventReceiverID)
+		}
+		return nil, pgError(result.Error)
+	}
+	if result.RowsAffected < 1 {
+		return nil, nil
+	}
+
+	eventReceiverGroups := []EventReceiverGroup{}
+	for _, triggeredEventReceiverGroup := range triggeredEventReceiverGroups {
+		var eventReceiverIDs []graphql.ID
+		err := json.Unmarshal([]byte(triggeredEventReceiverGroup.EventReceiverIDs.JSON), &eventReceiverIDs)
+		if err != nil {
+			return nil, err
+		}
+		eventReceiverGroup := EventReceiverGroup{
+			ID:               triggeredEventReceiverGroup.ID,
+			Name:             triggeredEventReceiverGroup.Name,
+			Version:          triggeredEventReceiverGroup.Version,
+			Description:      triggeredEventReceiverGroup.Description,
+			Enabled:          triggeredEventReceiverGroup.Enabled,
+			EventReceiverIDs: eventReceiverIDs,
+			CreatedAt:        triggeredEventReceiverGroup.CreatedAt,
+			UpdatedAt:        triggeredEventReceiverGroup.UpdatedAt,
+		}
+		eventReceiverGroups = append(eventReceiverGroups, eventReceiverGroup)
+	}
+	return eventReceiverGroups, nil
 }

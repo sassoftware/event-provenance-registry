@@ -31,9 +31,9 @@ type Message struct {
 
 // Data contains the data that created the event
 type Data struct {
-	Events              []*storage.Event              `json:"events"`
-	EventReceivers      []*storage.EventReceiver      `json:"event_receivers"`
-	EventReceiverGroups []*storage.EventReceiverGroup `json:"event_receiver_groups"`
+	Events              []storage.Event              `json:"events"`
+	EventReceivers      []storage.EventReceiver      `json:"event_receivers"`
+	EventReceiverGroups []storage.EventReceiverGroup `json:"event_receiver_groups"`
 }
 
 // ToJSON converts a Events struct to JSON
@@ -63,8 +63,8 @@ func New() *Message {
 }
 
 // NewEvent returns a Message
-func NewEvent(e *storage.Event) Message {
-	er := &storage.EventReceiver{
+func NewEvent(e storage.Event) Message {
+	er := storage.EventReceiver{
 		ID:          e.EventReceiver.ID,
 		Name:        e.EventReceiver.Name,
 		Type:        e.EventReceiver.Type,
@@ -88,14 +88,14 @@ func NewEvent(e *storage.Event) Message {
 		PlatformID:  e.PlatformID,
 		Package:     e.Package,
 		Data: Data{
-			Events:         []*storage.Event{e},
-			EventReceivers: []*storage.EventReceiver{er},
+			Events:         []storage.Event{e},
+			EventReceivers: []storage.EventReceiver{er},
 		},
 	}
 }
 
 // NewEventReceiver returns a Message
-func NewEventReceiver(e *storage.EventReceiver) Message {
+func NewEventReceiver(e storage.EventReceiver) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
@@ -109,13 +109,13 @@ func NewEventReceiver(e *storage.EventReceiver) Message {
 		PlatformID:  "event-provenance-registry",
 		Package:     "event.receiver",
 		Data: Data{
-			EventReceivers: []*storage.EventReceiver{e},
+			EventReceivers: []storage.EventReceiver{e},
 		},
 	}
 }
 
 // NewEventReceiverGroupCreated returns a Message
-func NewEventReceiverGroupCreated(e *storage.EventReceiverGroup) Message {
+func NewEventReceiverGroupCreated(e storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
@@ -129,13 +129,13 @@ func NewEventReceiverGroupCreated(e *storage.EventReceiverGroup) Message {
 		PlatformID:  "event-provenance-registry",
 		Package:     "event.receiver.group",
 		Data: Data{
-			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+			EventReceiverGroups: []storage.EventReceiverGroup{e},
 		},
 	}
 }
 
 // NewEventReceiverGroupModified returns a Message
-func NewEventReceiverGroupModified(e *storage.EventReceiverGroup) Message {
+func NewEventReceiverGroupModified(e storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(e.ID),
@@ -149,13 +149,13 @@ func NewEventReceiverGroupModified(e *storage.EventReceiverGroup) Message {
 		PlatformID:  "event-provenance-registry",
 		Package:     "event.receiver.group",
 		Data: Data{
-			EventReceiverGroups: []*storage.EventReceiverGroup{e},
+			EventReceiverGroups: []storage.EventReceiverGroup{e},
 		},
 	}
 }
 
 // NewEventReceiverGroupComplete returns a message
-func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverGroup) Message {
+func NewEventReceiverGroupComplete(e storage.Event, erg storage.EventReceiverGroup) Message {
 	return Message{
 		Success:     true,
 		ID:          string(erg.ID),
@@ -169,8 +169,8 @@ func NewEventReceiverGroupComplete(e *storage.Event, erg *storage.EventReceiverG
 		Package:     e.Package,
 		PlatformID:  e.PlatformID,
 		Data: Data{
-			Events:              []*storage.Event{e},
-			EventReceiverGroups: []*storage.EventReceiverGroup{erg},
+			Events:              []storage.Event{e},
+			EventReceiverGroups: []storage.EventReceiverGroup{erg},
 		},
 	}
 }
