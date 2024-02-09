@@ -334,3 +334,22 @@ And query the information for an event receiver group:
 curl --header 'Content-Type: application/json' --location \
   --request GET 'http://localhost:8042/api/v1/groups/01HFF7REANVRHZ42KA7AYT5YAA'
 ```
+
+query ($er: FindEventReceiverInput!){
+  event_receivers(event_receiver: $er) {
+    id
+    name
+    version
+    type
+    description
+    created_at
+  }
+}
+
+{
+  "er": {
+    "name":  "the_clash",
+    "type": "",
+    "version": "1.0.0"
+  }
+}

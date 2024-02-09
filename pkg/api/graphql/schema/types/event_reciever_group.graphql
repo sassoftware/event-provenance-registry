@@ -10,10 +10,17 @@ type EventReceiverGroup {
   updated_at: Time!
 }
 
-input EventReceiverGroupInput {
+input CreateEventReceiverGroupInput {
   name: String!
   type: String!
   version: String!
   description: String!
   event_receiver_ids: [ID!]!
+}
+
+input FindEventReceiverGroupInput {
+  ID: ID
+  name: String
+  type: String
+  version: String
 }

@@ -8,15 +8,15 @@ type Query {
   event_receivers_by_id(id: ID!): [EventReceiver!]!
   event_receiver_groups_by_id(id: ID!): [EventReceiverGroup!]!
 
-  events(event: Event!): [Event!]!
-  event_receivers(event_receiver: EventReceiver!): [EventReceiver!]!
-  event_receiver_groups(event_receiver_group: EventReceiverGroup!): [EventReceiverGroup!]!
+  events(event: FindEventInput!): [Event!]!
+  event_receivers(event_receiver: FindEventReceiverInput!): [EventReceiver!]!
+  event_receiver_groups(event_receiver_group: FindEventReceiverGroupInput!): [EventReceiverGroup!]!
 }
 
 type Mutation {
-  create_event(event: EventInput!): ID!
-  create_event_receiver(event_receiver: EventReceiverInput!): ID!
-  create_event_receiver_group(event_receiver_group: EventReceiverGroupInput!): ID!
+  create_event(event: CreateEventInput!): ID!
+  create_event_receiver(event_receiver: CreateEventReceiverInput!): ID!
+  create_event_receiver_group(event_receiver_group: CreateEventReceiverGroupInput!): ID!
 
   set_event_receiver_group_enabled(id: ID!): ID!
   set_event_receiver_group_disabled(id: ID!): ID!
