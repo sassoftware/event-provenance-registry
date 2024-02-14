@@ -25,6 +25,7 @@ func TestCreateAndGetGroup(t *testing.T) {
 				Type:        "one.receiver",
 				Version:     "4.5.6",
 				Description: "has a single receiver",
+				Enabled:     true,
 			},
 			receiverInputs: []eventReceiverInput{
 				{
@@ -42,6 +43,7 @@ func TestCreateAndGetGroup(t *testing.T) {
 				Type:        "multiple.receivers",
 				Version:     "7.8.9",
 				Description: "has multiple receivers",
+				Enabled:     true,
 			},
 			receiverInputs: []eventReceiverInput{
 				{
@@ -63,6 +65,24 @@ func TestCreateAndGetGroup(t *testing.T) {
 					Type:        "does.something.different",
 					Version:     "1.21.4",
 					Description: "tracks that something different happens",
+					Schema:      `{}`,
+				},
+			},
+		},
+		"disabled group": {
+			input: eventReceiverGroupInput{
+				Name:        "is-disabled",
+				Type:        "do.something",
+				Version:     "6.20.7",
+				Description: "basic group that should be disabled",
+				Enabled:     false,
+			},
+			receiverInputs: []eventReceiverInput{
+				{
+					Name:        "my receiver",
+					Type:        "does.something",
+					Version:     "3.14.75",
+					Description: "my receiver",
 					Schema:      `{}`,
 				},
 			},
@@ -105,7 +125,7 @@ func TestCreateAndGetGroup(t *testing.T) {
 			assert.Equal(t, group.Type, tt.input.Type)
 			assert.Equal(t, group.Version, tt.input.Version)
 			assert.Equal(t, group.Description, tt.input.Description)
-			assert.Equal(t, group.Enabled, true)
+			assert.Equal(t, group.Enabled, tt.input.Enabled)
 			assert.DeepEqual(t, graphIDsToStrings(group.EventReceiverIDs), tt.input.Receivers)
 			createdAt := time.Time(group.CreatedAt.Date)
 			updatedAt := time.Time(group.UpdatedAt.Date)
@@ -184,6 +204,7 @@ func TestToggleGroup(t *testing.T) {
 		Type:        "toggled.group",
 		Version:     "2.0.11",
 		Description: "group that will be toggled",
+		Enabled:     true,
 		Receivers:   []string{},
 	})
 	assert.NilError(t, err)
@@ -191,7 +212,7 @@ func TestToggleGroup(t *testing.T) {
 	originalGroup, err := getGroup(client, groupID)
 	assert.NilError(t, err)
 	originalUpdatedAt := time.Time(originalGroup.UpdatedAt.Date)
-	assert.Equal(t, originalGroup.Enabled, true, "group should be enabled by default")
+	assert.Equal(t, originalGroup.Enabled, true, "group should be initially enabled")
 
 	err = toggleGroup(client, groupID, false)
 	assert.NilError(t, err)

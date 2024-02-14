@@ -33,6 +33,7 @@ type eventReceiverGroupInput struct {
 	Type        string
 	Version     string
 	Description string
+	Enabled     bool
 	Receivers   []string
 }
 
@@ -43,8 +44,9 @@ func (g eventReceiverGroupInput) toPayload() string {
 	"type": "%s",
 	"version": "%s",
 	"description": "%s",
+	"enabled": %t,
 	"event_receiver_ids": %s
-}`, g.Name, g.Type, g.Version, g.Description, string(receivers))
+}`, g.Name, g.Type, g.Version, g.Description, g.Enabled, string(receivers))
 }
 
 // createGroup creates a group with the given input, returning
