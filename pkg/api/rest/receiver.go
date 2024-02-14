@@ -10,10 +10,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/epr"
 	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
-	"github.com/xeipuuv/gojsonschema"
 )
 
 func (s *Server) CreateReceiver() http.HandlerFunc {
@@ -33,29 +32,15 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 }
 
 func (s *Server) createReceiver(r *http.Request) (graphql.ID, error) {
-	rec := &storage.EventReceiver{}
-	err := json.NewDecoder(r.Body).Decode(rec)
+	var input epr.EventReceiverInput
+	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
-	// Check that the schema is valid.
-	if rec.Schema.String() == "" {
-		return "", eprErrors.InvalidInputError{Msg: "schema is required"}
-	}
-
-	loader := gojsonschema.NewStringLoader(rec.Schema.String())
-	_, err = gojsonschema.NewSchema(loader)
-	if err != nil {
-		return "", eprErrors.InvalidInputError{Msg: err.Error()}
-	}
-
-	eventReceiver, err := storage.CreateEventReceiver(s.DBConnector.Client, *rec)
+	eventReceiver, err := epr.CreateEventReceiver(s.msgProducer, s.DBConnector, input)
 	if err != nil {
 		return "", err
 	}
-
-	slog.Info("created", "eventReceiver", eventReceiver)
-	s.msgProducer.Async(message.NewEventReceiver(*eventReceiver))
 	return eventReceiver.ID, nil
 }
