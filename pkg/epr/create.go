@@ -30,25 +30,25 @@ func (e EventInput) Validate() error {
 	var err error
 
 	if strings.TrimSpace(e.Name) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "name cannot be blank"})
+		err = errors.Join(err, errors.New("name cannot be blank"))
 	}
 	if strings.TrimSpace(e.Version) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "version cannot be blank"})
+		err = errors.Join(err, errors.New("version cannot be blank"))
 	}
 	if strings.TrimSpace(e.Release) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "release cannot be blank"})
+		err = errors.Join(err, errors.New("release cannot be blank"))
 	}
 	if strings.TrimSpace(e.PlatformID) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "platform id cannot be blank"})
+		err = errors.Join(err, errors.New("platform id cannot be blank"))
 	}
 	if strings.TrimSpace(e.Package) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "package cannot be blank"})
+		err = errors.Join(err, errors.New("package cannot be blank"))
 	}
 	if strings.TrimSpace(e.Description) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "description cannot be blank"})
+		err = errors.Join(err, errors.New("description cannot be blank"))
 	}
 	if strings.TrimSpace(string(e.EventReceiverID)) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "event receiver id cannot be blank"})
+		err = errors.Join(err, errors.New("event receiver id cannot be blank"))
 	}
 
 	return err
@@ -66,27 +66,26 @@ func (r EventReceiverInput) Validate() error {
 	var err error
 
 	if strings.TrimSpace(r.Name) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "name cannot be blank"})
+		err = errors.Join(err, errors.New("name cannot be blank"))
 	}
 	if strings.TrimSpace(r.Type) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "type cannot be blank"})
+		err = errors.Join(err, errors.New("type cannot be blank"))
 	}
 	if strings.TrimSpace(r.Version) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "version cannot be blank"})
+		err = errors.Join(err, errors.New("version cannot be blank"))
 	}
 	if strings.TrimSpace(r.Description) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "description cannot be blank"})
+		err = errors.Join(err, errors.New("description cannot be blank"))
 	}
 	schemaErr := func() error {
 		schema := r.Schema.String()
 		if schema == "" {
-			return eprErrors.InvalidInputError{Msg: "schema is required"}
+			return errors.New("schema is required")
 		}
 		loader := gojsonschema.NewStringLoader(schema)
 		_, err := gojsonschema.NewSchema(loader)
 		if err != nil {
-			err = fmt.Errorf("failed to parse schema: %w", err)
-			return eprErrors.InvalidInputError{Msg: err.Error()}
+			return fmt.Errorf("failed to parse schema: %w", err)
 		}
 		return nil
 	}()
@@ -108,24 +107,24 @@ func (g EventReceiverGroupInput) Validate() error {
 	var err error
 
 	if strings.TrimSpace(g.Name) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "name cannot be blank"})
+		err = errors.Join(err, errors.New("name cannot be blank"))
 	}
 	if strings.TrimSpace(g.Type) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "type cannot be blank"})
+		err = errors.Join(err, errors.New("type cannot be blank"))
 	}
 	if strings.TrimSpace(g.Version) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "version cannot be blank"})
+		err = errors.Join(err, errors.New("version cannot be blank"))
 	}
 	if strings.TrimSpace(g.Description) == "" {
-		err = errors.Join(err, eprErrors.InvalidInputError{Msg: "description cannot be blank"})
+		err = errors.Join(err, errors.New("description cannot be blank"))
 	}
 	receiverIDErr := func() error {
 		if len(g.EventReceiverIDs) == 0 {
-			return eprErrors.InvalidInputError{Msg: "need at least one event receiver id"}
+			return errors.New("need at least one event receiver id")
 		}
 		for _, receiverID := range g.EventReceiverIDs {
 			if strings.TrimSpace(string(receiverID)) == "" {
-				return eprErrors.InvalidInputError{Msg: "event receiver ids cannot be blank"}
+				return errors.New("event receiver ids cannot be blank")
 			}
 		}
 		return nil
@@ -138,7 +137,7 @@ func (g EventReceiverGroupInput) Validate() error {
 func CreateEvent(msgProducer message.TopicProducer, db *storage.Database, input EventInput) (*storage.Event, error) {
 	err := input.Validate()
 	if err != nil {
-		return nil, err
+		return nil, eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	partial := storage.Event{
@@ -177,7 +176,7 @@ func CreateEvent(msgProducer message.TopicProducer, db *storage.Database, input 
 func CreateEventReceiver(msgProducer message.TopicProducer, db *storage.Database, input EventReceiverInput) (*storage.EventReceiver, error) {
 	err := input.Validate()
 	if err != nil {
-		return nil, err
+		return nil, eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	partial := storage.EventReceiver{
@@ -203,7 +202,7 @@ func CreateEventReceiver(msgProducer message.TopicProducer, db *storage.Database
 func CreateEventReceiverGroup(msgProducer message.TopicProducer, db *storage.Database, input EventReceiverGroupInput) (*storage.EventReceiverGroup, error) {
 	err := input.Validate()
 	if err != nil {
-		return nil, err
+		return nil, eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
 	partial := storage.EventReceiverGroup{
