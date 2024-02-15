@@ -179,6 +179,46 @@ func TestCreateInvalidGroup(t *testing.T) {
 				Receivers:   []string{},
 			},
 		},
+		"empty name": {
+			input: eventReceiverGroupInput{
+				Name:        "",
+				Type:        "group.complete",
+				Version:     "0.0.2",
+				Description: "group completes some actions",
+				Enabled:     true,
+				Receivers:   []string{receiverID},
+			},
+		},
+		"empty type": {
+			input: eventReceiverGroupInput{
+				Name:        "sample group",
+				Type:        "",
+				Version:     "0.0.2",
+				Description: "group completes some actions",
+				Enabled:     true,
+				Receivers:   []string{receiverID},
+			},
+		},
+		"empty version": {
+			input: eventReceiverGroupInput{
+				Name:        "sample group",
+				Type:        "group.complete",
+				Version:     "",
+				Description: "group completes some actions",
+				Enabled:     true,
+				Receivers:   []string{receiverID},
+			},
+		},
+		"empty description": {
+			input: eventReceiverGroupInput{
+				Name:        "sample group",
+				Type:        "group.complete",
+				Version:     "0.0.2",
+				Description: "",
+				Enabled:     true,
+				Receivers:   []string{receiverID},
+			},
+		},
 	}
 
 	for testName, tt := range tests {
@@ -199,13 +239,22 @@ func TestCreateInvalidGroup(t *testing.T) {
 func TestToggleGroup(t *testing.T) {
 	client := common.NewHTTPClient()
 
+	receiverID, err := createReceiver(client, eventReceiverInput{
+		Name:        "common-group-receiver",
+		Type:        "my.receiver.type",
+		Version:     "0.0.4",
+		Description: "common receiver for group testing",
+		Schema:      `{}`,
+	})
+	assert.NilError(t, err)
+
 	groupID, err := createGroup(client, eventReceiverGroupInput{
 		Name:        "group to be toggled",
 		Type:        "toggled.group",
 		Version:     "2.0.11",
 		Description: "group that will be toggled",
 		Enabled:     true,
-		Receivers:   []string{},
+		Receivers:   []string{receiverID},
 	})
 	assert.NilError(t, err)
 
@@ -229,6 +278,20 @@ func TestToggleGroup(t *testing.T) {
 	assert.Equal(t, group.Enabled, true, "group should be enabled")
 	afterEnableUpdatedAt := time.Time(group.UpdatedAt.Date)
 	assert.Check(t, !afterEnableUpdatedAt.Equal(afterDisableUpdatedAt), "updated time should be updated after enable")
+}
+
+func TestGetNonExistentGroup(t *testing.T) {
+	client := common.NewHTTPClient()
+
+	resp, err := client.Get(groupURI + "non-existent-group-id")
+	assert.NilError(t, err)
+	assert.Equal(t, resp.StatusCode, http.StatusNotFound)
+
+	var body getGroupResponse
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	assert.NilError(t, err)
+	assert.Check(t, len(body.Errors) > 0)
+	assert.Equal(t, len(body.Data), 0)
 }
 
 func graphIDsToStrings(ids []graphql.ID) []string {
