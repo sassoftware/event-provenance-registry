@@ -38,25 +38,89 @@ type EventReceiverGroupInput struct {
 
 type FindEventInput struct {
 	ID              *graphql.ID
-	Name            *string
-	Version         *string
-	Release         *string
-	PlatformID      *string
-	Package         *string
-	Success         *bool
+	Name            graphql.NullString
+	Version         graphql.NullString
+	Release         graphql.NullString
+	PlatformID      graphql.NullString
+	Package         graphql.NullString
+	Success         graphql.NullBool
 	EventReceiverID *graphql.ID
+}
+
+func (f FindEventInput) toMap() map[string]any {
+	m := map[string]any{}
+	if f.ID != nil {
+		m["id"] = *f.ID
+	}
+	if f.Name.Set {
+		m["name"] = f.Name.Value
+	}
+	if f.Version.Set {
+		m["version"] = f.Version.Value
+	}
+	if f.Release.Set {
+		m["release"] = f.Release.Value
+	}
+	if f.PlatformID.Set {
+		m["platform_id"] = f.PlatformID.Value
+	}
+	if f.Package.Set {
+		m["package"] = f.Package.Value
+	}
+	if f.Success.Set {
+		m["success"] = f.Success.Value
+	}
+	if f.EventReceiverID != nil {
+		m["event_receiver_id"] = *f.EventReceiverID
+	}
+	return m
 }
 
 type FindEventReceiverInput struct {
 	ID      *graphql.ID
-	Name    *string
-	Type    *string
-	Version *string
+	Name    graphql.NullString
+	Type    graphql.NullString
+	Version graphql.NullString
+}
+
+func (f FindEventReceiverInput) toMap() map[string]any {
+	m := map[string]any{}
+	if f.ID != nil {
+		m["id"] = *f.ID
+	}
+	if f.Name.Set {
+		m["name"] = f.Name.Value
+	}
+	if f.Type.Set {
+		m["type"] = f.Type.Value
+	}
+	if f.Version.Set {
+		m["version"] = f.Version.Value
+	}
+	return m
 }
 
 type FindEventReceiverGroupInput struct {
 	ID      *graphql.ID
-	Name    *string
-	Type    *string
-	Version *string
+	Name    graphql.NullString
+	Type    graphql.NullString
+	Version graphql.NullString
+}
+
+
+func (f FindEventReceiverGroupInput) toMap() map[string]any {
+	m := map[string]any{}
+	if f.ID != nil {
+		m["id"] = *f.ID
+	}
+	if f.Name.Set {
+		m["name"] = f.Name.Value
+	}
+	if f.Type.Set {
+		m["type"] = f.Type.Value
+	}
+	if f.Version.Set {
+		m["version"] = f.Version.Value
+	}
+	return m
 }
