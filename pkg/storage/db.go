@@ -99,7 +99,7 @@ func FindEvent(tx *gorm.DB, e Event) ([]Event, error) {
 	result := tx.Model(&Event{}).Preload("EventReceiver").Find(&events, &e)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("event %s not found", id)}
+			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("event %s not found", e.ID)}
 		}
 		return nil, pgError(result.Error)
 	}
@@ -136,7 +136,7 @@ func FindEventReceiver(tx *gorm.DB, er EventReceiver) ([]EventReceiver, error) {
 	result := tx.Model(&EventReceiver{}).Find(&eventReceivers, &er)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiver %s not found", id)}
+			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiver %s not found", er.ID)}
 		}
 		return nil, pgError(result.Error)
 	}
@@ -184,7 +184,7 @@ func FindEventReceiverGroup(tx *gorm.DB, erg EventReceiverGroup) ([]EventReceive
 	result := tx.Model(&EventReceiverGroup{}).Find(&eventReceiverGroup, &erg)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiverGroup %s not found", id)}
+			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiverGroup %s not found", erg.ID)}
 		}
 		return nil, pgError(result.Error)
 	}

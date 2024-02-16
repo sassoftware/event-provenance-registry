@@ -27,7 +27,7 @@ func (s *Server) GetEventByID() http.HandlerFunc {
 		id := chi.URLParam(r, "eventID")
 		event, err := storage.FindEventByID(s.DBConnector.Client, graphql.ID(id))
 		if err != nil {
-			err = missingObjectError{msg: err.Error()}
+			err = eprErrors.MissingObjectError{Msg: err.Error()}
 		}
 		handleResponse(w, r, event, err)
 	}

@@ -34,7 +34,7 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 		slog.Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroupByID(s.DBConnector.Client, graphql.ID(id))
 		if err != nil {
-			err = missingObjectError{msg: err.Error()}
+			err =  eprErrors.MissingObjectError{Msg: err.Error()}
 		}
 		handleResponse(w, r, rec, err)
 	}
