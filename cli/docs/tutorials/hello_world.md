@@ -91,6 +91,18 @@ And validate we have created the `bar-cli` receiver.
 epr-cli receiver search --id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --fields all
 ```
 
+We can also search for all the event receivers that have a type of `epr.foo.cli`
+
+```bash
+epr-cli receiver search --type epr.foo.cli --fields all
+```
+
+And search for event receivers by name and version
+
+```bash
+epr-cli receiver search --name foo-cli --version 1.0.0 --fields all
+```
+
 ### Create Event Receiver Groups
 
 Next we Next we will create an event receiver group.
@@ -133,6 +145,12 @@ We can validate we have created the `foo` event with the following command:
 epr-cli event search --id 01HKX1TMQZQDS6NC5DG7WNXXCJ --fields all
 ```
 
+or search by name and version
+
+```bash
+epr-cli event search --name foo --version 1.0.0 --fields all
+```
+
 Next we can create a `bar` event and post it to the other receiver in the
 receiver group.
 
@@ -154,6 +172,12 @@ We can validate we have created the `bar` event with the following command:
 
 ```bash
 epr-cli event search --id 1HKX7HKVDVH0HRQN0P2VDJ7Y6 --fields all
+```
+
+Or we can search by name and version and success
+
+```bash
+epr-cli event search --name bar --version 1.0.0 --success true --fields all
 ```
 
 ### Triggering the Event Receiver Group Message
