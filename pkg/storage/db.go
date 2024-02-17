@@ -127,7 +127,6 @@ func CreateEventReceiver(tx *gorm.DB, eventReceiver EventReceiver) (*EventReceiv
 // FindEventReceiver tries to find an event receiver by ID.
 func FindEventReceiverByID(tx *gorm.DB, id graphql.ID) ([]EventReceiver, error) {
 	return FindEventReceiver(tx, map[string]any{"id": id})
-
 }
 
 // FindEventReceiver tries to find an event receiver by ID.

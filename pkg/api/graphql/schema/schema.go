@@ -31,7 +31,7 @@ var content embed.FS
 func String() (string, error) {
 	var buf bytes.Buffer
 
-	fn := func(path string, d fs.DirEntry, err error) error {
+	fn := func(path string, _ fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("walking dir: %w", err)
 		}
