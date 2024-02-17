@@ -107,7 +107,6 @@ type FindEventReceiverGroupInput struct {
 	Version graphql.NullString
 }
 
-
 func (f FindEventReceiverGroupInput) toMap() map[string]any {
 	m := map[string]any{}
 	if f.ID != nil {

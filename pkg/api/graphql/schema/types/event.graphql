@@ -32,4 +32,5 @@ input FindEventInput {
   platform_id: String
   package: String
   success: Boolean
+  event_receiver_id: ID
 }
