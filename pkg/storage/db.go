@@ -133,7 +133,7 @@ func FindEventReceiverByID(tx *gorm.DB, id graphql.ID) ([]EventReceiver, error) 
 // FindEventReceiver tries to find an event receiver by ID.
 func FindEventReceiver(tx *gorm.DB, er map[string]any) ([]EventReceiver, error) {
 	var eventReceivers []EventReceiver
-	result := tx.Model(&EventReceiver{}).Where(er).Find(&eventReceivers, &er)
+	result := tx.Model(&EventReceiver{}).Where(er).Find(&eventReceivers)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiver %+v not found", er)}
