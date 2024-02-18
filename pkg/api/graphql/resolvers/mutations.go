@@ -4,7 +4,6 @@ import (
 	"log/slog"
 
 	"github.com/graph-gophers/graphql-go"
-	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -17,34 +16,6 @@ import (
 type MutationResolver struct {
 	Connection  *storage.Database
 	msgProducer message.TopicProducer
-}
-
-type EventInput struct {
-	Name            string
-	Version         string
-	Release         string
-	PlatformID      string
-	Package         string
-	Description     string
-	Payload         types.JSON
-	Success         bool
-	EventReceiverID graphql.ID
-}
-
-type EventReceiverInput struct {
-	Name        string
-	Type        string
-	Version     string
-	Description string
-	Schema      types.JSON
-}
-
-type EventReceiverGroupInput struct {
-	Name             string
-	Type             string
-	Version          string
-	Description      string
-	EventReceiverIDs []graphql.ID
 }
 
 func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql.ID, error) {

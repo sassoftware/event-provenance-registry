@@ -71,7 +71,7 @@ On successful startup the server will display the message below:
 }
 ```
 
-The graphql playground will not be accessible at:
+The graphql playground will now be accessible at:
 <http://localhost:8042/api/v1/graphql>
 
 ## Making a request
@@ -102,12 +102,52 @@ This will return the id of the newly created event receiver.
 ```json
 {
   "data": {
-    "create_event_receiver": "01HFF6SDK7H9Z1FERBD9DAD0FN"
+    "create_event_receiver": "01HPVZY1V8SVXGQY03ZG90CA3S"
   }
 }
 ```
 
-This can then be used to create a new event
+This can then be used to create a new event receiver group
+
+```graphql
+mutation {
+  create_event_receiver_group(
+    event_receiver_group: {
+      name: "foobar"
+      version: "1.0.0"
+      description: "a fake event receiver group"
+      event_receiver_ids: ["ID_RETURNED_FROM_PREVIOUS_MUTATION"]
+      type: "test.test.test"
+    }
+  )
+}
+```
+
+This will return the id of the newly created event receiver group.
+
+```json
+{
+  "data": {
+    "create_event_receiver_group": "01HPW02R3G3QP3EJB036M41J9J"
+  }
+}
+```
+
+Event receiver Groups can be updated using the following mutation
+
+```graphql
+mutation {
+  set_event_receiver_group_enabled(id: "01HPW02R3G3QP3EJB036M41J9J")
+}
+```
+
+```graphql
+mutation {
+  set_event_receiver_group_disabled(id: "01HPW02R3G3QP3EJB036M41J9J")
+}
+```
+
+Now can create a new event for the event receiver ID in the previous step
 
 ```graphql
 mutation {
@@ -127,43 +167,13 @@ mutation {
 }
 ```
 
-This can then be used to create a new event receiver group
-
-```graphql
-mutation {
-  create_event_receiver_group(
-    event_receiver_group: {
-      name: "foobar"
-      version: "1.0.0"
-      description: "a fake event receiver group"
-      event_receiver_ids: ["ID_RETURNED_FROM_PREVIOUS_MUTATION"]
-      type: "test"
-    }
-  )
-}
-```
-
-This will return the id of the newly created event receiver group.
+This will return the id of the newly created event.
 
 ```json
 {
   "data": {
-    "create_event_receiver_group": "01HFF701QYB7S81C139HCYCXWM"
+    "create_event": "01HPW06R5QXK0C2GZM8H442Q9F"
   }
-}
-```
-
-Event receiver Groups can be updated using the following mutation
-
-```graphql
-mutation {
-  set_event_receiver_group_enabled(id: "01HFF701QYB7S81C139HCYCXWM")
-}
-```
-
-```graphql
-mutation {
-  set_event_receiver_group_disabled(id: "01HFF701QYB7S81C139HCYCXWM")
 }
 ```
 
@@ -174,7 +184,7 @@ the previously created event
 
 ```graphql
 query {
-  events(id: "01HFF6VY24WVGS0P8FZY93JP22") {
+  events_by_id(id: "01HPW06R5QXK0C2GZM8H442Q9F") {
     id
     name
     version
@@ -195,7 +205,7 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receivers(id: "01HFF6SDK7H9Z1FERBD9DAD0FN") {
+  event_receivers_by_id(id: "01HPVZY1V8SVXGQY03ZG90CA3S") {
     name
     version
     description
@@ -212,7 +222,7 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_groups(id: "01HFF701QYB7S81C139HCYCXWM") {
+  event_receiver_groups_by_id(id: "01HPW02R3G3QP3EJB036M41J9J") {
     name
     version
     description
@@ -223,6 +233,221 @@ query {
     updated_at
   }
 }
+```
+
+We can use graphql to search for events by name and version.
+
+Create another event for the same event receiver
+
+```graphql
+mutation {
+  create_event(
+    event: {
+      name: "foo"
+      version: "1.0.0"
+      release: "20240217"
+      platform_id: "x86-64-gnu-linux-7"
+      package: "rpm"
+      description: "The RPM Foo of Brixton"
+      payload: "{\"name\": \"foo\"}"
+      event_receiver_id: "01HPVZY1V8SVXGQY03ZG90CA3S"
+      success: true
+    }
+  )
+}
+```
+
+In the graphql window create a query with the following:
+
+```graphql
+query{
+  events(event: {name: "foo", version: "1.0.0"}) {
+    id
+    name
+    version
+    release
+    platform_id
+    package
+    description
+    payload
+    success
+    event_receiver_id
+    created_at
+  }
+}
+```
+
+This query will return all events with the name foo and version 1.0.0
+
+As follows:
+
+```json
+{
+  "data": {
+    "events": [
+      {
+        "id": "01HPW06R5QXK0C2GZM8H442Q9F",
+        "name": "foo",
+        "version": "1.0.0",
+        "release": "20231103",
+        "platform_id": "platformID",
+        "package": "package",
+        "description": "The Foo of Brixton",
+        "payload": {
+          "name": "value"
+        },
+        "success": true,
+        "event_receiver_id": "01HPVZY1V8SVXGQY03ZG90CA3S",
+        "created_at": "2024-02-17T12:00:45.62347-05:00"
+      },
+      {
+        "id": "01HPW1WMPK0ZDHQYD6T40MZBGW",
+        "name": "foo",
+        "version": "1.0.0",
+        "release": "20240217",
+        "platform_id": "x86-64-gnu-linux-7",
+        "package": "rpm",
+        "description": "The RPM Foo of Brixton",
+        "payload": {
+          "name": "foo"
+        },
+        "success": true,
+        "event_receiver_id": "01HPVZY1V8SVXGQY03ZG90CA3S",
+        "created_at": "2024-02-17T12:30:11.539643-05:00"
+      }
+    ]
+  }
+}
+```
+
+We can use graphql to search for event receivers by name and version.
+
+Create another event receiver
+
+```graphql
+mutation {
+  create_event_receiver(
+    event_receiver: {
+      name: "the_clash"
+      version: "1.0.0"
+      type: "london.calling.from.the.far.away.town"
+      description: "The only band that matters"
+      schema: "{\"name\": \"joe\"}"
+    }
+  )
+}
+```
+
+In the graphql window create a query with the following:
+
+```graphql
+query {
+  event_receivers(event_receiver: {name: "the_clash", version: "1.0.0"})
+    {
+    id
+    name
+    version
+    type
+    description
+    created_at
+  }
+}
+```
+
+This query will return all events with the name the_clash and version 1.0.0
+
+As follows:
+
+```graphql
+{
+  "data": {
+    "event_receivers": [
+      {
+        "id": "01HPVZY1V8SVXGQY03ZG90CA3S",
+        "name": "the_clash",
+        "version": "1.0.0",
+        "type": "london.calling",
+        "description": "The only band that matters",
+        "created_at": "2024-02-17T11:56:00.616222-05:00"
+      },
+      {
+        "id": "01HPW2BBY8HGPS6JG10DCXE6EH",
+        "name": "the_clash",
+        "version": "1.0.0",
+        "type": "london.calling.from.the.far.away.town",
+        "description": "The only band that matters",
+        "created_at": "2024-02-17T12:38:14.088635-05:00"
+      }
+    ]
+  }
+}
+```
+
+## Query using the GraphQL with Curl
+
+We need to craft a GraphQL query. First thing we need is an event receiver. The event receiver acts as a classification and gate for events.
+
+We can find and event reciever by id using the following graphql query:
+
+```json
+{
+  "query": "query ($er: FindEventReceiverInput!){event_receivers(event_receiver: $er) {id,name,type,version,description}}",
+  "variables": {
+    "er": {
+      "id": "01HPW652DSJBHR5K4KCZQ97GJP"
+    }
+  }
+}
+```
+
+We can query the event reciever information using a POST on the graphql endpoint as follows:
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query ($er: FindEventReceiverInput!){event_receivers(event_receiver: $er) {id,name,type,version,description}}","variables":{"er":{"id":"01HPW652DSJBHR5K4KCZQ97GJP"}}}' http://localhost:8042/api/v1/graphql/query
+```
+
+We can query for an event by name and version using the following graphql query:
+
+```json
+{
+  "query": "query ($e: FindEventInput!){events(event: $e) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}",
+  "variables": {
+    "e": {
+      "name": "foo",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+We can query the event reciever information using a POST on the graphql endpoint as follows:
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query ($e : FindEventInput!){events(event: $e) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}","variables":{"e": {"name":"foo","version":"1.0.0"}}}' http://localhost:8042/api/v1/graphql/query
+```
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query {events(event: {name: \"foo\", version: \"1.0.0\"}) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}}' http://localhost:8042/api/v1/graphql/query
+```
+
+We can query for an event receiver group by name and version using the following graphql query:
+
+```json
+{
+  "query": "query ($erg: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $erg) {id,name,type,version,description}}",
+  "variables": {
+    "erg": {
+      "name": "foobar",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+We can query the event reciever information using a POST on the graphql endpoint as follows:
+
+```bash
+curl -X POST -H "content-type:application/json" -d '{"query":"query ($erg: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $erg) {id,name,type,version,description}}","variables":{"erg": {"name":"foobar","version":"1.0.0"}}}' http://localhost:8042/api/v1/graphql/query
 ```
 
 ## Create using the REST API
@@ -236,26 +461,26 @@ Create an event receiver:
 curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-  "name": "foobar",
-  "type": "foo.bar",
-  "version": "1.1.2",
-  "description": "The event receiver of Brixton",
-  "enabled": true,
-  "schema": {
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string"
+    "name": "foobar",
+    "type": "foo.bar",
+    "version": "1.1.2",
+    "description": "The event receiver of Brixton",
+    "enabled": true,
+    "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      }
     }
   }
-}
 }'
 ```
 
 The results should look like this:
 
 ```json
-{ "data": "01HFW56YF6BZHAPHNX0ZGHZPAC" }
+{ "data": "01HPW0DY340VMM3DNMX8JCQDGN" }
 ```
 
 We need the ULID of the event receiver in the next step.
@@ -289,7 +514,7 @@ curl --location --request POST 'http://localhost:8042/api/v1/events' \
 The results of the command should look like this:
 
 ```json
-{ "data": "01HFW5AJSBJ2HH6AB405G73S0M" }
+{ "data": "01HPW0GV9PY8HT2Q0XW1QMRBY9" }
 ```
 
 Event Receiver Groups are a way to group together several event receivers. When
@@ -318,19 +543,20 @@ follows:
 
 ```bash
 curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/events/01HFF6VY24WVGS0P8FZY93JP22'
+  --request GET 'http://localhost:8042/api/v1/events/01HPW0GV9PY8HT2Q0XW1QMRBY9'
 ```
 
 Query the information for an event receiver:
 
 ```bash
 curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/receivers/01HFF7N2XTVP7KQCEBEK2SYCVD'
+  --request GET 'http://localhost:8042/api/v1/receivers/01HPW0DY340VMM3DNMX8JCQDGN'
 ```
 
 And query the information for an event receiver group:
 
 ```bash
 curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/groups/01HFF7REANVRHZ42KA7AYT5YAA'
+  --request GET 'http://localhost:8042/api/v1/groups/01HPW0JXG82Q0FBEC9M8P2Q6J8
+'
 ```

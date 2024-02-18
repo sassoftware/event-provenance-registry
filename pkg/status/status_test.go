@@ -18,11 +18,11 @@ import (
 func TestTheStatus(t *testing.T) {
 	t.Helper()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz/liveness", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/healthz/liveness", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Println(`{"data":{"alive":true}}`)
 	})
-	mux.HandleFunc("/healthz/readiness", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/healthz/readiness", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Println(`{"data":{"ready":true}}`)
 	})
@@ -64,10 +64,10 @@ func TestTheStatus(t *testing.T) {
 func TestRequestResponseBody(t *testing.T) {
 	// Setup http get request mocking
 	mux := http.NewServeMux()
-	mux.HandleFunc("/badStatus", func(w http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/badStatus", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 	})
-	mux.HandleFunc("/happypath", func(w http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/happypath", func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintln(w, `{"data":{"alive":true}}`)
 	})
 	ts := httptest.NewServer(mux)
