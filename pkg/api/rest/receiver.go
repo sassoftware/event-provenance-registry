@@ -26,7 +26,10 @@ func (s *Server) GetReceiverByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "receiverID")
 		slog.Info("getting receiver", "id", id)
-		eventReceiver, err := storage.FindEventReceiver(s.DBConnector.Client, graphql.ID(id))
+		eventReceiver, err := storage.FindEventReceiverByID(s.DBConnector.Client, graphql.ID(id))
+		if err != nil {
+			err = eprErrors.MissingObjectError{Msg: err.Error()}
+		}
 		handleResponse(w, r, eventReceiver, err)
 	}
 }

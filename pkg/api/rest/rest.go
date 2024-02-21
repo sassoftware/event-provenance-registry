@@ -25,7 +25,7 @@ func New(conn *storage.Database, msgProducer message.TopicProducer) *Server {
 }
 
 func (s *Server) ServeOpenAPIDoc(_ string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(_ http.ResponseWriter, _ *http.Request) {
 		// implement using swaggest/rest instead of statically
 		// writing an openapi doc
 		// https://github.com/swaggest/rest/

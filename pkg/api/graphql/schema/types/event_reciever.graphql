@@ -9,10 +9,17 @@ type EventReceiver {
   created_at: Time!
 }
 
-input EventReceiverInput {
+input CreateEventReceiverInput {
   name: String!
   type: String!
   version: String!
   description: String!
   schema: JSON!
+}
+
+input FindEventReceiverInput {
+  ID: ID
+  name: String
+  type: String
+  version: String
 }

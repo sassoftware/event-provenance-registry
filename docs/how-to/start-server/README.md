@@ -158,7 +158,7 @@ the previously created event
 
 ```graphql
 query {
-  events(id: "01HKNDTSFT6ZZ8Q8YNK736TT43") {
+  events_by_id(id: "01HKNDTSFT6ZZ8Q8YNK736TT43") {
     id
     name
     version
@@ -179,7 +179,7 @@ the previously created event_receiver
 
 ```graphql
 query {
-  event_receivers(id: "01HKNDR10NVBA8V7G0V3C15JA6") {
+  event_receivers_by_id(id: "01HKNDR10NVBA8V7G0V3C15JA6") {
     name
     version
     description
@@ -196,7 +196,7 @@ the previously created event_receiver_group
 
 ```graphql
 query {
-  event_receiver_groups(id: "01HKNE0TJG7GA35GP703D75XTH") {
+  event_receiver_groups_by_id(id: "01HKNE0TJG7GA35GP703D75XTH") {
     name
     version
     description

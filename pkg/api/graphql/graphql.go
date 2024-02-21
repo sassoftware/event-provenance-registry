@@ -26,7 +26,7 @@ func New(conn *storage.Database, msgProducer message.TopicProducer) *Server {
 var graphqlHTML []byte
 
 func (s *Server) ServerGraphQLDoc() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(graphqlHTML)
 	}
 }
