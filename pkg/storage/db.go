@@ -179,8 +179,8 @@ func FindEventReceiverGroupByID(tx *gorm.DB, id graphql.ID) ([]EventReceiverGrou
 }
 
 func FindEventReceiverGroup(tx *gorm.DB, erg map[string]any) ([]EventReceiverGroup, error) {
-	var eventReceiverGroup EventReceiverGroup
-	result := tx.Model(&EventReceiverGroup{}).Where(erg).Find(&eventReceiverGroup)
+	var eventReceiverGroups []EventReceiverGroup
+	result := tx.Model(&EventReceiverGroup{}).Where(erg).Find(&eventReceiverGroups)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, eprErrors.MissingObjectError{Msg: fmt.Sprintf("eventReceiverGroup %+v not found", erg)}
@@ -188,17 +188,18 @@ func FindEventReceiverGroup(tx *gorm.DB, erg map[string]any) ([]EventReceiverGro
 		return nil, pgError(result.Error)
 	}
 
-	result = tx.Model(&EventReceiverGroupToEventReceiver{}).
-		Select("event_receiver_id").
-		Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: eventReceiverGroup.ID})
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("eventReceiverGroup %s not found in EventReceiverGroupToEventReceiver", eventReceiverGroup.ID)
+	for i := range eventReceiverGroups {
+		// need indirection so db query can modify array contents
+		eventReceiverGroup := &eventReceiverGroups[i]
+		result = tx.Model(&EventReceiverGroupToEventReceiver{}).
+			Select("event_receiver_id").
+			Find(&eventReceiverGroup.EventReceiverIDs, &EventReceiverGroupToEventReceiver{EventReceiverGroupID: eventReceiverGroup.ID})
+		if result.Error != nil {
+			return nil, pgError(result.Error)
 		}
-		return nil, pgError(result.Error)
 	}
 
-	return []EventReceiverGroup{eventReceiverGroup}, nil
+	return eventReceiverGroups, nil
 }
 
 func SetEventReceiverGroupEnabled(tx *gorm.DB, id graphql.ID, enabled bool) error {
