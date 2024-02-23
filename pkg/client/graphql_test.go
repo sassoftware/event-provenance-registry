@@ -11,73 +11,6 @@ import (
 	"gotest.tools/v3/assert/cmp"
 )
 
-func TestNewGraphQLRequest(t *testing.T) {
-	queryName := "FindEventReceivers"
-	lookFor := "event_receivers"
-	fields := []string{"id", "name", "version", "type"}
-	params := map[string]interface{}{
-		"id": "01HKMQM136XW7JYP2293N4EBR4",
-	}
-	expected := `query FindEventReceivers($id: ID!){event_receivers(id: $id) {id,name,version,type}}`
-	variables := `01HKMQM136XW7JYP2293N4EBR4`
-
-	req := NewGraphQLRequest(queryName, lookFor, params, fields)
-	assert.Equal(t, expected, req.Query, "The generated Query did not match expected")
-	assert.Equal(t, variables, req.Variables["id"], "The generated Variables did not match expected")
-}
-
-func TestNewGraphQLRequestWithList(t *testing.T) {
-	queryName := "FindEventReceiverGroups"
-	lookFor := "groups"
-	fields := []string{"id", "name", "version", "type"}
-	params := map[string]interface{}{
-		"id":      "01HKMQM136XW7JYP2293N4EBR4",
-		"version": "1.0.0",
-	}
-	expected := []string{
-		`query FindEventReceiverGroups($id: ID!,$version: String){groups(id: $id,version: $version) {id,name,version,type}}`,
-		`query FindEventReceiverGroups($version: String,$id: ID!){groups(version: $version,id: $id) {id,name,version,type}}`,
-	}
-	req := NewGraphQLRequest(queryName, lookFor, params, fields)
-	assert.Check(t, customStringCompare(req.Query, expected))
-}
-
-func TestNewGraphQLRequestWithInt(t *testing.T) {
-	queryName := "FindEvents"
-	lookFor := "events"
-	fields := []string{"name", "id"}
-	params := map[string]interface{}{
-		"name":  "my-event",
-		"start": 1,
-	}
-	expected := []string{`query FindEvents($name: String,$start: Int){events(name: $name,start: $start) {name,id}}`,
-		`query FindEvents($start: Int,$name: String){events(start: $start,name: $name) {name,id}}`}
-	req := NewGraphQLRequest(queryName, lookFor, params, fields)
-	assert.Check(t, customStringCompare(req.Query, expected))
-}
-
-func TestComplexNewGraphQLRequest(t *testing.T) {
-	queryName := "foo"
-	lookFor := "bar"
-	fields := []string{"name", "id", "success"}
-	params := map[string]interface{}{
-		"id":      "abc123",
-		"name":    "wally",
-		"success": true,
-	}
-
-	expected := []string{
-		`query foo($success: Bool,$id: ID!,$name: String){bar(success: $success,id: $id,name: $name) {name,id,success}}`,
-		`query foo($success: Bool,$name: String,$id: ID!){bar(success: $success,name: $name,id: $id) {name,id,success}}`,
-		`query foo($id: ID!,$name: String,$success: Bool){bar(id: $id,name: $name,success: $success) {name,id,success}}`,
-		`query foo($id: ID!,$success: Bool,$name: String){bar(id: $id,success: $success,name: $name) {name,id,success}}`,
-		`query foo($name: String,$success: Bool,$id: ID!){bar(name: $name,success: $success,id: $id) {name,id,success}}`,
-		`query foo($name: String,$id: ID!,$success: Bool){bar(name: $name,id: $id,success: $success) {name,id,success}}`,
-	}
-	req := NewGraphQLRequest(queryName, lookFor, params, fields)
-	assert.Check(t, customStringCompare(req.Query, expected))
-}
-
 func customStringCompare(query string, options []string) cmp.Comparison {
 	return func() cmp.Result {
 		for _, possible := range options {
@@ -87,4 +20,53 @@ func customStringCompare(query string, options []string) cmp.Comparison {
 		}
 		return cmp.ResultFailure(fmt.Sprintf("%q did not match available options %v", query, options))
 	}
+}
+
+// Full querys examples
+// {"query":"query ($erg: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $erg) {id,name,type,version,description}}","variables":{"erg": {"name":"foobar","version":"1.0.0"}}}
+// {"query":"query ($er: FindEventReceiverInput!){event_receivers(event_receiver: $er) {id,name,type,version,description}}","variables":{"er":{"id":"01HPW652DSJBHR5K4KCZQ97GJP"}}}
+// {"query":"query ($e : FindEventInput!){events(event: $e) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}","variables":{"e": {"name":"foo","version":"1.0.0"}}}
+func TestNewGraphQLSearchRequest(t *testing.T) {
+	operation := "events"
+	fields := []string{"id", "name", "version", "release", "platform_id", "package", "description", "success", "event_receiver_id"}
+	params := map[string]interface{}{
+		"name":    "foo",
+		"version": "1.0.0",
+	}
+	expected := []string{`query ($obj: FindEventInput!){events(event: $obj) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}`}
+	req := NewGraphQLSearchRequest(operation, params, fields)
+	assert.Check(t, customStringCompare(req.Query, expected))
+
+	operation = "event_receivers"
+	fields = []string{"id", "name", "type", "version", "description"}
+	expected = []string{`query ($obj: FindEventReceiverInput!){event_receivers(event_receiver: $obj) {id,name,type,version,description}}`}
+	req = NewGraphQLSearchRequest(operation, params, fields)
+	assert.Check(t, customStringCompare(req.Query, expected))
+
+	operation = "event_receiver_groups"
+	expected = []string{`query ($obj: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $obj) {id,name,type,version,description}}`}
+	req = NewGraphQLSearchRequest(operation, params, fields)
+	assert.Check(t, customStringCompare(req.Query, expected))
+}
+
+// mutation ($er: CreateEventReceiverInput!){create_event_receiver(event_receiver: $er)}
+func TestNewGraphQLMutationRequest(t *testing.T) {
+	operation := "create_event"
+	params := map[string]interface{}{
+		"name":    "foo",
+		"version": "1.0.0",
+	}
+	expected := []string{`mutation ($obj: CreateEventInput!){create_event(event: $obj)}`}
+	req := NewGraphQLMutationRequest(operation, params)
+	assert.Check(t, customStringCompare(req.Query, expected))
+
+	operation = "create_event_receiver"
+	expected = []string{`mutation ($obj: CreateEventReceiverInput!){create_event_receiver(event_receiver: $obj)}`}
+	req = NewGraphQLMutationRequest(operation, params)
+	assert.Check(t, customStringCompare(req.Query, expected))
+
+	operation = "create_event_receiver_group"
+	expected = []string{`mutation ($obj: CreateEventReceiverGroupInput!){create_event_receiver_group(event_receiver_group: $obj)}`}
+	req = NewGraphQLMutationRequest(operation, params)
+	assert.Check(t, customStringCompare(req.Query, expected))
 }
