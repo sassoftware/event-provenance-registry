@@ -33,7 +33,7 @@ func (c *Client) Search(operation string, params map[string]interface{}, fields 
 }
 
 func (c *Client) SearchEvents(params map[string]interface{}, fields []string) ([]storage.Event, error) {
-	response, err := c.Search("events", params, fields)
+	response, err := c.Search(eventsQuery, params, fields)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *Client) SearchEvents(params map[string]interface{}, fields []string) ([
 }
 
 func (c *Client) SearchEventReceivers(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error) {
-	response, err := c.Search("event_receivers", params, fields)
+	response, err := c.Search(eventReceiversQuery, params, fields)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *Client) SearchEventReceivers(params map[string]interface{}, fields []st
 }
 
 func (c *Client) SearchEventReceiverGroups(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error) {
-	response, err := c.Search("event_receiver_groups", params, fields)
+	response, err := c.Search(eventReceiverGroupsQuery, params, fields)
 	if err != nil {
 		return nil, err
 	}

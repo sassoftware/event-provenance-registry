@@ -173,9 +173,9 @@ epr-cli receiver search --id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --fields all
 Create Events
 
 ```bash
-epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --event-receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
 
-epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --event-receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
 ```
 
 ```bash
@@ -183,9 +183,9 @@ epr-cli event search --id 01HKX1TMQZQDS6NC5DG7WNXXCJ --fields all
 ```
 
 ```bash
-epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --event-receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
 
-epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --event-receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
 ```
 
 ```json
@@ -201,9 +201,9 @@ epr-cli event search --id 1HKX7HKVDVH0HRQN0P2VDJ7Y6 --fields all
 Create Event Receiver Groups
 
 ```bash
-epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --event-receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
 
-epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --event-receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
 ```
 
 ```json

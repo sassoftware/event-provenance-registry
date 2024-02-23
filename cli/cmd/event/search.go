@@ -55,7 +55,7 @@ func runSearchEvent(_ *cobra.Command, _ []string) error {
 		params["release"] = release
 	}
 
-	platformID := viper.GetString("platform_id")
+	platformID := viper.GetString("platform-id")
 	if platformID != "" {
 		params["platform_id"] = platformID
 	}
@@ -125,7 +125,7 @@ func NewSearchCmd() *cobra.Command {
 	searchCmd.Flags().String("name", "", "Name of the event")
 	searchCmd.Flags().String("version", "", "Version of the event")
 	searchCmd.Flags().String("release", "", "Release of the event")
-	searchCmd.Flags().String("platform_id", "", "Platform id of the event")
+	searchCmd.Flags().String("platform-id", "", "Platform id of the event")
 	searchCmd.Flags().String("package", "", "Package of the event")
 	searchCmd.Flags().String("success", "", "Success of the event")
 	searchCmd.Flags().String("event-receiver-id", "", "Event receiver id of the event")

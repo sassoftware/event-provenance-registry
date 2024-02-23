@@ -35,7 +35,7 @@ func runCreateEventReceiverGroup(_ *cobra.Command, _ []string) error {
 	etype := viper.GetString("type")
 	version := viper.GetString("version")
 	desc := viper.GetString("description")
-	evrIDs := viper.GetStringSlice("receiver-ids")
+	evrIDs := viper.GetStringSlice("event-receiver-ids")
 	enabled := viper.GetBool("enabled")
 	dryrun := viper.GetBool("dry-run")
 	noindent := viper.GetBool("no-indent")
@@ -87,7 +87,7 @@ func NewCreateCmd() *cobra.Command {
 	createCmd.Flags().String("type", "", "Type of the Event Receiver Group")
 	createCmd.Flags().String("version", "", "Version of the Event Receiver Group")
 	createCmd.Flags().String("description", "", "Description of the Event Receiver Group")
-	createCmd.Flags().String("receiver-ids", "", "Space delimited set of receiver ids")
+	createCmd.Flags().String("event-receiver-ids", "", "Space delimited set of receiver ids")
 	createCmd.Flags().Bool("enabled", true, "Enable the Event Receiver Group")
 	createCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
 	createCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
@@ -95,7 +95,7 @@ func NewCreateCmd() *cobra.Command {
 	_ = createCmd.MarkFlagRequired("name")
 	_ = createCmd.MarkFlagRequired("type")
 	_ = createCmd.MarkFlagRequired("description")
-	_ = createCmd.MarkFlagRequired("receiver-ids")
+	_ = createCmd.MarkFlagRequired("event-receiver-ids")
 
 	return createCmd
 }

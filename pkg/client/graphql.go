@@ -8,15 +8,6 @@ import (
 	"strings"
 )
 
-const (
-	constEvents              = `events`
-	constEventReceivers      = `event_receivers`
-	constEventReceiverGroups = `event_receiver_groups`
-	constEvent               = `event`
-	constEventReceiver       = `event_receiver`
-	constEventReceiverGroup  = `event_receiver_group`
-)
-
 // GraphQLRequest struct for graphql request
 type GraphQLRequest struct {
 	Query     string                 `json:"query"`
@@ -31,12 +22,12 @@ func NewGraphQLSearchRequest(operation string, params map[string]interface{}, fi
 	template := `query ($obj: %s){%s(%s: $obj) {%s}}`
 	var query string
 	switch operation {
-	case constEvents:
-		query = fmt.Sprintf(template, `FindEventInput!`, operation, constEvent, strings.Join(fields, ","))
-	case constEventReceivers:
-		query = fmt.Sprintf(template, `FindEventReceiverInput!`, operation, constEventReceiver, strings.Join(fields, ","))
-	case constEventReceiverGroups:
-		query = fmt.Sprintf(template, `FindEventReceiverGroupInput!`, operation, constEventReceiverGroup, strings.Join(fields, ","))
+	case eventsQuery:
+		query = fmt.Sprintf(template, findEventInputQuery, operation, eventQuery, strings.Join(fields, ","))
+	case eventReceiversQuery:
+		query = fmt.Sprintf(template, findEventReceiverInputQuery, operation, eventReceiverQuery, strings.Join(fields, ","))
+	case eventReceiverGroupsQuery:
+		query = fmt.Sprintf(template, findEventReceiverGroupInputQuery, operation, eventReceiverGroupQuery, strings.Join(fields, ","))
 	}
 	variables := map[string]interface{}{
 		"obj": params,
@@ -53,11 +44,11 @@ func NewGraphQLMutationRequest(operation string, params map[string]interface{}) 
 	var query string
 	switch operation {
 	case `create_event`:
-		query = fmt.Sprintf(template, `CreateEventInput!`, `create_event`, constEvent)
+		query = fmt.Sprintf(template, createEventInputQuery, createEventQuery, eventQuery)
 	case `create_event_receiver`:
-		query = fmt.Sprintf(template, `CreateEventReceiverInput!`, `create_event_receiver`, constEventReceiver)
+		query = fmt.Sprintf(template, createEventReceiverInputQuery, createEventReceiverQuery, eventReceiverQuery)
 	case `create_event_receiver_group`:
-		query = fmt.Sprintf(template, `CreateEventReceiverGroupInput!`, `create_event_receiver_group`, constEventReceiverGroup)
+		query = fmt.Sprintf(template, createEventReceiverGroupInputQuery, createEventReceiverGroupQuery, eventReceiverGroupQuery)
 	}
 	variables := map[string]interface{}{
 		"obj": params,

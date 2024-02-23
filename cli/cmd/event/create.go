@@ -91,7 +91,7 @@ func NewCreateCmd() *cobra.Command {
 	createCmd.Flags().String("platform-id", "", "platform ID code")
 	createCmd.Flags().String("package", "", "package type")
 	createCmd.Flags().Bool("success", false, "specify if the event succeeded")
-	createCmd.Flags().String("receiver-id", "", "ID of the event receiver")
+	createCmd.Flags().String("event-receiver-id", "", "ID of the event receiver")
 	createCmd.Flags().String("payload", "", "JSON string of event payload")
 	createCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
 	createCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
@@ -102,7 +102,7 @@ func NewCreateCmd() *cobra.Command {
 	_ = createCmd.MarkFlagRequired("release")
 	_ = createCmd.MarkFlagRequired("platform-id")
 	_ = createCmd.MarkFlagRequired("package")
-	_ = createCmd.MarkFlagRequired("receiver-id")
+	_ = createCmd.MarkFlagRequired("event-receiver-id")
 	_ = createCmd.MarkFlagRequired("payload")
 
 	return createCmd
