@@ -40,14 +40,61 @@ func runSearchEvent(_ *cobra.Command, _ []string) error {
 		params["id"] = id
 	}
 
+	name := viper.GetString("name")
+	if name != "" {
+		params["name"] = name
+	}
+
+	version := viper.GetString("version")
+	if version != "" {
+		params["version"] = version
+	}
+
+	release := viper.GetString("release")
+	if release != "" {
+		params["release"] = release
+	}
+
+	platformID := viper.GetString("platform-id")
+	if platformID != "" {
+		params["platform_id"] = platformID
+	}
+
+	pkg := viper.GetString("package")
+	if pkg != "" {
+		params["package"] = pkg
+	}
+
+	success := viper.GetString("success")
+	if success != "" {
+		params["success"] = success
+	}
+
+	eventReceiverID := viper.GetString("event-receiver-id")
+	if eventReceiverID != "" {
+		params["event_receiver_id"] = eventReceiverID
+	}
+
 	fields, err := common.ProcessSearchFields(viper.GetStringSlice("fields"), &storage.Event{})
 	if err != nil {
 		return err
 	}
 
 	if dryrun {
-		fmt.Printf("ID: %s", id)
-		fmt.Printf("Fields: %v", fields)
+		fmt.Printf("ID: %s\n", id)
+		fmt.Printf("Name: %s\n", name)
+		fmt.Printf("Version: %s\n", version)
+		fmt.Printf("Release: %s\n", release)
+		fmt.Printf("PlatformID: %s\n", platformID)
+		fmt.Printf("Package: %s\n", pkg)
+		fmt.Printf("Success: %s\n", success)
+		fmt.Printf("EventReceiverID: %s\n", eventReceiverID)
+		fmt.Printf("Fields: %v\n", fields)
+		curlcmd, err := c.GetCurlSearch("events", params, fields)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s\n", curlcmd)
 		return nil
 	}
 
@@ -75,7 +122,14 @@ func runSearchEvent(_ *cobra.Command, _ []string) error {
 // NewSearchCmd returns a new search command
 func NewSearchCmd() *cobra.Command {
 	searchCmd.Flags().String("id", "", "Id for the event")
-	searchCmd.Flags().String("fields", "id name version multipass", "Space delimited list of fields, or 'all' for all user fields")
+	searchCmd.Flags().String("name", "", "Name of the event")
+	searchCmd.Flags().String("version", "", "Version of the event")
+	searchCmd.Flags().String("release", "", "Release of the event")
+	searchCmd.Flags().String("platform-id", "", "Platform id of the event")
+	searchCmd.Flags().String("package", "", "Package of the event")
+	searchCmd.Flags().String("success", "", "Success of the event")
+	searchCmd.Flags().String("event-receiver-id", "", "Event receiver id of the event")
+	searchCmd.Flags().String("fields", "id name version release platform_id package success", "Space delimited list of fields, or 'all' for all user fields")
 	searchCmd.Flags().String("jsonpath", "", "JSONPath expression to apply to output")
 	searchCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
 	searchCmd.Flags().Bool("dry-run", false, "do a dry run of the command")

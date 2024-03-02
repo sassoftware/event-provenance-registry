@@ -33,9 +33,6 @@ func (s *Server) GetGroupByID() http.HandlerFunc {
 		id := chi.URLParam(r, "groupID")
 		slog.Info("GetGroupByID", "groupID", id)
 		rec, err := storage.FindEventReceiverGroupByID(s.DBConnector.Client, graphql.ID(id))
-		if err != nil {
-			err = eprErrors.MissingObjectError{Msg: err.Error()}
-		}
 		handleResponse(w, r, rec, err)
 	}
 }

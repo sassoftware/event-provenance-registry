@@ -30,8 +30,6 @@ Mac OS X
 make PREFIX=$(go env GOPATH) install-darwin
 ```
 
-## Hello World
-
 ## Requirements
 
 This tutorial requires that the
@@ -91,6 +89,18 @@ And validate we have created the `bar-cli` receiver.
 epr-cli receiver search --id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --fields all
 ```
 
+We can also search for all the event receivers that have a type of `epr.foo.cli`
+
+```bash
+epr-cli receiver search --type epr.foo.cli --fields all
+```
+
+And search for event receivers by name and version
+
+```bash
+epr-cli receiver search --name foo-cli --version 1.0.0 --fields all
+```
+
 ### Create Event Receiver Groups
 
 Next we Next we will create an event receiver group.
@@ -98,9 +108,9 @@ Next we Next we will create an event receiver group.
 The commands to create an event receiver group are as follows:
 
 ```bash
-epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --event-receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"  --dry-run
 
-epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
+epr-cli group create --name "foo-group-cli" --version "1.0.0" --description "foo cli created foo group" --type "epr.foo.group.cli" --event-receiver-ids "01HKX0J9KS8AASMRYX61458N41 01HKX0KY3B31MR3XKJWTDZ4EQ0"
 ```
 
 ```json
@@ -122,9 +132,9 @@ Now that we have created the receivers and receiver groups we can create events.
 The commands to create a `foo` event are as follows:
 
 ```bash
-epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --event-receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}' --dry-run
 
-epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
+epr-cli event create --name foo --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the foo event for foo" --success true --event-receiver-id 01HKX0J9KS8AASMRYX61458N41 --payload '{"name":"foo"}'
 ```
 
 We can validate we have created the `foo` event with the following command:
@@ -133,15 +143,21 @@ We can validate we have created the `foo` event with the following command:
 epr-cli event search --id 01HKX1TMQZQDS6NC5DG7WNXXCJ --fields all
 ```
 
+or search by name and version
+
+```bash
+epr-cli event search --name foo --version 1.0.0 --fields all
+```
+
 Next we can create a `bar` event and post it to the other receiver in the
 receiver group.
 
 The commands to create a `bar` event are as follows:
 
 ```bash
-epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --event-receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}' --dry-run
 
-epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
+epr-cli event create --name bar --version 1.0.0 --release 2024.01 --platform-id x86-64-gnu-linux-9 --package rpm --success true --description "the bar event for bar" --success true --event-receiver-id 01HKX0KY3B31MR3XKJWTDZ4EQ0 --payload '{"name":"bar"}'
 ```
 
 ```json
@@ -154,6 +170,12 @@ We can validate we have created the `bar` event with the following command:
 
 ```bash
 epr-cli event search --id 1HKX7HKVDVH0HRQN0P2VDJ7Y6 --fields all
+```
+
+Or we can search by name and version and success
+
+```bash
+epr-cli event search --name bar --version 1.0.0 --success true --fields all
 ```
 
 ### Triggering the Event Receiver Group Message

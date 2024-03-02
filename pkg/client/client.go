@@ -25,7 +25,7 @@ type Contract interface {
 	CreateEventReceiver(er *storage.EventReceiver) (string, error)
 	CreateEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error)
 	ModifyEventReceiverGroup(erg *storage.EventReceiverGroup) (string, error)
-	Search(queryName string, queryFor string, params map[string]interface{}, fields []string) (string, error)
+	Search(operation string, params map[string]interface{}, fields []string) (string, error)
 	SearchEvents(params map[string]interface{}, fields []string) ([]storage.Event, error)
 	SearchEventReceivers(params map[string]interface{}, fields []string) ([]storage.EventReceiver, error)
 	SearchEventReceiverGroups(params map[string]interface{}, fields []string) ([]storage.EventReceiverGroup, error)
