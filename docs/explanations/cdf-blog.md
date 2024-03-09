@@ -1,6 +1,7 @@
 # Announcing the Event Provenance Registry (EPR) Open Source Project
 
-[Event Provenance Registry](https://github.com/sassoftware/event-provenance-registry) is a culmination of several years of [SAS's](https://www.sas.com) effort to
+[Event Provenance Registry](https://github.com/sassoftware/event-provenance-registry)
+is a culmination of several years of [SAS's](https://www.sas.com) effort to
 convert from large-ship events to CI/CD. We built the first version internally
 to facilitate CI/CD in a complex, aging build system. The result enables SAS to
 build, package, scan, promote, and ship thousands of artifacts daily.
@@ -13,7 +14,8 @@ events per year. Updates were slow and often painful. To reverse that trend, we
 needed to find a way to shorten the development cycle and deliver artifacts more
 quickly. The challenge was twofold:
 
-- First, create a system that could allow disparate pieces of our pipeline to communicate and chain together.
+- First, create a system that could allow disparate pieces of our pipeline to
+  communicate and chain together.
 - Second, help R&D shift gears from the old software development model to CI/CD.
 
 In a happy, imaginary world somewhere, we could have chained together GitHub
@@ -57,10 +59,12 @@ understand how EPR works. It stands for:
 
 Each of these fields is just a string, though we strongly recommend you impose
 some standards for how each is formatted, depending on your situation. NVRPP is
-based off the [NEVRA](https://docs.fedoraproject.org/en-US/modularity/core-concepts/nsvca/) from Fedora. It allows us to represent most types of
-artifacts that might flow through our pipeline. Events that have matching NVRPPs
-are associated with the same artifact. This allows us to trace the flow of any
-artifact through our pipeline, so long as events are posted at each step.
+based off the
+[NEVRA](https://docs.fedoraproject.org/en-US/modularity/core-concepts/nsvca/)
+from Fedora. It allows us to represent most types of artifacts that might flow
+through our pipeline. Events that have matching NVRPPs are associated with the
+same artifact. This allows us to trace the flow of any artifact through our
+pipeline, so long as events are posted at each step.
 
 ### Event Receivers
 
@@ -69,10 +73,10 @@ of action (i.e., a build, running a test, packaging an artifact, deploying a
 binary, etc...) with no dependencies and are classified by their name, type, and
 version. You might name a receiver by the action it represents like
 golang-build-complete. Types might be things like build.finished or
-artifact.packaged. Receivers may have multiple [events](#events) that correspond with them.
-Any events associated with a receiver must have a `payload` that complies with the
-schema defined on the receiver. This allows some guarantees about what kind of
-data you can expect of events going to any given receiver.
+artifact.packaged. Receivers may have multiple [events](#events) that correspond
+with them. Any events associated with a receiver must have a `payload` that
+complies with the schema defined on the receiver. This allows some guarantees
+about what kind of data you can expect of events going to any given receiver.
 
 ```json
 {
@@ -97,13 +101,13 @@ When an event posts to a receiver, EPR will emit a message to Redpanda.
 ### Events
 
 Events are a record of some action that took place in your pipeline and whether
-it was successful. Each event contains an [NVRPP](#nvrpp) and is linked to a receiver by
-way of an ID. Events that have matching NVRPPs are associated with the same
-artifact. This allows us to trace the flow of any artifact through our pipeline,
-so long as events are posted at each step. Events are strictly formatted at the
-root level, with a free-form JSON `payload` field that is validated against the
-schema of its receiver. Each event contains a Boolean `success` field that
-represents whether an action was successful or not.
+it was successful. Each event contains an [NVRPP](#nvrpp) and is linked to a
+receiver by way of an ID. Events that have matching NVRPPs are associated with
+the same artifact. This allows us to trace the flow of any artifact through our
+pipeline, so long as events are posted at each step. Events are strictly
+formatted at the root level, with a free-form JSON `payload` field that is
+validated against the schema of its receiver. Each event contains a Boolean
+`success` field that represents whether an action was successful or not.
 
 When EPR receives an event, it posts a message and some receiver and group data
 to Redpanda. Downstream watchers can then consume these messages and take their
@@ -159,13 +163,13 @@ tasks have completed successfully.
 Watchers are applications (typically microservices) that watch the EPR Redpanda
 topic for messages and then take some action. They use some matching logic,
 defined in EPR's SDK (Software Development Kit) to determine which messages to
-process. You can match on NVRPP, `type`, and `success`. We've written about a dozen
-or so watchers internally that do a variety of things. One of our more popular
-watchers’ fires webhooks if matching criteria are met. It is most often used to
-trigger Jenkins jobs, acting as glue between Jenkins and other systems. Another
-popular watcher is one that creates Jira tickets when messages are matched. We
-use this one heavily as part of our security automation to open security issues
-against various teams when problems are detected.
+process. You can match on NVRPP, `type`, and `success`. We've written about a
+dozen or so watchers internally that do a variety of things. One of our more
+popular watchers’ fires webhooks if matching criteria are met. It is most often
+used to trigger Jenkins jobs, acting as glue between Jenkins and other systems.
+Another popular watcher is one that creates Jira tickets when messages are
+matched. We use this one heavily as part of our security automation to open
+security issues against various teams when problems are detected.
 
     Image: Show messages on the bus
 
@@ -205,16 +209,16 @@ a more robust solution soon.
 
 Once we did the hard work of writing EPR, getting the rest of the company to
 adopt our fancy new tool should have been easy, right? Wrong! People don't like
-change and developers are no different. We discovered that developers especially don't like
-being handed a box of virtual Lego bricks and told "use th ese tools to
-integrate with EPR." Many developers prefer to live in a world where they don't
-need to worry about the intricacies of DevOps in addition to their normal work.
-To get them to adopt it, we had to make it as minimally intrusive as possible.
-The average developer has no idea how EPR works, and they prefer to keep it that
-way. That was the mindset we had to combat. Forcing people to learn new
-technology tends to make them complain, which leads to management pushback. For
-a smooth transition, make sure you have management backing you and make it easy
-for people to adopt your technology. The battle is as much political as
+change and developers are no different. We discovered that developers especially
+don't like being handed a box of virtual Lego bricks and told "use th ese tools
+to integrate with EPR." Many developers prefer to live in a world where they
+don't need to worry about the intricacies of DevOps in addition to their normal
+work. To get them to adopt it, we had to make it as minimally intrusive as
+possible. The average developer has no idea how EPR works, and they prefer to
+keep it that way. That was the mindset we had to combat. Forcing people to learn
+new technology tends to make them complain, which leads to management pushback.
+For a smooth transition, make sure you have management backing you and make it
+easy for people to adopt your technology. The battle is as much political as
 technical.
 
 ### Lazy Receiver Schemas

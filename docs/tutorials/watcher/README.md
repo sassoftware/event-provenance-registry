@@ -2,10 +2,9 @@
 
 ## Overview
 
-In this tutorial we will explore using the watcher sdk to create a watcher to
-listen for events from the EPR server.
+In this tutorial we will delve into the utilization of the EPR watcher SDK to craft a watcher, which actively listens for events originating from the EPR server. Watchers serve the purpose of monitoring messages within Redpanda, initiating actions based on these messages, and subsequently dispatching event notifications to the EPR Server.
 
-This tutorial depends on the [Hello World](../hello_world/README.md) being
+This tutorial depends on the [Quickstart](../quickstart/README.md) being
 completed.
 
 ## Create a new watcher

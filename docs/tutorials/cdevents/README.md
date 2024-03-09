@@ -11,7 +11,7 @@ Registry (EPR).
 
 ## Requirements
 
-The [Hello World](../hello_world/README.md) has been completed and the EPR
+The [Quickstart](../quickstart/README.md) has been completed and the EPR
 server is running.
 
 ## Create the Event Receiver

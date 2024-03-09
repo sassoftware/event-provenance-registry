@@ -1,8 +1,14 @@
-# Hello World
+# Quickstart
 
 ## Overview
 
 In this how-to we will cover getting started with the EPR CLI.
+
+## Requirements
+
+This tutorial requires that the
+[Quickstart](../../../docs/tutorials/quickstart/README.md) has been completed
+and the EPR server is running.
 
 ## Install the CLI
 
@@ -16,7 +22,8 @@ make
 
 ### Installation
 
-To install in your go path directory set `PREFIX`
+To install in your go path directory set `PREFIX` to your go path. For example,
+if you want to install in `~/go/bin` set `PREFIX=~/go`.
 
 Linux
 
@@ -30,11 +37,11 @@ Mac OS X
 make PREFIX=$(go env GOPATH) install-darwin
 ```
 
-## Requirements
+Mac OS X M1
 
-This tutorial requires that the
-[Hello World](../../../docs/tutorials/hello_world/README.md) has been completed
-and the EPR server is running.
+```bash
+make PREFIX=$(go env GOPATH) install-darwin-arm64
+```
 
 ### Create Event Receivers
 
