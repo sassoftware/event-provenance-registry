@@ -25,7 +25,7 @@ input CreateEventInput {
 }
 
 input FindEventInput {
-  ID: ID
+  id: ID
   name: String
   version: String
   release: String

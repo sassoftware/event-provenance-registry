@@ -18,7 +18,7 @@ input CreateEventReceiverInput {
 }
 
 input FindEventReceiverInput {
-  ID: ID
+  id: ID
   name: String
   type: String
   version: String
