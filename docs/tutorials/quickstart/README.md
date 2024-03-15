@@ -169,8 +169,7 @@ And query the information for an event receiver group:
 
 ```bash
 curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/groups/01HPW0JXG82Q0FBEC9M8P2Q6J8
-'
+  --request GET 'http://localhost:8042/api/v1/groups/01HPW0JXG82Q0FBEC9M8P2Q6J8'
 ```
 
 ## GraphQL
