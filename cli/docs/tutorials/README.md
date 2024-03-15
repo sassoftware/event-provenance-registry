@@ -10,4 +10,4 @@ are listed in the table of contents.
 
 | Name                                   | Description                                             |
 | -------------------------------------- | ------------------------------------------------------- |
-| [Hello World](./hello_world/README.md) | Hello world for the Event Provenance Registry (EPR) CLI |
+| [Quickstart](./quickstart.md) | Quickstart for the Event Provenance Registry (EPR) CLI |

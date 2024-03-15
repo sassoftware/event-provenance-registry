@@ -1,9 +1,9 @@
-# Hello World
+# Quickstart
 
 ## Overview
 
 In this tutorial we will run the Event Provenance Registry (EPR) Server with
-Redpanda and create a event receiver and a few events.
+Redpanda Message broker and PostgreSQL database. We will create an event receiver, an event receiver group, and a few events. 
 
 ## Requirements
 
@@ -13,14 +13,18 @@ Redpanda and create a event receiver and a few events.
 
 ## Start dependencies
 
-This project contains a docker-compose file that will start up a postgres
-database, a Redpanda kafka instance, and a Redpanda UI. These three dependencies
-can be started by running the following command:
+### Introduction
 
-## Start Redpanda
+This section guides you through the process of initiating the backend services
+essential for working with EPR. Docker Compose will be employed to launch these
+services, with Redpanda serving as the message broker for event transmission and
+PostgreSQL as the designated database for data storage.
 
-This how-to walks you through starting a server and making your first request
-using GraphQL.
+### Deploy Backend Services
+
+Utilize the provided docker-compose file to launch the required dependencies,
+including a PostgreSQL database, a Redpanda Kafka instance, and a Redpanda UI.
+Execute the following command:
 
 ```bash
 docker compose -f ./docker-compose.services.yaml up
@@ -56,7 +60,121 @@ available on localhost:8042.
 go run main.go
 ```
 
-## Access graphql playground
+## REST API
+
+### Create using the REST API
+
+First thing we need is an event receiver. The event receiver acts as a
+classification and gate for events.
+
+Create an event receiver:
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "foobar",
+    "type": "foo.bar",
+    "version": "1.1.2",
+    "description": "The event receiver of Brixton",
+    "enabled": true,
+    "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      }
+    }
+  }
+}'
+```
+
+The results should look like this:
+
+```json
+{ "data": "01HPW0DY340VMM3DNMX8JCQDGN" }
+```
+
+We need the ULID of the event receiver in the next step.
+
+Create an event using curl.
+
+When you create an event, you must specify an `event_receiver_id` to associate
+it with. An event is the record of some action being completed. You cannot
+create an event for a non-existent receiver ID. The payload field of the event
+must conform to the schema defined on the event receiver that you have given the
+ID of.
+
+Create an event:
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/events' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "magnificent",
+    "version": "7.0.1",
+    "release": "2023.11.16",
+    "platform_id": "linux",
+    "package": "docker",
+    "description": "blah",
+    "payload": {"name":"joe"},
+    "success": true,
+    "event_receiver_id": "<PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND>"
+}'
+```
+
+The results of the command should look like this:
+
+```json
+{ "data": "01HPW0GV9PY8HT2Q0XW1QMRBY9" }
+```
+
+Event Receiver Groups are a way to group together several event receivers. When
+all the event receivers in a group have successful events for a given unit the
+event receiver group will produce a message on the topic.
+
+Create an event receiver group:
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/groups' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "the_clash",
+    "type": "foo.bar",
+    "version": "3.3.3",
+    "description": "The only event receiver group that matters",
+    "enabled": true,
+    "event_receiver_ids": ["PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND"]
+}'
+```
+
+### Query using the REST API
+
+We can query the event information using a GET on the events endpoint as
+follows:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/events/01HPW0GV9PY8HT2Q0XW1QMRBY9'
+```
+
+Query the information for an event receiver:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/receivers/01HPW0DY340VMM3DNMX8JCQDGN'
+```
+
+And query the information for an event receiver group:
+
+```bash
+curl --header 'Content-Type: application/json' --location \
+  --request GET 'http://localhost:8042/api/v1/groups/01HPW0JXG82Q0FBEC9M8P2Q6J8'
+```
+
+## GraphQL
+
+### Access graphql playground
 
 On successful startup the server will display the message below:
 
@@ -74,12 +192,12 @@ On successful startup the server will display the message below:
 The graphql playground will now be accessible at:
 <http://localhost:8042/api/v1/graphql>
 
-## Making a request
+### Making a request
 
 The current schema for all requests is available through the UI. A simple
 mutation and query command can be found below
 
-## Mutation using GraphQL
+### Mutation using GraphQL
 
 Create an event receiver
 
@@ -177,7 +295,7 @@ This will return the id of the newly created event.
 }
 ```
 
-## Query using GraphQL
+### Query using GraphQL
 
 This query is only returning a subset of the available fields. Pass in the ID of
 the previously created event
@@ -383,7 +501,7 @@ As follows:
 }
 ```
 
-## Query using the GraphQL with Curl
+### Query using the GraphQL with Curl
 
 We need to craft a GraphQL query. First thing we need is an event receiver. The event receiver acts as a classification and gate for events.
 
@@ -450,113 +568,4 @@ We can query the event reciever information using a POST on the graphql endpoint
 curl -X POST -H "content-type:application/json" -d '{"query":"query ($erg: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $erg) {id,name,type,version,description}}","variables":{"erg": {"name":"foobar","version":"1.0.0"}}}' http://localhost:8042/api/v1/graphql/query
 ```
 
-## Create using the REST API
 
-First thing we need is an event receiver. The event receiver acts as a
-classification and gate for events.
-
-Create an event receiver:
-
-```bash
-curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "foobar",
-    "type": "foo.bar",
-    "version": "1.1.2",
-    "description": "The event receiver of Brixton",
-    "enabled": true,
-    "schema": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "type": "string"
-      }
-    }
-  }
-}'
-```
-
-The results should look like this:
-
-```json
-{ "data": "01HPW0DY340VMM3DNMX8JCQDGN" }
-```
-
-We need the ULID of the event receiver in the next step.
-
-Create an event using curl.
-
-When you create an event, you must specify an `event_receiver_id` to associate
-it with. An event is the record of some action being completed. You cannot
-create an event for a non-existent receiver ID. The payload field of the event
-must conform to the schema defined on the event receiver that you have given the
-ID of.
-
-Create an event:
-
-```bash
-curl --location --request POST 'http://localhost:8042/api/v1/events' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "magnificent",
-    "version": "7.0.1",
-    "release": "2023.11.16",
-    "platform_id": "linux",
-    "package": "docker",
-    "description": "blah",
-    "payload": {"name":"joe"},
-    "success": true,
-    "event_receiver_id": "<PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND>"
-}'
-```
-
-The results of the command should look like this:
-
-```json
-{ "data": "01HPW0GV9PY8HT2Q0XW1QMRBY9" }
-```
-
-Event Receiver Groups are a way to group together several event receivers. When
-all the event receivers in a group have successful events for a given unit the
-event receiver group will produce a message on the topic.
-
-Create an event receiver group:
-
-```bash
-curl --location --request POST 'http://localhost:8042/api/v1/groups' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "the_clash",
-    "type": "foo.bar",
-    "version": "3.3.3",
-    "description": "The only event receiver group that matters",
-    "enabled": true,
-    "event_receiver_ids": ["PASTE EVENT RECEIVER ID FROM FIRST CURL COMMAND"]
-}'
-```
-
-## Query using the REST API
-
-We can query the event information using a GET on the events endpoint as
-follows:
-
-```bash
-curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/events/01HPW0GV9PY8HT2Q0XW1QMRBY9'
-```
-
-Query the information for an event receiver:
-
-```bash
-curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/receivers/01HPW0DY340VMM3DNMX8JCQDGN'
-```
-
-And query the information for an event receiver group:
-
-```bash
-curl --header 'Content-Type: application/json' --location \
-  --request GET 'http://localhost:8042/api/v1/groups/01HPW0JXG82Q0FBEC9M8P2Q6J8
-'
-```

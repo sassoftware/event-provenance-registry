@@ -10,7 +10,7 @@ listed in the table of contents.
 
 | Name                                   | Description                                                        |
 | -------------------------------------- | ------------------------------------------------------------------ |
-| [Hello World](./hello_world/README.md) | Hello world for the Event Provenance Registry (EPR) Service        |
+| [Quickstart](./quickstart/README.md) | Quickstart for the Event Provenance Registry (EPR) Service        |
 | [The Watcher](./watcher/README.md)     | Create a watcher for the Event Provenance Registry (EPR) Service   |
 | [CDEvents](./cdevents/README.md)       | Integrate CDEvents into the Event Provenance Registry (EPR)        |
 | [CycloneDX SBOM](./sboms/README.md)    | Integrate CycloneDX SBOMs into the Event Provenance Registry (EPR) |
