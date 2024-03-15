@@ -15,6 +15,7 @@ input CreateEventReceiverGroupInput {
   type: String!
   version: String!
   description: String!
+  enabled: Boolean!
   event_receiver_ids: [ID!]!
 }
 

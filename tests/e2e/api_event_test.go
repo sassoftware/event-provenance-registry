@@ -138,7 +138,7 @@ func TestCreateAndGetEvent(t *testing.T) {
 	}
 }
 
-func TestCreateEventWithIncorrectPayload(t *testing.T) {
+func TestCreateEventWithInvalidInput(t *testing.T) {
 	client := common.NewHTTPClient()
 
 	receiverInput := eventReceiverInput{
@@ -154,7 +154,7 @@ func TestCreateEventWithIncorrectPayload(t *testing.T) {
 	tests := map[string]struct {
 		input eventInput
 	}{
-		"incorrect field type": {
+		"incorrect payload field type": {
 			input: eventInput{
 				Name:            "merge PR for service foobar",
 				Version:         "1.0.1",
@@ -167,7 +167,7 @@ func TestCreateEventWithIncorrectPayload(t *testing.T) {
 				EventReceiverID: receiverID,
 			},
 		},
-		"incorrect array value type": {
+		"incorrect payload array value type": {
 			input: eventInput{
 				Name:            "merge PR for service foo",
 				Version:         "2.11.1",
@@ -178,6 +178,110 @@ func TestCreateEventWithIncorrectPayload(t *testing.T) {
 				Payload:         `{"filesChanged":16,"reviewers":["you", 4]}`,
 				Success:         true,
 				EventReceiverID: receiverID,
+			},
+		},
+		"empty name": {
+			input: eventInput{
+				Name:            "",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty version": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty release": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty platform id": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty package": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty description": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty payload": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         "",
+				Success:         true,
+				EventReceiverID: receiverID,
+			},
+		},
+		"empty event receiver": {
+			input: eventInput{
+				Name:            "merge PR to baz repo",
+				Version:         "9.9.9",
+				Release:         "2006.01.01",
+				PlatformID:      "oci-linux",
+				Package:         "docker",
+				Description:     "merged a PR for baz",
+				Payload:         `{"filesChanged":16,"reviewers":["someone"]}`,
+				Success:         true,
+				EventReceiverID: "",
 			},
 		},
 	}
@@ -195,4 +299,18 @@ func TestCreateEventWithIncorrectPayload(t *testing.T) {
 			assert.Equal(t, len(body.Data), 0, "shouldn't get an id if event creation fails")
 		})
 	}
+}
+
+func TestGetNonExistentEvent(t *testing.T) {
+	client := common.NewHTTPClient()
+
+	resp, err := client.Get(eventURI + "non-existent-event-id")
+	assert.NilError(t, err)
+	assert.Equal(t, resp.StatusCode, http.StatusNotFound)
+
+	var body getEventResponse
+	err = json.NewDecoder(resp.Body).Decode(&body)
+	assert.NilError(t, err)
+	assert.Check(t, len(body.Errors) > 0)
+	assert.Equal(t, len(body.Data), 0)
 }

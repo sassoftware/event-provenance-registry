@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/epr"
 	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
@@ -61,28 +61,15 @@ func (s *Server) UpdateGroup() http.HandlerFunc {
 }
 
 func (s *Server) createGroup(r *http.Request) (graphql.ID, error) {
-	input := &GroupInput{}
-	err := json.NewDecoder(r.Body).Decode(input)
+	var input epr.EventReceiverGroupInput
+	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
-	eventReceiverGroupInput := storage.EventReceiverGroup{
-		Name:             input.Name,
-		Type:             input.Type,
-		Version:          input.Version,
-		Description:      input.Description,
-		Enabled:          true,
-		EventReceiverIDs: input.EventReceiverIDs,
-	}
-
-	eventReceiverGroup, err := storage.CreateEventReceiverGroup(s.DBConnector.Client, eventReceiverGroupInput)
+	eventReceiverGroup, err := epr.CreateEventReceiverGroup(s.msgProducer, s.DBConnector, input)
 	if err != nil {
 		return "", err
 	}
-
-	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
-	s.msgProducer.Async(message.NewEventReceiverGroupCreated(*eventReceiverGroup))
-
 	return eventReceiverGroup.ID, nil
 }

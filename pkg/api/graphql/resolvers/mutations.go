@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/epr"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -18,84 +19,27 @@ type MutationResolver struct {
 	msgProducer message.TopicProducer
 }
 
-func (r *MutationResolver) CreateEvent(args struct{ Event EventInput }) (graphql.ID, error) {
-	// TODO: centralize this and make it look better
-	eventInput := storage.Event{
-		Name:            args.Event.Name,
-		Version:         args.Event.Version,
-		Release:         args.Event.Release,
-		PlatformID:      args.Event.PlatformID,
-		Package:         args.Event.Package,
-		Description:     args.Event.Description,
-		Payload:         args.Event.Payload,
-		Success:         args.Event.Success,
-		EventReceiverID: args.Event.EventReceiverID,
-	}
-
-	event, err := storage.CreateEvent(r.Connection.Client, eventInput)
+func (r *MutationResolver) CreateEvent(args struct{ Event epr.EventInput }) (graphql.ID, error) {
+	event, err := epr.CreateEvent(r.msgProducer, r.Connection, args.Event)
 	if err != nil {
-		slog.Error("error creating event", "error", err, "input", eventInput)
 		return "", err
 	}
-
-	r.msgProducer.Async(message.NewEvent(*event))
-
-	slog.Info("created", "event", event)
-	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(r.Connection.Client, *event)
-	if err != nil {
-		slog.Error("error finding triggered event receiver groups", "err", err, "input", eventInput)
-		return "", err
-	}
-
-	for _, eventReceiverGroup := range eventReceiverGroups {
-		r.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
-	}
-
 	return event.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver EventReceiverInput }) (graphql.ID, error) {
-	// TODO: centralize this and make it look better
-	eventReceiverInput := storage.EventReceiver{
-		Name:        args.EventReceiver.Name,
-		Type:        args.EventReceiver.Type,
-		Version:     args.EventReceiver.Version,
-		Description: args.EventReceiver.Description,
-		Schema:      args.EventReceiver.Schema,
-	}
-
-	eventReceiver, err := storage.CreateEventReceiver(r.Connection.Client, eventReceiverInput)
+func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver epr.EventReceiverInput }) (graphql.ID, error) {
+	eventReceiver, err := epr.CreateEventReceiver(r.msgProducer, r.Connection, args.EventReceiver)
 	if err != nil {
-		slog.Error("error creating event receiver", "error", err, "input", eventReceiverInput)
 		return "", err
 	}
-
-	r.msgProducer.Async(message.NewEventReceiver(*eventReceiver))
-
-	slog.Info("created", "eventReceiver", eventReceiver)
 	return eventReceiver.ID, nil
 }
 
-func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup EventReceiverGroupInput }) (graphql.ID, error) {
-	// TODO: centralize this and make it look better
-	eventReceiverGroupInput := storage.EventReceiverGroup{
-		Name:             args.EventReceiverGroup.Name,
-		Type:             args.EventReceiverGroup.Type,
-		Version:          args.EventReceiverGroup.Version,
-		Description:      args.EventReceiverGroup.Description,
-		Enabled:          true,
-		EventReceiverIDs: args.EventReceiverGroup.EventReceiverIDs,
-	}
-
-	eventReceiverGroup, err := storage.CreateEventReceiverGroup(r.Connection.Client, eventReceiverGroupInput)
+func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup epr.EventReceiverGroupInput }) (graphql.ID, error) {
+	eventReceiverGroup, err := epr.CreateEventReceiverGroup(r.msgProducer, r.Connection, args.EventReceiverGroup)
 	if err != nil {
-		slog.Error("error creating event receiver group", "error", err, "input", eventReceiverGroupInput)
 		return "", err
 	}
-
-	r.msgProducer.Async(message.NewEventReceiverGroupCreated(*eventReceiverGroup))
-
-	slog.Info("created", "eventReceiverGroup", eventReceiverGroup)
 	return eventReceiverGroup.ID, nil
 }
 
