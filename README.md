@@ -183,7 +183,8 @@ curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventRec
 Follow this guide to get started https://www.keycloak.org/getting-started/getting-started-docker.
 
 That'll get you a new user and client. Unlike the example, set `client authentication` to `on`, otherwise, you can't
-access the client credentials tab in the admin console http://localhost:8083/admin/master/console/#/<realm>/clients/<ulid>/credentials.
+access the client credentials tab in the admin console http://localhost:8083/admin/master/console/#/<realm>
+/clients/<ulid>/credentials.
 
 To start up Keycloak. I changed the port number because the default 8080 is in use by EPR itself.
 
@@ -196,10 +197,11 @@ http://localhost:8083/admin/master/console/#/test/clients
 https://github.com/coreos/go-oidc
 https://github.com/coreos/go-oidc/blob/v3/example/userinfo/app.go
 
-Need to grab a token from Keycloak first.  You can get oidc config info from here http://localhost:8083/realms/test/.well-known/openid-configuration
+Need to grab a token from Keycloak first. You can get oidc config info from
+here http://localhost:8083/realms/test/.well-known/openid-configuration
 Log into your new realm with your account from here: http://localhost:8083/realms/<realmName>/account.
 
-Once you've got that, 
+Once you've got that,
 
 ```bash
 export access_token=$(\
@@ -222,6 +224,17 @@ I think the flow is roughly:
 
 Although, I think we could shorten it to just get a JWT straight from Keycloak without passing it back through EPR...
 I'll have to play with it.
+
+Once you have the access token, use it to make requests to EPR.
+
+```bash
+curl -X GET -H "Authorization: Bearer $access_token" -w "%{http_code}\n" http://localhost:8042/api/oidctest
+```
+
+I ran into some problems with the audience not being set on the
+JWT. [See this post]( https://stackoverflow.com/questions/53550321/keycloak-gatekeeper-aud-claim-and-client-id-do-not-match)
+for more info. Options are slightly different than what is
+described. [This video](https://www.youtube.com/watch?v=G2QVhUAEylc) was more helpful.
 
 ## Contributing
 

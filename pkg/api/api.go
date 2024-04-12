@@ -4,10 +4,13 @@
 package api
 
 import (
+	"context"
 	"fmt"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"log"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -31,6 +34,36 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// OIDC setup
+	provider, err := oidc.NewProvider(context.TODO(), "http://localhost:8083/realms/test")
+	if err != nil {
+		return nil, err
+	}
+
+	clientID := "epr-client-id"
+	//clientSecret := "rGMO0kRpvUj3XD9It678AoTlgMtGxItJ"
+
+	oidcConfig := &oidc.Config{
+		ClientID: clientID,
+	}
+
+	verifier := provider.Verifier(oidcConfig)
+
+	//oauthConfig := &oauth2.Config{
+	//	ClientID:     clientID,
+	//	ClientSecret: clientSecret,
+	//	Endpoint:     provider.Endpoint(),
+	//	RedirectURL:  "",
+	//	//Scopes: []string{},
+	//}
+
+	//token, err := oauthConfig.Exchange(context.TODO(), "")
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//token.
 
 	// Create a new router
 	router := chi.NewRouter()
@@ -59,6 +92,28 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	})
 
 	router.Route("/api", func(r chi.Router) {
+		r.Get("/oidctest", func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("authorization")
+			split := strings.Split(authHeader, " ")
+			if len(split) != 2 {
+				slog.Error("more authorization header pieces than expected")
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			if !strings.EqualFold(split[0], "bearer") {
+				slog.Error("unexpected authorization header type", "type", split[0])
+			}
+
+			idToken, err := verifier.Verify(r.Context(), split[1])
+			if err != nil {
+				slog.Error("authorization failed", "error", err)
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			//TODO: process claims
+			slog.Info("using ID token", "token", idToken) // TODO: delete this once we actually use the token.
+		})
 		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
