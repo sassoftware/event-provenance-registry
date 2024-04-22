@@ -114,7 +114,7 @@ func TestEventReceiver(t *testing.T) {
 	})
 }
 
-func TestFindEventReciever(t *testing.T) {
+func TestFindEventReceiver(t *testing.T) {
 	findEventReceiver := FindEventReceiverInput{
 		ID:      &id,
 		Name:    graphql.NullString{Value: &name, Set: true},
@@ -161,7 +161,7 @@ func TestEventReceiverGroup(t *testing.T) {
 	})
 }
 
-func TestFindEventRecieverGroup(t *testing.T) {
+func TestFindEventReceiverGroup(t *testing.T) {
 	findEventReceiverGroup := FindEventReceiverGroupInput{
 		ID:      &id,
 		Name:    graphql.NullString{Value: &name, Set: true},
@@ -176,7 +176,7 @@ func TestFindEventRecieverGroup(t *testing.T) {
 	})
 }
 
-func TestFindEventRecieverGroupToMap(t *testing.T) {
+func TestFindEventReceiverGroupToMap(t *testing.T) {
 	findEventReceiverGroup := FindEventReceiverGroupInput{
 		ID:      &id,
 		Name:    graphql.NullString{Value: &name, Set: true},
