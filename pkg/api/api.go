@@ -6,22 +6,20 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/coreos/go-oidc/v3/oidc"
-	"log"
-	"log/slog"
-	"net/http"
-	"strings"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sassoftware/event-provenance-registry/pkg/auth"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
+	"log"
+	"log/slog"
+	"net/http"
 )
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
@@ -35,36 +33,10 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 		log.Fatal(err)
 	}
 
-	// OIDC setup
-	provider, err := oidc.NewProvider(context.TODO(), "http://localhost:8083/realms/test")
+	verification, err := auth.NewMiddleware(context.TODO())
 	if err != nil {
 		return nil, err
 	}
-
-	clientID := "epr-client-id"
-	//clientSecret := "rGMO0kRpvUj3XD9It678AoTlgMtGxItJ"
-
-	oidcConfig := &oidc.Config{
-		ClientID: clientID,
-	}
-
-	verifier := provider.Verifier(oidcConfig)
-
-	//oauthConfig := &oauth2.Config{
-	//	ClientID:     clientID,
-	//	ClientSecret: clientSecret,
-	//	Endpoint:     provider.Endpoint(),
-	//	RedirectURL:  "",
-	//	//Scopes: []string{},
-	//}
-
-	//token, err := oauthConfig.Exchange(context.TODO(), "")
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//token.
-
 	// Create a new router
 	router := chi.NewRouter()
 	// Add some middleware to our router
@@ -92,28 +64,6 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	})
 
 	router.Route("/api", func(r chi.Router) {
-		r.Get("/oidctest", func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("authorization")
-			split := strings.Split(authHeader, " ")
-			if len(split) != 2 {
-				slog.Error("more authorization header pieces than expected")
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-			if !strings.EqualFold(split[0], "bearer") {
-				slog.Error("unexpected authorization header type", "type", split[0])
-			}
-
-			idToken, err := verifier.Verify(r.Context(), split[1])
-			if err != nil {
-				slog.Error("authorization failed", "error", err)
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-
-			//TODO: process claims
-			slog.Info("using ID token", "token", idToken) // TODO: delete this once we actually use the token.
-		})
 		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
@@ -136,7 +86,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 				})
 			})
 			r.Route("/receivers", func(r chi.Router) {
-				r.Post("/", s.Rest.CreateReceiver())
+				r.With(verification.Handle()).Post("/", s.Rest.CreateReceiver())
 				r.Route("/{receiverID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetReceiverByID())
 				})

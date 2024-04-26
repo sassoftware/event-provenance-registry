@@ -236,6 +236,29 @@ JWT. [See this post]( https://stackoverflow.com/questions/53550321/keycloak-gate
 for more info. Options are slightly different than what is
 described. [This video](https://www.youtube.com/watch?v=G2QVhUAEylc) was more helpful.
 
+To create a receiver with an auth token.
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
+--header 'Content-Type: application/json' \
+--header "authorization: Bearer $access_token" \
+--data-raw '{
+  "name": "foobar",
+  "type": "whatever",
+  "version": "1.1.2",
+  "description": "it does stuff",
+  "enabled": true,
+  "schema": {
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    }
+  }
+}
+}'
+```
+
 ## Contributing
 
 We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)
