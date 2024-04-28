@@ -70,7 +70,7 @@ receiver.
 ```
 
 We can validate the new event receiver exists with the search command using the
-`ID` from the create reciever command.
+`ID` from the create receiver command.
 
 ```bash
 epr-cli receiver search --id 01HKX0J9KS8AASMRYX61458N41 --fields all
