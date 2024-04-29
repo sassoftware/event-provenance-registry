@@ -5,13 +5,12 @@ package rest
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/graph-gophers/graphql-go"
+	"github.com/sassoftware/event-provenance-registry/pkg/epr"
 	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
-	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
 
@@ -31,30 +30,15 @@ func (s *Server) GetEventByID() http.HandlerFunc {
 }
 
 func (s *Server) createEvent(r *http.Request) (graphql.ID, error) {
-	e := &storage.Event{}
-	err := json.NewDecoder(r.Body).Decode(e)
+	var input epr.EventInput
+	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
 		return "", eprErrors.InvalidInputError{Msg: err.Error()}
 	}
 
-	event, err := storage.CreateEvent(s.DBConnector.Client, *e)
+	event, err := epr.CreateEvent(s.msgProducer, s.DBConnector, input)
 	if err != nil {
 		return "", err
 	}
-
-	slog.Info("created", "event", event)
-	s.msgProducer.Async(message.NewEvent(*event))
-
-	eventReceiverGroups, err := storage.FindTriggeredEventReceiverGroups(s.DBConnector.Client, *event)
-	if err != nil {
-		slog.Error("error finding triggered event receiver groups", "error", err, "input", e)
-		return "", err
-	}
-
-	for _, eventReceiverGroup := range eventReceiverGroups {
-		s.msgProducer.Async(message.NewEventReceiverGroupComplete(*event, eventReceiverGroup))
-	}
-
-	slog.Info("created", "event", event)
 	return event.ID, nil
 }

@@ -75,23 +75,78 @@ func TestCreateAndGetReceiver(t *testing.T) {
 func TestCreateInvalidReceiver(t *testing.T) {
 	client := common.NewHTTPClient()
 
-	receiver := eventReceiverInput{
-		Name:        "upload artifact",
-		Type:        "artifact.publish",
-		Version:     "1.0.9",
-		Description: "upload an artifact somewhere",
-		Schema:      `{abcd}`,
+	tests := map[string]struct {
+		input eventReceiverInput
+	}{
+		"empty name": {
+			input: eventReceiverInput{
+				Name:        "",
+				Type:        "artifact.publish",
+				Version:     "1.0.9",
+				Description: "upload an artifact somewhere",
+				Schema:      `{}`,
+			},
+		},
+		"empty type": {
+			input: eventReceiverInput{
+				Name:        "upload artifact",
+				Type:        "",
+				Version:     "1.0.9",
+				Description: "upload an artifact somewhere",
+				Schema:      `{}`,
+			},
+		},
+		"empty version": {
+			input: eventReceiverInput{
+				Name:        "upload artifact",
+				Type:        "artifact.publish",
+				Version:     "",
+				Description: "upload an artifact somewhere",
+				Schema:      `{}`,
+			},
+		},
+		"empty description": {
+			input: eventReceiverInput{
+				Name:        "upload artifact",
+				Type:        "artifact.publish",
+				Version:     "1.0.9",
+				Description: "",
+				Schema:      `{}`,
+			},
+		},
+		"invalid schema": {
+			input: eventReceiverInput{
+				Name:        "upload artifact",
+				Type:        "artifact.publish",
+				Version:     "1.0.9",
+				Description: "upload an artifact somewhere",
+				Schema:      `{abcd}`,
+			},
+		},
+		"empty schema": {
+			input: eventReceiverInput{
+				Name:        "upload artifact",
+				Type:        "artifact.publish",
+				Version:     "1.0.9",
+				Description: "upload an artifact somewhere",
+				Schema:      "",
+			},
+		},
 	}
 
-	resp, err := client.Post(receiverURI, "application/json", strings.NewReader(receiver.toPayload()))
-	assert.NilError(t, err)
-	assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
+	for testName, tt := range tests {
+		t.Run(testName, func(t *testing.T) {
+			resp, err := client.Post(receiverURI, "application/json", strings.NewReader(tt.input.toPayload()))
+			assert.NilError(t, err)
+			assert.Equal(t, resp.StatusCode, http.StatusBadRequest)
 
-	var body postReceiverResponse
-	err = json.NewDecoder(resp.Body).Decode(&body)
-	assert.NilError(t, err)
-	assert.Check(t, len(body.Errors) > 0)
-	assert.Equal(t, len(body.Data), 0, "shouldn't get id if creating receiver fails")
+			var body postReceiverResponse
+			err = json.NewDecoder(resp.Body).Decode(&body)
+			assert.NilError(t, err)
+			assert.Check(t, len(body.Errors) > 0)
+			assert.Equal(t, len(body.Data), 0, "shouldn't get id if creating receiver fails")
+		})
+	}
 }
 
 func TestGetNonExistentReceiver(t *testing.T) {

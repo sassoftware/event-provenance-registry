@@ -8,6 +8,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/api/graphql/schema/types"
+	"github.com/sassoftware/event-provenance-registry/pkg/epr"
 	"gotest.tools/v3/assert"
 )
 
@@ -24,7 +25,7 @@ var (
 )
 
 func TestEvent(t *testing.T) {
-	event := EventInput{
+	event := epr.EventInput{
 		Name:            "test",
 		Version:         "1.0.0",
 		Release:         "1.0.0",
@@ -36,7 +37,7 @@ func TestEvent(t *testing.T) {
 		EventReceiverID: "test",
 	}
 
-	assert.DeepEqual(t, event, EventInput{
+	assert.DeepEqual(t, event, epr.EventInput{
 		Name:            "test",
 		Version:         "1.0.0",
 		Release:         "1.0.0",
@@ -98,14 +99,14 @@ func TestFindEventToMap(t *testing.T) {
 }
 
 func TestEventReceiver(t *testing.T) {
-	eventReceiver := EventReceiverInput{
+	eventReceiver := epr.EventReceiverInput{
 		Name:        "test",
 		Type:        "test",
 		Version:     "1.0.0",
 		Description: "test",
 		Schema:      types.JSON{},
 	}
-	assert.DeepEqual(t, eventReceiver, EventReceiverInput{
+	assert.DeepEqual(t, eventReceiver, epr.EventReceiverInput{
 		Name:        "test",
 		Type:        "test",
 		Version:     "1.0.0",
@@ -145,14 +146,14 @@ func TestFindEventReceiverToMap(t *testing.T) {
 }
 
 func TestEventReceiverGroup(t *testing.T) {
-	eventReceiverGroup := EventReceiverGroupInput{
+	eventReceiverGroup := epr.EventReceiverGroupInput{
 		Name:             "test",
 		Type:             "test",
 		Version:          "1.0.0",
 		Description:      "test",
 		EventReceiverIDs: []graphql.ID{"test"},
 	}
-	assert.DeepEqual(t, eventReceiverGroup, EventReceiverGroupInput{
+	assert.DeepEqual(t, eventReceiverGroup, epr.EventReceiverGroupInput{
 		Name:             "test",
 		Type:             "test",
 		Version:          "1.0.0",
