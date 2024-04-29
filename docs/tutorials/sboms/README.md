@@ -1,4 +1,4 @@
-# CDEvents
+# CycloneDX SBOM
 
 ## Overview
 
@@ -11,8 +11,10 @@ Provenance Registry (EPR).
 
 ## Requirements
 
-The [Hello World](../hello_world/README.md) has been completed and the EPR
+The [Quickstart](../quickstart/README.md) has been completed and the EPR
 server is running.
+
+### Tools
 
 - [jq](https://jqlang.github.io/jq/)
 - [cdxgen](https://github.com/CycloneDX/cdxgen)

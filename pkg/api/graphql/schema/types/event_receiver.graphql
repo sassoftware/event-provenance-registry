@@ -1,26 +1,24 @@
-type EventReceiverGroup {
+type EventReceiver {
   id: ID!
   name: String!
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
-  event_receiver_ids: [ID!]!
+  schema: JSON!
+  fingerprint: String!
   created_at: Time!
-  updated_at: Time!
 }
 
-input CreateEventReceiverGroupInput {
+input CreateEventReceiverInput {
   name: String!
   type: String!
   version: String!
   description: String!
-  enabled: Boolean!
-  event_receiver_ids: [ID!]!
+  schema: JSON!
 }
 
-input FindEventReceiverGroupInput {
-  ID: ID
+input FindEventReceiverInput {
+  id: ID
   name: String
   type: String
   version: String
