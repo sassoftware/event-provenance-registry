@@ -64,6 +64,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	})
 
 	router.Route("/api", func(r chi.Router) {
+		r.Use(verification.Handle())
 		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
@@ -86,7 +87,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 				})
 			})
 			r.Route("/receivers", func(r chi.Router) {
-				r.With(verification.Handle()).Post("/", s.Rest.CreateReceiver())
+				r.Post("/", s.Rest.CreateReceiver())
 				r.Route("/{receiverID}", func(r chi.Router) {
 					r.Get("/", s.Rest.GetReceiverByID())
 				})
@@ -104,7 +105,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	router.Route("/healthz", func(r chi.Router) {
 		r.Get("/liveness", s.CheckLiveness())
 		r.Get("/readiness", s.CheckReadiness())
-		r.Get("/status", s.CheckStatus(cfg))
+		r.With(verification.Handle()).Get("/status", s.CheckStatus(cfg))
 	})
 
 	// turn on the profiler in debug mode
@@ -118,12 +119,13 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 
 	// endpoint for serving Prometheus metrics
 	router.Route("/metrics", func(r chi.Router) {
+		r.Use(verification.Handle())
 		r.Get("/", promhttp.Handler().(http.HandlerFunc))
 	})
 
 	// Separate, to ensure no authentication required.
 	router.Route("/api/v1/graphql", func(r chi.Router) {
-		r.Use(crs.Handler)
+		r.Use(crs.Handler, verification.Handle())
 		r.Get("/", s.GraphQL.ServerGraphQLDoc())
 		r.Post("/query", s.GraphQL.GraphQLHandler())
 	})
