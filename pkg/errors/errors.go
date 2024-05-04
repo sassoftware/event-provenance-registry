@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type MissingObjectError struct {
 	Msg string
@@ -16,4 +19,24 @@ type InvalidInputError struct {
 
 func (e InvalidInputError) Error() string {
 	return fmt.Sprintf("invalid input: %s", e.Msg)
+}
+
+func SanitizeError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	isServerErr := false
+	switch err.(type) {
+	case MissingObjectError:
+	case InvalidInputError:
+	default:
+		isServerErr = true
+	}
+
+	if isServerErr {
+		// don't expose server internals
+		err = errors.New("internal server error")
+	}
+	return err
 }

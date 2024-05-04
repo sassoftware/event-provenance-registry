@@ -60,12 +60,7 @@ func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error)
 	}
 	render.Status(r, status)
 
-	if status == http.StatusInternalServerError {
-		// don't expose server internals
-		resp.Errors = []string{"internal server error"}
-	} else {
-		resp.Errors = []string{err.Error()}
-	}
+	resp.Errors = []string{eprErrors.SanitizeError(err).Error()}
 
 	slog.Error("error during request", "error", err, "url", r.URL)
 	render.JSON(w, r, resp)
