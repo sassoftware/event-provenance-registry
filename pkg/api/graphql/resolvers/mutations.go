@@ -5,6 +5,7 @@ import (
 
 	"github.com/graph-gophers/graphql-go"
 	"github.com/sassoftware/event-provenance-registry/pkg/epr"
+	eprErrors "github.com/sassoftware/event-provenance-registry/pkg/errors"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
 )
@@ -22,7 +23,7 @@ type MutationResolver struct {
 func (r *MutationResolver) CreateEvent(args struct{ Event epr.EventInput }) (graphql.ID, error) {
 	event, err := epr.CreateEvent(r.msgProducer, r.Connection, args.Event)
 	if err != nil {
-		return "", err
+		return "", eprErrors.SanitizeError(err)
 	}
 	return event.ID, nil
 }
@@ -30,7 +31,7 @@ func (r *MutationResolver) CreateEvent(args struct{ Event epr.EventInput }) (gra
 func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver epr.EventReceiverInput }) (graphql.ID, error) {
 	eventReceiver, err := epr.CreateEventReceiver(r.msgProducer, r.Connection, args.EventReceiver)
 	if err != nil {
-		return "", err
+		return "", eprErrors.SanitizeError(err)
 	}
 	return eventReceiver.ID, nil
 }
@@ -38,7 +39,7 @@ func (r *MutationResolver) CreateEventReceiver(args struct{ EventReceiver epr.Ev
 func (r *MutationResolver) CreateEventReceiverGroup(args struct{ EventReceiverGroup epr.EventReceiverGroupInput }) (graphql.ID, error) {
 	eventReceiverGroup, err := epr.CreateEventReceiverGroup(r.msgProducer, r.Connection, args.EventReceiverGroup)
 	if err != nil {
-		return "", err
+		return "", eprErrors.SanitizeError(err)
 	}
 	return eventReceiverGroup.ID, nil
 }
@@ -47,7 +48,7 @@ func (r *MutationResolver) SetEventReceiverGroupEnabled(args struct{ ID graphql.
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, true)
 	if err != nil {
 		slog.Error("error setting event receiver group enabled", "error", err, "id", args.ID)
-		return "", err
+		return "", eprErrors.SanitizeError(err)
 	}
 	slog.Info("updated", "eventReceiverGroupEnabled", args.ID)
 	return args.ID, nil
@@ -57,7 +58,7 @@ func (r *MutationResolver) SetEventReceiverGroupDisabled(args struct{ ID graphql
 	err := storage.SetEventReceiverGroupEnabled(r.Connection.Client, args.ID, false)
 	if err != nil {
 		slog.Error("error setting event receiver group disabled", "error", err, "id", args.ID)
-		return "", err
+		return "", eprErrors.SanitizeError(err)
 	}
 	slog.Info("updated", "eventReceiverGroupDisabled", args.ID)
 	return args.ID, nil

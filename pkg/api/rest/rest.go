@@ -49,15 +49,19 @@ func handleResponse(w http.ResponseWriter, r *http.Request, data any, err error)
 		return
 	}
 
-	resp.Errors = []string{err.Error()}
+	var status int
 	switch err.(type) {
 	case eprErrors.MissingObjectError:
-		render.Status(r, http.StatusNotFound)
+		status = http.StatusNotFound
 	case eprErrors.InvalidInputError:
-		render.Status(r, http.StatusBadRequest)
+		status = http.StatusBadRequest
 	default:
-		render.Status(r, http.StatusInternalServerError)
+		status = http.StatusInternalServerError
 	}
+	render.Status(r, status)
+
+	resp.Errors = []string{eprErrors.SanitizeError(err).Error()}
+
 	slog.Error("error during request", "error", err, "url", r.URL)
 	render.JSON(w, r, resp)
 }
