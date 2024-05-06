@@ -259,6 +259,13 @@ curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
 }'
 ```
 
+https://documenter.getpostman.com/view/7294517/SzmfZHnd#intro
+https://suedbroecker.net/2020/08/04/how-to-create-a-new-realm-with-the-keycloak-rest-api/
+https://documenter.getpostman.com/view/7294517/SzmfZHnd#cf71cd19-6910-467f-b04e-3f3bf5539d81
+https://github.com/thomassuedbroecker/keycloak-create-realm-bash < this one is good.
+
+Make sure you get the right version of [the docs](https://www.keycloak.org/docs-api/latest/rest-api/index.html). Google will sometimes give you older versions that you may not want.
+
 ## Contributing
 
 We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)
