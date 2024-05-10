@@ -29,7 +29,20 @@ curl -H "Authorization: bearer $access_token" -H "content-type: application/json
   ]
 }' http://localhost:8083/admin/realms/junk/users
 
-# need a client-id
+# need a client
+
+curl -H "Authorization: bearer $access_token" -H "content-type: application/json" \
+  http://localhost:8083/admin/realms/junk/clients
+
+curl -H "Authorization: bearer $access_token" -H "content-type: application/json" -X POST \
+  -d '{
+  "clientId": "dummy-client",
+  "name": "my-dummy-client",
+  "directAccessGrantsEnabled": true
+}' http://localhost:8083/admin/realms/junk/clients
+
+# TODO: need the audience mapper and audience resolve
+
 # need a client secret
 
 #curl -H "Authorization: bearer $access_token" -H "content-type: application/json" http://localhost:8083/admin/realms/junk/users
