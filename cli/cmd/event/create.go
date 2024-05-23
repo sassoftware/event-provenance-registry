@@ -37,7 +37,7 @@ func runCreateEvent(_ *cobra.Command, _ []string) error {
 	platform := viper.GetString("platform-id")
 	pkg := viper.GetString("package")
 	success := viper.GetBool("success")
-	eventReceiverID := viper.GetString("receiver-id")
+	eventReceiverID := viper.GetString("event-receiver-id")
 	payload := viper.GetString("payload")
 	dryrun := viper.GetBool("dry-run")
 	noindent := viper.GetBool("no-indent")

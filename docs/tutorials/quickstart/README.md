@@ -3,7 +3,8 @@
 ## Overview
 
 In this tutorial we will run the Event Provenance Registry (EPR) Server with
-Redpanda Message broker and PostgreSQL database. We will create an event receiver, an event receiver group, and a few events. 
+Redpanda Message broker and PostgreSQL database. We will create an event
+receiver, an event receiver group, and a few events.
 
 ## Requirements
 
@@ -378,8 +379,8 @@ mutation {
 In the graphql window create a query with the following:
 
 ```graphql
-query{
-  events(event: {name: "foo", version: "1.0.0"}) {
+query {
+  events(event: { name: "foo", version: "1.0.0" }) {
     id
     name
     version
@@ -460,8 +461,7 @@ In the graphql window create a query with the following:
 
 ```graphql
 query {
-  event_receivers(event_receiver: {name: "the_clash", version: "1.0.0"})
-    {
+  event_receivers(event_receiver: { name: "the_clash", version: "1.0.0" }) {
     id
     name
     version
@@ -503,7 +503,8 @@ As follows:
 
 ### Query using the GraphQL with Curl
 
-We need to craft a GraphQL query. First thing we need is an event receiver. The event receiver acts as a classification and gate for events.
+We need to craft a GraphQL query. First thing we need is an event receiver. The
+event receiver acts as a classification and gate for events.
 
 We can find and event receiver by id using the following graphql query:
 
@@ -518,7 +519,8 @@ We can find and event receiver by id using the following graphql query:
 }
 ```
 
-We can query the event receiver information using a POST on the graphql endpoint as follows:
+We can query the event receiver information using a POST on the graphql endpoint
+as follows:
 
 ```bash
 curl -X POST -H "content-type:application/json" -d '{"query":"query ($er: FindEventReceiverInput!){event_receivers(event_receiver: $er) {id,name,type,version,description}}","variables":{"er":{"id":"01HPW652DSJBHR5K4KCZQ97GJP"}}}' http://localhost:8042/api/v1/graphql/query
@@ -538,7 +540,8 @@ We can query for an event by name and version using the following graphql query:
 }
 ```
 
-We can query the event receiver information using a POST on the graphql endpoint as follows:
+We can query the event receiver information using a POST on the graphql endpoint
+as follows:
 
 ```bash
 curl -X POST -H "content-type:application/json" -d '{"query":"query ($e : FindEventInput!){events(event: $e) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}","variables":{"e": {"name":"foo","version":"1.0.0"}}}' http://localhost:8042/api/v1/graphql/query
@@ -548,7 +551,8 @@ curl -X POST -H "content-type:application/json" -d '{"query":"query ($e : FindEv
 curl -X POST -H "content-type:application/json" -d '{"query":"query {events(event: {name: \"foo\", version: \"1.0.0\"}) {id,name,version,release,platform_id,package,description,success,event_receiver_id}}}' http://localhost:8042/api/v1/graphql/query
 ```
 
-We can query for an event receiver group by name and version using the following graphql query:
+We can query for an event receiver group by name and version using the following
+graphql query:
 
 ```json
 {
@@ -562,10 +566,9 @@ We can query for an event receiver group by name and version using the following
 }
 ```
 
-We can query the event receiver information using a POST on the graphql endpoint as follows:
+We can query the event receiver information using a POST on the graphql endpoint
+as follows:
 
 ```bash
 curl -X POST -H "content-type:application/json" -d '{"query":"query ($erg: FindEventReceiverGroupInput!){event_receiver_groups(event_receiver_group: $erg) {id,name,type,version,description}}","variables":{"erg": {"name":"foobar","version":"1.0.0"}}}' http://localhost:8042/api/v1/graphql/query
 ```
-
-
