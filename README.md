@@ -93,8 +93,8 @@ Flags:
 
 ### Running the Server
 
-See [the docs](docs/how-to/start-server/README.md) for how to start EPR
-and its dependencies.
+See [the docs](docs/how-to/start-server/README.md) for how to start EPR and its
+dependencies.
 
 ### Interacting with the Server
 
@@ -177,6 +177,11 @@ curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventRec
 ```bash
 curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventReceiverGroups($id: ID!){event_receiver_groups(id: $id) {id,name,type,version,description,enabled,event_receiver_ids,created_at,updated_at}}","variables":{"id":"01HKX90FKWQZ49F6H5V5NQT95Z"}}' http://localhost:8042/api/v1/graphql/query
 ```
+
+## Links
+
+- [EPR Python Client](https://github.com/xbcsmith/epr-python)
+- [EPR Workshop](https://github.com/xbcsmith/epr-workshop)
 
 ## Contributing
 

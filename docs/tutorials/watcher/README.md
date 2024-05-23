@@ -2,7 +2,11 @@
 
 ## Overview
 
-In this tutorial we will delve into the utilization of the EPR watcher SDK to craft a watcher, which actively listens for events originating from the EPR server. Watchers serve the purpose of monitoring messages within Redpanda, initiating actions based on these messages, and subsequently dispatching event notifications to the EPR Server.
+In this tutorial we will delve into the utilization of the EPR watcher SDK to
+craft a watcher, which actively listens for events originating from the EPR
+server. Watchers serve the purpose of monitoring messages within Redpanda,
+initiating actions based on these messages, and subsequently dispatching event
+notifications to the EPR Server.
 
 This tutorial depends on the [Quickstart](../quickstart/README.md) being
 completed.
@@ -48,7 +52,7 @@ func main() {
  watcher.ConsumeRecords(customMatcher)
 }
 
-ffunc customMatcher(msg *message.Message) bool {
+func customMatcher(msg *message.Message) bool {
  return msg.Type == "foo.bar"
 }
 
