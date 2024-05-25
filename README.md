@@ -178,6 +178,99 @@ curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventRec
 curl -X POST -H "content-type:application/json" -d '{"query":"query FindEventReceiverGroups($id: ID!){event_receiver_groups(id: $id) {id,name,type,version,description,enabled,event_receiver_ids,created_at,updated_at}}","variables":{"id":"01HKX90FKWQZ49F6H5V5NQT95Z"}}' http://localhost:8042/api/v1/graphql/query
 ```
 
+## Keycloak
+
+Follow this guide to get started https://www.keycloak.org/getting-started/getting-started-docker.
+
+That'll get you a new user and client. Unlike the example, set `client authentication` to `on`, otherwise, you can't
+access the client credentials tab in the admin console http://localhost:8083/admin/master/console/#/<realm>
+/clients/<ulid>/credentials.
+
+To start up Keycloak. I changed the port number because the default 8080 is in use by EPR itself.
+
+```bash
+docker run -p 8083:8083 -e KC_HTTP_PORT=8083 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:24.0.1 start-dev
+```
+
+http://localhost:8083/admin/master/console/#/test/clients
+https://github.com/coreos/go-oidc
+https://github.com/coreos/go-oidc/blob/v3/example/userinfo/app.go
+
+Need to grab a token from Keycloak first. You can get oidc config info from
+here http://localhost:8083/realms/test/.well-known/openid-configuration
+Log into your new realm with your account from here: http://localhost:8083/realms/<realmName>/account.
+
+Once you've got that,
+
+```bash
+export access_token=$(\
+  curl -X POST http://localhost:8083/realms/test/protocol/openid-connect/token \
+  --user epr-client-id:rGMO0kRpvUj3XD9It678AoTlgMtGxItJ \
+  -d 'username=testbob&password=abc123&grant_type=password' | jq --raw-output '.access_token'\
+)
+```
+
+The `--user` flag is the credentials for the client connecting to Keycloak. In our case, that'll be EPR. The payload
+content depends on the grant type. For our purposes, password is easiest. The username and password will be those of
+the user you created in the tutorial.
+
+I think the flow is roughly:
+
+1. User hits a logon endpoint and gets redirected to Keycloak.
+2. EPR passes up client credentials plus user info.
+3. Keycloak returns a token
+4. EPR passes token to user.
+
+Although, I think we could shorten it to just get a JWT straight from Keycloak without passing it back through EPR...
+I'll have to play with it.
+
+Once you have the access token, use it to make requests to EPR.
+
+```bash
+curl -X GET -H "Authorization: Bearer $access_token" -w "%{http_code}\n" http://localhost:8042/api/oidctest
+```
+
+I ran into some problems with the audience not being set on the
+JWT. [See this post]( https://stackoverflow.com/questions/53550321/keycloak-gatekeeper-aud-claim-and-client-id-do-not-match)
+for more info. Options are slightly different than what is
+described. [This video](https://www.youtube.com/watch?v=G2QVhUAEylc) was more helpful.
+
+To create a receiver with an auth token.
+
+```bash
+curl --location --request POST 'http://localhost:8042/api/v1/receivers' \
+--header 'Content-Type: application/json' \
+--header "authorization: Bearer $access_token" \
+--data-raw '{
+  "name": "foobar",
+  "type": "whatever",
+  "version": "1.1.2",
+  "description": "it does stuff",
+  "enabled": true,
+  "schema": {
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    }
+  }
+}
+}'
+```
+
+https://documenter.getpostman.com/view/7294517/SzmfZHnd#intro
+https://suedbroecker.net/2020/08/04/how-to-create-a-new-realm-with-the-keycloak-rest-api/
+https://documenter.getpostman.com/view/7294517/SzmfZHnd#cf71cd19-6910-467f-b04e-3f3bf5539d81
+https://github.com/thomassuedbroecker/keycloak-create-realm-bash < this one is good.
+
+Make sure you get the right version of [the docs](https://www.keycloak.org/docs-api/latest/rest-api/index.html). Google will sometimes give you older versions that you may not want.
+
+Admin CLI get's packaged in with the container.
+https://wjw465150.gitbooks.io/keycloak-documentation/content/server_admin/topics/admin-cli.html
+
+It's actually a jar that gets invoked by the `kcadm.sh` script.
+
 ## Contributing
 
 We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)

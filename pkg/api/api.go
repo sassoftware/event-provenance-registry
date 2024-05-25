@@ -4,21 +4,22 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	"log"
-	"log/slog"
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sassoftware/event-provenance-registry/pkg/auth"
 	"github.com/sassoftware/event-provenance-registry/pkg/config"
 	"github.com/sassoftware/event-provenance-registry/pkg/message"
 	"github.com/sassoftware/event-provenance-registry/pkg/status"
 	"github.com/sassoftware/event-provenance-registry/pkg/storage"
+	"log"
+	"log/slog"
+	"net/http"
 )
 
 // Initialize starts the database, kafka message producer, middleware, and endpoints
@@ -32,6 +33,10 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 		log.Fatal(err)
 	}
 
+	verification, err := auth.NewMiddleware(context.TODO())
+	if err != nil {
+		return nil, err
+	}
 	// Create a new router
 	router := chi.NewRouter()
 	// Add some middleware to our router
@@ -59,6 +64,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	})
 
 	router.Route("/api", func(r chi.Router) {
+		r.Use(verification.Handle())
 		r.Get("/", s.Rest.ServeOpenAPIDoc(cfg.ResourceDir))
 		r.Route("/v1", func(r chi.Router) {
 			r.Use(crs.Handler)
@@ -99,7 +105,7 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 	router.Route("/healthz", func(r chi.Router) {
 		r.Get("/liveness", s.CheckLiveness())
 		r.Get("/readiness", s.CheckReadiness())
-		r.Get("/status", s.CheckStatus(cfg))
+		r.With(verification.Handle()).Get("/status", s.CheckStatus(cfg))
 	})
 
 	// turn on the profiler in debug mode
@@ -113,12 +119,13 @@ func Initialize(db *storage.Database, msgProducer message.TopicProducer, cfg *co
 
 	// endpoint for serving Prometheus metrics
 	router.Route("/metrics", func(r chi.Router) {
+		r.Use(verification.Handle())
 		r.Get("/", promhttp.Handler().(http.HandlerFunc))
 	})
 
 	// Separate, to ensure no authentication required.
 	router.Route("/api/v1/graphql", func(r chi.Router) {
-		r.Use(crs.Handler)
+		r.Use(crs.Handler, verification.Handle())
 		r.Get("/", s.GraphQL.ServerGraphQLDoc())
 		r.Post("/query", s.GraphQL.GraphQLHandler())
 	})
