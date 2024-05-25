@@ -266,6 +266,11 @@ https://github.com/thomassuedbroecker/keycloak-create-realm-bash < this one is g
 
 Make sure you get the right version of [the docs](https://www.keycloak.org/docs-api/latest/rest-api/index.html). Google will sometimes give you older versions that you may not want.
 
+Admin CLI get's packaged in with the container.
+https://wjw465150.gitbooks.io/keycloak-documentation/content/server_admin/topics/admin-cli.html
+
+It's actually a jar that gets invoked by the `kcadm.sh` script.
+
 ## Contributing
 
 We welcome your contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md)

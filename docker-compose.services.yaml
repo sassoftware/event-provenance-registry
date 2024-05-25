@@ -86,16 +86,20 @@ services:
       - "8080:8080"
     depends_on:
       - redpanda
-
-# Todo: add back
-#  keycloak:
-#    image: "quay.io/keycloak/keycloak:24.0.1"
-#    restart: unless-stopped
-#    command:
-#      - start-dev
-#    environment:
-#      KC_HTTP_PORT: 8083
-#      KEYCLOAK_ADMIN: admin
-#      KEYCLOAK_ADMIN_PASSWORD: admin
-#    ports:
-#      - "8083:8083"
+  keycloak:
+    image: "quay.io/keycloak/keycloak:24.0.1"
+    restart: unless-stopped
+    command:
+      - start-dev
+    environment:
+      KC_HTTP_PORT: 8083
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_LOG_LEVEL: debug
+      # add the admin CLI to the path.
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/keycloak/bin
+    ports:
+      - "8083:8083"
+    # TODO: rip this out. For debugging only.
+    volumes:
+      - ./:/work
