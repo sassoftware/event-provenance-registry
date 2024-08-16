@@ -171,7 +171,69 @@ Another popular watcher is one that creates Jira tickets when messages are
 matched. We use this one heavily as part of our security automation to open
 security issues against various teams when problems are detected.
 
-    Image: Show messages on the bus
+The full content of messages watchers look for are similar to this:
+
+```json
+{
+  "success": true,
+  "id": "01J4WB9W3FA9ZNJ66RG5HMF0ZF",
+  "specversion": "1.0",
+  "type": "some-action",
+  "source": "epr",
+  "api_version": "v1",
+  "name": "grant",
+  "version": "1.0.0",
+  "release": "some-action",
+  "platform_id": "platformID",
+  "package": "package",
+  "data": {
+    "events": [
+      {
+        "id": "01J4WB9W3FA9ZNJ66RG5HMF0ZF",
+        "name": "grant",
+        "version": "1.0.0",
+        "release": "some-action",
+        "platform_id": "platformID",
+        "package": "package",
+        "description": "a fake event receiver",
+        "payload": {
+          "name": "value"
+        },
+        "success": true,
+        "created_at": "2024-08-09T15:54:27.823926-04:00",
+        "event_receiver_id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
+        "EventReceiver": {
+          "id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
+          "name": "grant",
+          "type": "some-action",
+          "version": "1.0.0",
+          "description": "a fake event receiver",
+          "schema": {
+            "name": "value"
+          },
+          "fingerprint": "bdd0b737369f039dd074db22f12d8e0a60fcc10017b1b463c87265918f664d95",
+          "created_at": "2024-08-09T15:54:15.51295-04:00"
+        }
+      }
+    ],
+    "event_receivers": [
+      {
+        "id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
+        "name": "grant",
+        "type": "some-action",
+        "version": "1.0.0",
+        "description": "a fake event receiver",
+        "schema": {
+          "name": "value"
+        },
+        "fingerprint": "bdd0b737369f039dd074db22f12d8e0a60fcc10017b1b463c87265918f664d95",
+        "created_at": "2024-08-09T15:54:15.51295-04:00"
+      }
+    ],
+    "event_receiver_groups": null
+  }
+}
+```
 
 ## Running EPR in Production
 
@@ -187,7 +249,7 @@ corresponding receivers that are all contained inside a release group. Once
 those three receivers have passing events for the NVRPP, the group triggers a
 release message, that a downstream watcher catches to release the software.
 
-    Image: Provide a diagram
+![epr flow](./resources/epr-flow.svg)
 
 ## Pitfalls
 
