@@ -72,26 +72,142 @@ Event receivers are data structures stored within EPR that represent some kind
 of action (i.e., a build, running a test, packaging an artifact, deploying a
 binary, etc...) with no dependencies and are classified by their name, type, and
 version. You might name a receiver by the action it represents like
-golang-build-complete. Types might be things like build.finished or
-artifact.packaged. Receivers may have multiple [events](#events) that correspond
+golang-build-complete. Types are arbitrary, but work better with a
+comprehensible structure. Enter
+the [CD Events spec](https://github.com/cdevents/spec). This spec provides a
+standard on which to build interoperability between CI/CD systems. The following
+examples take advantage of CD Events.
+
+Receivers may have multiple [events](#events) that correspond
 with them. Any events associated with a receiver must have a `payload` that
 complies with the schema defined on the receiver. This allows some guarantees
 about what kind of data you can expect of events going to any given receiver.
+The receiver defined below requires a CD Event schema for any incoming events.
 
 ```json
 {
-  "name": "golang-build-complete",
-  "type": "build.finished",
+  "name": "artifact-packaged",
+  "type": "dev.cdevents.artifact.packaged.0.1.1",
   "version": "1.0.0",
-  "description": "Receiver for Golang build results.",
+  "description": "CDEvents Artifact Packaged",
   "enabled": true,
   "schema": {
-    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://cdevents.dev/0.4.0-draft/schema/artifact-packaged-event",
     "properties": {
-      "database": {
+      "context": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "format": "uri-reference"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "dev.cdevents.artifact.packaged.0.1.1"
+            ],
+            "default": "dev.cdevents.artifact.packaged.0.1.1"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "id",
+          "source",
+          "type",
+          "timestamp"
+        ]
+      },
+      "subject": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "format": "uri-reference"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "artifact"
+            ],
+            "default": "artifact"
+          },
+          "content": {
+            "properties": {
+              "change": {
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "format": "uri-reference"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "id"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "change"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "content"
+        ]
+      },
+      "customData": {
+        "oneOf": [
+          {
+            "type": "object"
+          },
+          {
+            "type": "string",
+            "contentEncoding": "base64"
+          }
+        ]
+      },
+      "customDataContentType": {
         "type": "string"
       }
-    }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "context",
+      "subject"
+    ]
   }
 }
 ```
@@ -115,21 +231,39 @@ own actions. A common use case is watchers matching messages based on the
 `success` field of an event (and by extension, the message). This allows you to
 take different actions depending on if an event passed or failed. For example,
 you could open a ticket against a team if their event to the `artifact.scanned`
-type receiver had `success=false`.
+type receiver had `success=false`. If we post an event for the receiver above,
+it might look something like this:
 
 ```json
 {
-  "name": "my-app",
-  "version": "2.2.2",
-  "release": "2023-12-08:12-00-00",
-  "platform_id": "linux",
-  "package": "docker",
-  "description": "This is an event for our application build.",
+  "name": "foo",
+  "version": "1.0.1",
+  "release": "2023.11.16",
+  "platform_id": "aarch64-gnu-linux-7",
+  "package": "oci",
+  "description": "packaged oci image foo",
   "payload": {
-    "database": "postgres"
+    "context": {
+      "version": "0.4.0-draft",
+      "id": "271069a8-fc18-44f1-b38f-9d70a1695819",
+      "source": "/event/source/123",
+      "type": "dev.cdevents.artifact.packaged.0.1.1",
+      "timestamp": "2023-03-20T14:27:05.315384Z"
+    },
+    "subject": {
+      "id": "pkg:golang/mygit.com/myorg/myapp@234fd47e07d1004f0aed9c",
+      "source": "/event/source/123",
+      "type": "artifact",
+      "content": {
+        "change": {
+          "id": "myChange123",
+          "source": "my-git.example/an-org/a-repo"
+        }
+      }
+    }
   },
   "success": true,
-  "event_receiver_id": "01HDS785T0V8KTSTDM9XGT33QQ"
+  "event_receiver_id": "01HQK4JD53RYX04HZTMTEYBDTX"
 }
 ```
 
@@ -142,18 +276,19 @@ they only do this if each receiver has an event with a matching NVRPP where
 `success=true`. Since there may be multiple events of varying successes per
 receiver, only the most recent is considered. This allows you to run many tasks
 in parallel, but only advance your artifact through the pipeline once all its
-tasks have completed successfully.
+tasks have completed successfully. Groups don't match exactly with the CD Event
+spec, but we'll still use the same event types for our example. Normally, we
+will define more than one receiver ID per group. This example is for simplicity.
 
 ```json
 {
   "name": "release-checks",
-  "type": "artifact.release",
+  "type": "dev.cdevents.artifact.published.0.3.0-draft",
   "version": "3.3.3",
   "description": "Send an event to release our application if all pipeline tasks have passed.",
   "enabled": true,
   "event_receiver_ids": [
-    "01H9GW7FYY4XYE2R930YTFM7FM",
-    "01HDS785T0V8KTSTDM9XGT33QQ"
+    "01JBX00KBSWSKPPQXQSRWRK93F"
   ]
 }
 ```
@@ -176,58 +311,75 @@ The full content of messages watchers look for are similar to this:
 ```json
 {
   "success": true,
-  "id": "01J4WB9W3FA9ZNJ66RG5HMF0ZF",
+  "id": "01JBX0GZ4VE1RZB53C37R65Q8Q",
   "specversion": "1.0",
-  "type": "some-action",
+  "type": "dev.cdevents.artifact.packaged.0.1.1",
   "source": "epr",
   "api_version": "v1",
-  "name": "grant",
-  "version": "1.0.0",
-  "release": "some-action",
-  "platform_id": "platformID",
-  "package": "package",
+  "name": "foo",
+  "version": "1.0.1",
+  "release": "2023.11.16",
+  "platform_id": "aarch64-gnu-linux-7",
+  "package": "oci",
   "data": {
     "events": [
       {
-        "id": "01J4WB9W3FA9ZNJ66RG5HMF0ZF",
-        "name": "grant",
-        "version": "1.0.0",
-        "release": "some-action",
-        "platform_id": "platformID",
-        "package": "package",
-        "description": "a fake event receiver",
+        "id": "01JBX0GZ4VE1RZB53C37R65Q8Q",
+        "name": "foo",
+        "version": "1.0.1",
+        "release": "2023.11.16",
+        "platform_id": "aarch64-gnu-linux-7",
+        "package": "oci",
+        "description": "packaged oci image foo",
         "payload": {
-          "name": "value"
+          "context": {
+            "version": "0.4.0-draft",
+            "id": "271069a8-fc18-44f1-b38f-9d70a1695819",
+            "source": "/event/source/123",
+            "type": "dev.cdevents.artifact.packaged.0.1.1",
+            "timestamp": "2023-03-20T14:27:05.315384Z"
+          },
+          "subject": {
+            "id": "pkg:golang/mygit.com/myorg/myapp@234fd47e07d1004f0aed9c",
+            "source": "/event/source/123",
+            "type": "artifact",
+            "content": {
+              "change": {
+                "id": "myChange123",
+                "source": "my-git.example/an-org/a-repo"
+              }
+            }
+          }
         },
         "success": true,
-        "created_at": "2024-08-09T15:54:27.823926-04:00",
-        "event_receiver_id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
+        "created_at": "2024-11-04T20:55:13.180102-05:00",
+        "event_receiver_id": "01JBX00KBSWSKPPQXQSRWRK93F",
         "EventReceiver": {
-          "id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
-          "name": "grant",
-          "type": "some-action",
+          "id": "01JBX00KBSWSKPPQXQSRWRK93F",
+          "name": "artifact-packaged",
+          "type": "dev.cdevents.artifact.packaged.0.1.1",
           "version": "1.0.0",
-          "description": "a fake event receiver",
+          "description": "CDEvents Artifact Packaged",
           "schema": {
-            "name": "value"
+            // "schema omitted for brevity"
           },
-          "fingerprint": "bdd0b737369f039dd074db22f12d8e0a60fcc10017b1b463c87265918f664d95",
-          "created_at": "2024-08-09T15:54:15.51295-04:00"
+          "fingerprint": "ce507df4dc8dac35a365f720d540fd1be29fc8639e173a69804443ab4430aae8",
+          "created_at": "2024-11-04T20:46:16.826009-05:00"
         }
       }
     ],
     "event_receivers": [
       {
-        "id": "01J4WB9G2RMDZQ4GHW0WQ4H0NA",
-        "name": "grant",
-        "type": "some-action",
+        "id": "01JBX00KBSWSKPPQXQSRWRK93F",
+        "name": "artifact-packaged",
+        "type": "dev.cdevents.artifact.packaged.0.1.1",
         "version": "1.0.0",
-        "description": "a fake event receiver",
+        "description": "CDEvents Artifact Packaged",
         "schema": {
-          "name": "value"
+          // "schema omitted for brevity"
         },
-        "fingerprint": "bdd0b737369f039dd074db22f12d8e0a60fcc10017b1b463c87265918f664d95",
-        "created_at": "2024-08-09T15:54:15.51295-04:00"
+        "fingerprint": "ce507df4dc8dac35a365f720d540fd1be29fc8639e173a69804443ab4430aae8",
+        "created_at": "2024-11-04T20:46:16.826009-05:00"
       }
     ],
     "event_receiver_groups": null
@@ -295,6 +447,15 @@ the event contents, nothing prevents a user from posting complete garbage to
 your receiver. Empty schemas are fine for development, but not so great in
 production.
 
+### Inconsistent Event Types
+
+When we started, there were, and still are, no standard event types. Users are
+largely left to determine their own event types. This can lead to confusion
+where events for two separate groups mean the same thing but are named
+differently. CD Events would have been useful in solving this problem had we
+known about it at the time. Consistent messaging makes it much easier to tell
+what's going on, especially when disparate groups produce millions of events.
+
 ## Benefits
 
 It wasn't all doom and gloom. We saw massive improvements in several key areas.
@@ -344,4 +505,6 @@ yours as well.
 
 ## Links
 
-- <https://github.com/sassoftware/event-provenance-registry>
+- [EPR Repository](https://github.com/sassoftware/event-provenance-registry)
+- [CD Events Documentation](https://cdevents.dev/docs/)
+- [CD Events Spec Repository](https://github.com/cdevents/spec)
