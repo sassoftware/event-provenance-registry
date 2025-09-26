@@ -14,6 +14,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag constants
+const (
+	createNameFlag             = "name"
+	createTypeFlag             = "type"
+	createVersionFlag          = "version"
+	createDescriptionFlag      = "description"
+	createEventReceiverIDsFlag = "event-receiver-ids"
+	createEnabledFlag          = "enabled"
+	createUrlFlag              = "url"
+	createDryRunFlag           = "dry-run"
+	createNoIndentFlag         = "no-indent"
+)
+
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:     "create",
@@ -25,20 +38,20 @@ var createCmd = &cobra.Command{
 
 // runCreateEventReceiverGroup creates the Event Receiver Group, returns error
 func runCreateEventReceiverGroup(_ *cobra.Command, _ []string) error {
-	url := viper.GetString("url")
+	url := viper.GetString(createUrlFlag)
 	c, err := common.GetClient(url)
 	if err != nil {
 		return err
 	}
 
-	name := viper.GetString("name")
-	etype := viper.GetString("type")
-	version := viper.GetString("version")
-	desc := viper.GetString("description")
-	evrIDs := viper.GetStringSlice("event-receiver-ids")
-	enabled := viper.GetBool("enabled")
-	dryrun := viper.GetBool("dry-run")
-	noindent := viper.GetBool("no-indent")
+	name := viper.GetString(createNameFlag)
+	etype := viper.GetString(createTypeFlag)
+	version := viper.GetString(createVersionFlag)
+	desc := viper.GetString(createDescriptionFlag)
+	evrIDs := viper.GetStringSlice(createEventReceiverIDsFlag)
+	enabled := viper.GetBool(createEnabledFlag)
+	dryrun := viper.GetBool(createDryRunFlag)
+	noindent := viper.GetBool(createNoIndentFlag)
 
 	eventReceiverIDs := []graphql.ID{}
 	for _, id := range evrIDs {
@@ -83,19 +96,19 @@ func runCreateEventReceiverGroup(_ *cobra.Command, _ []string) error {
 
 // NewCreateCmd creates a new command
 func NewCreateCmd() *cobra.Command {
-	createCmd.Flags().String("name", "", "Name of the Event Receiver Group")
-	createCmd.Flags().String("type", "", "Type of the Event Receiver Group")
-	createCmd.Flags().String("version", "", "Version of the Event Receiver Group")
-	createCmd.Flags().String("description", "", "Description of the Event Receiver Group")
-	createCmd.Flags().String("event-receiver-ids", "", "Space delimited set of receiver ids")
-	createCmd.Flags().Bool("enabled", true, "Enable the Event Receiver Group")
-	createCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
-	createCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
-	createCmd.Flags().Bool("no-indent", false, "do not indent the JSON output")
-	_ = createCmd.MarkFlagRequired("name")
-	_ = createCmd.MarkFlagRequired("type")
-	_ = createCmd.MarkFlagRequired("description")
-	_ = createCmd.MarkFlagRequired("event-receiver-ids")
+	createCmd.Flags().String(createNameFlag, "", "Name of the Event Receiver Group")
+	createCmd.Flags().String(createTypeFlag, "", "Type of the Event Receiver Group")
+	createCmd.Flags().String(createVersionFlag, "", "Version of the Event Receiver Group")
+	createCmd.Flags().String(createDescriptionFlag, "", "Description of the Event Receiver Group")
+	createCmd.Flags().String(createEventReceiverIDsFlag, "", "Space delimited set of receiver ids")
+	createCmd.Flags().Bool(createEnabledFlag, true, "Enable the Event Receiver Group")
+	createCmd.Flags().String(createUrlFlag, "http://localhost:8042", "EPR base url")
+	createCmd.Flags().Bool(createDryRunFlag, false, "do a dry run of the command")
+	createCmd.Flags().Bool(createNoIndentFlag, false, "do not indent the JSON output")
+	_ = createCmd.MarkFlagRequired(createNameFlag)
+	_ = createCmd.MarkFlagRequired(createTypeFlag)
+	_ = createCmd.MarkFlagRequired(createDescriptionFlag)
+	_ = createCmd.MarkFlagRequired(createEventReceiverIDsFlag)
 
 	return createCmd
 }

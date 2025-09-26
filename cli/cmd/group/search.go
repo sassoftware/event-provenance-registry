@@ -13,6 +13,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag constants
+const (
+	searchIdFlag       = "id"
+	searchNameFlag     = "name"
+	searchVersionFlag  = "version"
+	searchTypeFlag     = "type"
+	searchFieldsFlag   = "fields"
+	searchJsonpathFlag = "jsonpath"
+	searchUrlFlag      = "url"
+	searchDryRunFlag   = "dry-run"
+)
+
 // searchCmd represents the search command
 var searchCmd = &cobra.Command{
 	Use:     "search",
@@ -24,10 +36,10 @@ var searchCmd = &cobra.Command{
 
 // runSearchEventReceiverGroup runs the search, returns error
 func runSearchEventReceiverGroup(_ *cobra.Command, _ []string) error {
-	dryrun := viper.GetBool("dry-run")
+	dryrun := viper.GetBool(searchDryRunFlag)
 	noindent := viper.GetBool("no-indent")
 
-	url := viper.GetString("url")
+	url := viper.GetString(searchUrlFlag)
 	c, err := common.GetClient(url)
 	if err != nil {
 		return err
@@ -35,28 +47,28 @@ func runSearchEventReceiverGroup(_ *cobra.Command, _ []string) error {
 
 	params := make(map[string]interface{})
 
-	id := viper.GetString("id")
+	id := viper.GetString(searchIdFlag)
 	if id != "" {
 		params["id"] = id
 	}
 
-	name := viper.GetString("name")
+	name := viper.GetString(searchNameFlag)
 	if name != "" {
 		params["name"] = name
 	}
 
-	version := viper.GetString("version")
+	version := viper.GetString(searchVersionFlag)
 	if version != "" {
 		params["version"] = version
 	}
 
-	typeStr := viper.GetString("type")
+	typeStr := viper.GetString(searchTypeFlag)
 	if typeStr != "" {
 		params["type"] = typeStr
 	}
 
 	fields, err := common.ProcessSearchFields(
-		viper.GetStringSlice("fields"),
+		viper.GetStringSlice(searchFieldsFlag),
 		&storage.EventReceiverGroup{},
 	)
 	if err != nil {
@@ -100,14 +112,14 @@ func runSearchEventReceiverGroup(_ *cobra.Command, _ []string) error {
 
 // NewSearchCmd returns a new search command
 func NewSearchCmd() *cobra.Command {
-	searchCmd.Flags().String("id", "", "Id for the Event Receiver Group")
-	searchCmd.Flags().String("name", "", "Name of the Event Receiver Group")
-	searchCmd.Flags().String("version", "", "Version of the Event Receiver Group")
-	searchCmd.Flags().String("type", "", "Type of the Event Receiver Group")
+	searchCmd.Flags().String(searchIdFlag, "", "Id for the Event Receiver Group")
+	searchCmd.Flags().String(searchNameFlag, "", "Name of the Event Receiver Group")
+	searchCmd.Flags().String(searchVersionFlag, "", "Version of the Event Receiver Group")
+	searchCmd.Flags().String(searchTypeFlag, "", "Type of the Event Receiver Group")
 	searchCmd.Flags().
-		String("fields", "id name version type", "Space delimited list of fields, or 'all' for all user fields")
-	searchCmd.Flags().String("jsonpath", "", "JSONPath expression to apply to output")
-	searchCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
-	searchCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
+		String(searchFieldsFlag, "id name version type", "Space delimited list of fields, or 'all' for all user fields")
+	searchCmd.Flags().String(searchJsonpathFlag, "", "JSONPath expression to apply to output")
+	searchCmd.Flags().String(searchUrlFlag, "http://localhost:8042", "EPR base url")
+	searchCmd.Flags().Bool(searchDryRunFlag, false, "do a dry run of the command")
 	return searchCmd
 }
