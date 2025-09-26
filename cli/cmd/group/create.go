@@ -94,7 +94,9 @@ func NewCreateCmd() *cobra.Command {
 	createCmd.Flags().Bool("no-indent", false, "do not indent the JSON output")
 	_ = createCmd.MarkFlagRequired("name")
 	_ = createCmd.MarkFlagRequired("type")
+	_ = createCmd.MarkFlagRequired("version")
 	_ = createCmd.MarkFlagRequired("description")
+	_ = createCmd.MarkFlagRequired("enabled")
 	_ = createCmd.MarkFlagRequired("event-receiver-ids")
 
 	return createCmd
