@@ -13,6 +13,23 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag constants
+const (
+	idFlag              = "id"
+	nameFlag            = "name"
+	versionFlag         = "version"
+	releaseFlag         = "release"
+	platformIDFlag      = "platform-id"
+	packageFlag         = "package"
+	successFlag         = "success"
+	eventReceiverIDFlag = "event-receiver-id"
+	fieldsFlag          = "fields"
+	jsonpathFlag        = "jsonpath"
+	urlFlag             = "url"
+	dryRunFlag          = "dry-run"
+	noIndentFlag        = "no-indent"
+)
+
 // searchCmd represents the search command
 var searchCmd = &cobra.Command{
 	Use:     "search",
@@ -24,10 +41,10 @@ var searchCmd = &cobra.Command{
 
 // runSearchEvent runs the search and return error
 func runSearchEvent(_ *cobra.Command, _ []string) error {
-	dryrun := viper.GetBool("dry-run")
-	noindent := viper.GetBool("no-indent")
+	dryrun := viper.GetBool(dryRunFlag)
+	noindent := viper.GetBool(noIndentFlag)
 
-	url := viper.GetString("url")
+	url := viper.GetString(urlFlag)
 	c, err := common.GetClient(url)
 	if err != nil {
 		return err
@@ -35,47 +52,47 @@ func runSearchEvent(_ *cobra.Command, _ []string) error {
 
 	params := make(map[string]interface{})
 
-	id := viper.GetString("id")
+	id := viper.GetString(idFlag)
 	if id != "" {
 		params["id"] = id
 	}
 
-	name := viper.GetString("name")
+	name := viper.GetString(nameFlag)
 	if name != "" {
 		params["name"] = name
 	}
 
-	version := viper.GetString("version")
+	version := viper.GetString(versionFlag)
 	if version != "" {
 		params["version"] = version
 	}
 
-	release := viper.GetString("release")
+	release := viper.GetString(releaseFlag)
 	if release != "" {
 		params["release"] = release
 	}
 
-	platformID := viper.GetString("platform-id")
+	platformID := viper.GetString(platformIDFlag)
 	if platformID != "" {
 		params["platform_id"] = platformID
 	}
 
-	pkg := viper.GetString("package")
+	pkg := viper.GetString(packageFlag)
 	if pkg != "" {
 		params["package"] = pkg
 	}
 
-	success := viper.GetString("success")
+	success := viper.GetString(successFlag)
 	if success != "" {
 		params["success"] = success
 	}
 
-	eventReceiverID := viper.GetString("event-receiver-id")
+	eventReceiverID := viper.GetString(eventReceiverIDFlag)
 	if eventReceiverID != "" {
 		params["event_receiver_id"] = eventReceiverID
 	}
 
-	fields, err := common.ProcessSearchFields(viper.GetStringSlice("fields"), &storage.Event{})
+	fields, err := common.ProcessSearchFields(viper.GetStringSlice(fieldsFlag), &storage.Event{})
 	if err != nil {
 		return err
 	}
@@ -121,19 +138,19 @@ func runSearchEvent(_ *cobra.Command, _ []string) error {
 
 // NewSearchCmd returns a new search command
 func NewSearchCmd() *cobra.Command {
-	searchCmd.Flags().String("id", "", "Id for the event")
-	searchCmd.Flags().String("name", "", "Name of the event")
-	searchCmd.Flags().String("version", "", "Version of the event")
-	searchCmd.Flags().String("release", "", "Release of the event")
-	searchCmd.Flags().String("platform-id", "", "Platform id of the event")
-	searchCmd.Flags().String("package", "", "Package of the event")
-	searchCmd.Flags().String("success", "", "Success of the event")
-	searchCmd.Flags().String("event-receiver-id", "", "Event receiver id of the event")
+	searchCmd.Flags().String(idFlag, "", "Id for the event")
+	searchCmd.Flags().String(nameFlag, "", "Name of the event")
+	searchCmd.Flags().String(versionFlag, "", "Version of the event")
+	searchCmd.Flags().String(releaseFlag, "", "Release of the event")
+	searchCmd.Flags().String(platformIDFlag, "", "Platform id of the event")
+	searchCmd.Flags().String(packageFlag, "", "Package of the event")
+	searchCmd.Flags().String(successFlag, "", "Success of the event")
+	searchCmd.Flags().String(eventReceiverIDFlag, "", "Event receiver id of the event")
 	searchCmd.Flags().
-		String("fields", "id name version release platform_id package success", "Space delimited list of fields, or 'all' for all user fields")
-	searchCmd.Flags().String("jsonpath", "", "JSONPath expression to apply to output")
-	searchCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
-	searchCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
-	searchCmd.Flags().Bool("no-indent", false, "do not indent the JSON output")
+		String(fieldsFlag, "id name version release platform_id package success", "Space delimited list of fields, or 'all' for all user fields")
+	searchCmd.Flags().String(jsonpathFlag, "", "JSONPath expression to apply to output")
+	searchCmd.Flags().String(urlFlag, "http://localhost:8042", "EPR base url")
+	searchCmd.Flags().Bool(dryRunFlag, false, "do a dry run of the command")
+	searchCmd.Flags().Bool(noIndentFlag, false, "do not indent the JSON output")
 	return searchCmd
 }

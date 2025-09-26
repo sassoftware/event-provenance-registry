@@ -32,6 +32,20 @@ import (
 
 var cfgFile string
 
+// Flag constants
+const (
+	hostFlag        = "host"
+	portFlag        = "port"
+	brokersFlag     = "brokers"
+	topicFlag       = "topic"
+	dbFlag          = "db"
+	tlsCertFlag     = "tls-cert"
+	tlsKeyFlag      = "tls-key"
+	configFlag      = "config"
+	jsonLoggingFlag = "json-logging"
+	debugFlag       = "debug"
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "epr-server",
@@ -67,14 +81,14 @@ func run(_ *cobra.Command, _ []string) error {
 	setupLogger()
 	slog.Debug("debug enabled")
 	// TODO probably need some better input validation
-	brokers := strings.Split(viper.GetString("brokers"), ",")
-	topic := viper.GetString("topic")
-	host := viper.GetString("host")
-	port := viper.GetString("port")
-	cert := viper.GetString("tls-cert")
-	key := viper.GetString("tls-key")
+	brokers := strings.Split(viper.GetString(brokersFlag), ",")
+	topic := viper.GetString(topicFlag)
+	host := viper.GetString(hostFlag)
+	port := viper.GetString(portFlag)
+	cert := viper.GetString(tlsCertFlag)
+	key := viper.GetString(tlsKeyFlag)
 
-	dburl, err := url.Parse(viper.GetString("db"))
+	dburl, err := url.Parse(viper.GetString(dbFlag))
 	if err != nil {
 		return err
 	}
@@ -230,11 +244,11 @@ func setupLogger() {
 	opts := &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}
-	if viper.GetBool("debug") {
+	if viper.GetBool(debugFlag) {
 		opts.Level = slog.LevelDebug
 	}
 	logger := slog.New(slog.NewTextHandler(os.Stderr, opts))
-	if viper.GetBool("json-logging") {
+	if viper.GetBool(jsonLoggingFlag) {
 		logger = slog.New(slog.NewJSONHandler(os.Stderr, opts))
 	}
 
@@ -263,15 +277,15 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// create two new flags, one for host and one for port
-	rootCmd.Flags().String("host", "localhost", "host to listen on")
-	rootCmd.Flags().String("port", "8042", "port to listen on")
-	rootCmd.Flags().String("brokers", "localhost:9092", "broker uris separated by commas")
-	rootCmd.Flags().String("topic", "epr.dev.events", "topic to produce events on")
-	rootCmd.Flags().String("db", "postgres://localhost:5432", "database connection string")
-	rootCmd.Flags().String("tls-cert", "", "Path to the cert for the server")
-	rootCmd.Flags().String("tls-key", "", "Path to the server key")
+	rootCmd.Flags().String(hostFlag, "localhost", "host to listen on")
+	rootCmd.Flags().String(portFlag, "8042", "port to listen on")
+	rootCmd.Flags().String(brokersFlag, "localhost:9092", "broker uris separated by commas")
+	rootCmd.Flags().String(topicFlag, "epr.dev.events", "topic to produce events on")
+	rootCmd.Flags().String(dbFlag, "postgres://localhost:5432", "database connection string")
+	rootCmd.Flags().String(tlsCertFlag, "", "Path to the cert for the server")
+	rootCmd.Flags().String(tlsKeyFlag, "", "Path to the server key")
 	rootCmd.Flags().
-		StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
-	rootCmd.Flags().Bool("json-logging", false, "Format log messages as JSON.")
-	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
+		StringVar(&cfgFile, configFlag, "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
+	rootCmd.Flags().Bool(jsonLoggingFlag, false, "Format log messages as JSON.")
+	rootCmd.Flags().Bool(debugFlag, false, "Enable debugging statements")
 }
