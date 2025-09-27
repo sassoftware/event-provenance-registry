@@ -96,7 +96,6 @@ func NewCreateCmd() *cobra.Command {
 	_ = createCmd.MarkFlagRequired("type")
 	_ = createCmd.MarkFlagRequired("version")
 	_ = createCmd.MarkFlagRequired("description")
-	_ = createCmd.MarkFlagRequired("enabled")
 	_ = createCmd.MarkFlagRequired("event-receiver-ids")
 
 	return createCmd
