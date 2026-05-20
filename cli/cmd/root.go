@@ -21,6 +21,13 @@ import (
 
 var cfgFile string
 
+// Flag constants
+const (
+	urlFlag    = "url"
+	configFlag = "config"
+	debugFlag  = "debug"
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "epr-cli",
@@ -42,7 +49,6 @@ func Execute() {
 }
 
 func preRun(cmd *cobra.Command, _ []string) error {
-	viper.AutomaticEnv()
 	viper.SetEnvPrefix("EPR")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	err := viper.BindPFlags(cmd.Flags())
@@ -54,7 +60,7 @@ func preRun(cmd *cobra.Command, _ []string) error {
 
 func run(_ *cobra.Command, _ []string) error {
 	// TODO probably need some better input validation
-	url := viper.GetString("url")
+	url := viper.GetString(urlFlag)
 	_, err := client.New(url)
 	return err
 }
@@ -88,9 +94,9 @@ func init() {
 	statusCmd := status.NewStatusCmd()
 	rootCmd.AddCommand(statusCmd)
 
-	rootCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
+	rootCmd.Flags().String(urlFlag, "http://localhost:8042", "EPR base url")
 
 	rootCmd.Flags().
-		StringVar(&cfgFile, "config", "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
-	rootCmd.Flags().Bool("debug", false, "Enable debugging statements")
+		StringVar(&cfgFile, configFlag, "", "config file (default is $XDG_CONFIG_HOME/epr/epr.yaml)")
+	rootCmd.Flags().Bool(debugFlag, false, "Enable debugging statements")
 }

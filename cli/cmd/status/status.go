@@ -12,6 +12,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag constants
+const (
+	urlFlag      = "url"
+	dryRunFlag   = "dry-run"
+	noIndentFlag = "no-indent"
+)
+
 // gateCmd represents the gate command
 var statusCmd = &cobra.Command{
 	Use:     "status",
@@ -23,10 +30,10 @@ var statusCmd = &cobra.Command{
 
 // run runs the call to create a status check, returns error
 func run(_ *cobra.Command, _ []string) error {
-	dryrun := viper.GetBool("dry-run")
-	noindent := viper.GetBool("no-indent")
+	dryrun := viper.GetBool(dryRunFlag)
+	noindent := viper.GetBool(noIndentFlag)
 
-	u := viper.GetString("url")
+	u := viper.GetString(urlFlag)
 
 	c, err := common.GetClient(u)
 	if err != nil {
@@ -61,8 +68,8 @@ func run(_ *cobra.Command, _ []string) error {
 
 // NewStatusCmd returns the statusCmd
 func NewStatusCmd() *cobra.Command {
-	statusCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
-	statusCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
-	statusCmd.Flags().Bool("no-indent", false, "do not indent the JSON output")
+	statusCmd.Flags().String(urlFlag, "http://localhost:8042", "EPR base url")
+	statusCmd.Flags().Bool(dryRunFlag, false, "do a dry run of the command")
+	statusCmd.Flags().Bool(noIndentFlag, false, "do not indent the JSON output")
 	return statusCmd
 }

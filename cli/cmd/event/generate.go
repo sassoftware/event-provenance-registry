@@ -15,6 +15,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag constants
+const (
+	generateUrlFlag      = "url"
+	generateDryRunFlag   = "dry-run"
+	generateNoIndentFlag = "no-indent"
+)
+
 // generateCmd represents the create command
 var generateCmd = &cobra.Command{
 	Use:     "generate",
@@ -27,14 +34,14 @@ var generateCmd = &cobra.Command{
 
 // runGenerateEvent runs the main command function
 func runGenerateEvent(_ *cobra.Command, args []string) error {
-	url := viper.GetString("url")
+	url := viper.GetString(generateUrlFlag)
 	c, err := common.GetClient(url)
 	if err != nil {
 		return err
 	}
 
-	dryrun := viper.GetBool("dry-run")
-	noindent := viper.GetBool("no-indent")
+	dryrun := viper.GetBool(generateDryRunFlag)
+	noindent := viper.GetBool(generateNoIndentFlag)
 
 	file := args[0]
 	jsonFile, err := os.Open(file)
@@ -102,8 +109,8 @@ func runGenerateEvent(_ *cobra.Command, args []string) error {
 
 // NewGenerateCmd creates a new cmdline
 func NewGenerateCmd() *cobra.Command {
-	generateCmd.Flags().String("url", "http://localhost:8042", "EPR base url")
-	generateCmd.Flags().Bool("dry-run", false, "do a dry run of the command")
-	generateCmd.Flags().Bool("no-indent", false, "do not indent the JSON output")
+	generateCmd.Flags().String(generateUrlFlag, "http://localhost:8042", "EPR base url")
+	generateCmd.Flags().Bool(generateDryRunFlag, false, "do a dry run of the command")
+	generateCmd.Flags().Bool(generateNoIndentFlag, false, "do not indent the JSON output")
 	return generateCmd
 }
